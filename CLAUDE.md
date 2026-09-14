@@ -64,8 +64,8 @@ PR quando a ADR estiver **Aceita** — até lá, aponte divergências como `[dú
 - 🗳️ ADR-008 (E-10) — proposta: branches `feat/<modulo>-<descricao>`, `fix/…`, `docs/…`, `test/…`, `chore/…`;
   Conventional Commits; PRs pequenos (≤ 400 linhas), template preenchido, 1 aprovação humana, CI verde, squash merge.
 - Escopos de commit (decisão da issue #1): módulo (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`)
-  ou transversal (`docs`, `infra`, `ci`); mudanças só de documentação usam `docs(<pasta>)` — detalhes em
-  `docs/00-guia-do-grupo/como-trabalhamos.md` §4.
+  ou transversal (`infra`, `ci`); `docs` é tipo, não escopo — mudanças só de documentação usam `docs(<pasta>)` — detalhes
+  em `docs/00-guia-do-grupo/como-trabalhamos.md` §4.
 - Branches criadas pelo Claude usam o prefixo `claude/` (configuração do workflow).
 
 ## Como revisar um PR (para a action de revisão e para `@claude revise`)

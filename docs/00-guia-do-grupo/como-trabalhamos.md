@@ -71,8 +71,8 @@ flowchart LR
     G5 -. fecha issue .-> B5
 ```
 
-> 🗳️ O fluxo Git (trunk-based, squash, Conventional Commits) é **definido por votação**: é a proposta da ADR-008, em
-> votação na enquete E-10. O texto abaixo descreve essa proposta; o resultado da E-10 atualiza esta seção.
+> 🗳️ O fluxo Git (trunk-based, squash, Conventional Commits) é **definido por votação**: é a proposta da ADR-008, a ser
+> votada na enquete E-10 (Lote 2, abre 17/09). O texto abaixo descreve essa proposta; o resultado da E-10 atualiza esta seção.
 
 Convenções:
 
@@ -80,10 +80,10 @@ Convenções:
 - Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(catalogo-estoque): impedir quantidade negativa`,
   `docs(adr): aceitar ADR-002`, `test(atendimento): cobrir cálculo do orçamento`.
 - Escopos: os módulos do monólito (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou os transversais
-  (`docs`, `infra`, `ci`). `catalogo-estoque` é **um** módulo (não `catalogo` + `estoque`), como em
-  `docs/04-arquitetura/estrutura-do-repositorio.md`. No tipo `docs`, o escopo pode ser a pasta afetada (`guia`, `prd`,
-  `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`, `github`, `prompts`) ou ficar vazio em mudanças na raiz
-  (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
+  (`infra`, `ci`). `catalogo-estoque` é **um** módulo (não `catalogo` + `estoque`), como em
+  `docs/04-arquitetura/estrutura-do-repositorio.md`. `docs` é **tipo**, não escopo: mudança só de documentação usa
+  `docs(<pasta>)`, com a pasta afetada como escopo (`guia`, `prd`, `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`,
+  `github`, `prompts`), ou `docs:` sem escopo em mudanças na raiz (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
 - `master` protegida (configuração já feita — issue #1): sem push direto, sem merge com CI vermelho. Todos os
   membros têm permissão de *bypass*, **reservada a emergências**; fora disso, o caminho é sempre PR com revisão.
@@ -158,7 +158,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 - Sem dados pessoais reais (CPF/CNPJ/placa) em prompts, seeds ou testes — usar geradores de dados válidos fictícios.
 - Prompts úteis ficam versionados em `prompts/` para reuso pelo grupo.
 - No GitHub, `@claude` em issues/PRs responde e pode abrir PRs (branch `claude/`), e todo PR recebe uma revisão
-  automática com o checklist do grupo (`.github/README.md`, seção *Claude no GitHub*). As regras que ele segue estão
+  automática com o checklist do grupo (`docs/README.md`, seção *Claude no GitHub*). As regras que ele segue estão
   em `CLAUDE.md`. A revisão automática **não substitui** a aprovação humana obrigatória.
 
 ## 8. Riscos e mitigação
