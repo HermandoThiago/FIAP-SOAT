@@ -79,7 +79,7 @@ Resultado: `pendente`
 
 ### E-10 · ADR-008 Fluxo Git e CI — ⏳
 > **Enquete E-10 — ADR-008 Git/CI** — `docs/02-adr/ADR-008-fluxo-git-e-ci.md`
-> 🌳 Trunk-based (main protegida, branches curtas, squash, 1 aprovação) · 🌊 GitFlow (develop/release/hotfix)
+> 🌳 Trunk-based (master protegida, branches curtas, squash, 1 aprovação) · 🌊 GitFlow (develop/release/hotfix)
 > Conventional Commits obrigatórios? 👍 / 👎
 
 ### E-11 · ADR-009 IDs e validação de dados sensíveis — ⏳

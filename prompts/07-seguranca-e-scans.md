@@ -11,7 +11,7 @@ ADR-007 ({{SCANS}}) e docs/06-entrega/relatorio-de-vulnerabilidades-template.md:
    nativa + Dependency-Check/Trivy fs, Trivy image + hadolint, gitleaks e OWASP ZAP baseline/API scan contra o compose;
    saídas em reports/<scan-n>/ (SARIF/HTML/JSON).
 3. Crie .github/workflows/security.yml: em todo PR (Semgrep, SCA, gitleaks, hadolint, build + Trivy HIGH/CRITICAL —
-   CRITICAL bloqueia) e em main/manual (tudo + ZAP contra a API subida no job com docker compose).
+   CRITICAL bloqueia) e em master/manual (tudo + ZAP contra a API subida no job com docker compose).
 4. Execute o scan 1, consolide os achados no template do relatório (tabela por severidade, CWE/CVE, local, correção
    proposta), corrija críticas/altas com PRs pequenos, e prepare o scan 2 para o "depois". Falsos positivos devem
    ser marcados com justificativa no código/config.
