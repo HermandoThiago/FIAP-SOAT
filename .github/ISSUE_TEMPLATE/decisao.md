@@ -12,7 +12,7 @@ labels: ["tipo:docs", "decisao"]
 ## Tipo
 
 - [ ] Tipo 1 — difícil de reverter / afeta todos → ADR + enquete (72 h; vence com 3 votos — `como-trabalhamos.md` §3)
-- [ ] Tipo 2 — reversível → dono da frente decide e registra aqui
+- [ ] Tipo 2 — reversível → dono da frente decide, registra em `docs/02-adr/decisoes-leves.md` e fecha esta issue
 
 ## Opções (mínimo 2)
 

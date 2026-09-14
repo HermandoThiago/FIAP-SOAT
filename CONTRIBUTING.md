@@ -8,6 +8,7 @@ Regras completas em `docs/00-guia-do-grupo/como-trabalhamos.md`. Resumo:
 4. **PR** com o template preenchido; 1 aprovação de outro membro; CI verde; squash merge; branch apagada.
 5. **Definition of Done**: código + testes (cobertura ≥ 80 % nos módulos críticos) + Swagger + docs + checklist de entrega.
 6. **Decisões**: Tipo 1 → ADR + enquete no Discord (vence a opção com 3 votos; prazo e empate em
-   `docs/00-guia-do-grupo/como-trabalhamos.md` §3); Tipo 2 → dono da frente decide e registra.
+   `docs/00-guia-do-grupo/como-trabalhamos.md` §3); Tipo 2 → dono da frente decide e registra em
+   `docs/02-adr/decisoes-leves.md`.
 7. **Dados**: nunca CPF/CNPJ/placas reais; nunca segredos no repositório (`.env.example` apenas).
 8. **IA**: pode gerar, mas quem sobe entende, testa e sabe explicar no vídeo (`prompts/README.md`).

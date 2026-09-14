@@ -40,7 +40,13 @@ As ADRs e este índice só apontam para lá.
 | [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Momento da baixa de estoque e comportamento sem estoque | Tipo 1 | 3 | ⏳ Proposta | E-16 |
 | [ADR-013](ADR-013-idioma-do-codigo-e-da-api.md) | Idioma do código e da API | Tipo 1 | 1 | 🗳️ Em votação | E-07 |
 
-Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional).
+Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional;
+registro em [`decisoes-leves.md`](decisoes-leves.md)).
+
+## Decisões leves (Tipo 2)
+
+Não viram ADR: ficam em uma linha por decisão em [`decisoes-leves.md`](decisoes-leves.md), com data, dono e link para a
+issue/PR onde foram discutidas. Se uma delas passar a afetar todos ou ficar difícil de reverter, promova-a a ADR.
 
 ## Como criar uma nova ADR
 
