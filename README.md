@@ -14,12 +14,15 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 
 ## Grupo
 
-| Integrante | Discord | Frente(s) (ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
-|---|---|---|
-| Daniel Henrique | `preencher` | a definir |
-| Shirley Balbino | `preencher` | Documentação DDD / Event Storming (voluntária) |
-| Victor H. C. Reis Santos (RM377398) | `preencher` | a definir |
-| _(demais integrantes)_ | | |
+Grupo 49
+
+| Integrante | RM FIAP | Discord | Whatsapp | Frente(s) (ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
+| --- | --- | --- | --- | --- |
+| Victor Hugo Carvalho Dos Reis Santos | RM377398 | @katomaro | (16) 99137-0464 | a definir |
+| Shirley Balbino | `preencher` | @shirleybalbino | (11) 98332-1552 | Documentação DDD / Event Storming (voluntária) |
+| Hermando Thiago Costa Fernandes | RM378259 | @hermandothiago | (84) 9868-1388 | a definir |
+| Daniel Henrique dos Santos | RM377497 | @medanielsantos | `preencher` | a definir |
+| Diego Marques de Oliveira Santos | RM369305 | @dmosantos | (12) 99111-5131 | a definir |
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 
