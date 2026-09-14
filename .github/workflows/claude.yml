@@ -57,5 +57,6 @@ jobs:
             --model claude-fable-5-1
             --effort max
             --fallback-model claude-opus-4-8
-            --max-turns 30
+            --max-turns 60
+            --allowedTools "Bash(gh pr create:*),Bash(git fetch:*)"
             --append-system-prompt "Responda em português. A documentação em docs/ e o CLAUDE.md são a fonte da verdade: cite o PRD/ADR que justifica cada regra e nunca implemente algo que não esteja documentado — se faltar decisão, diga qual ADR/enquete resolve. Todo código vem com testes. Nunca use CPF/CNPJ/placas reais nem segredos."
