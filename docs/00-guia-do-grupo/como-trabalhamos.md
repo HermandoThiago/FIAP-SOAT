@@ -53,13 +53,16 @@ Regras da enquete:
 
 ## 4. Fluxo de trabalho (kanban + Git)
 
+> O fluxo Git abaixo é a **proposta** da ADR-008 (enquete E-10, Lote 2), usada como combinado provisório desde já (os PRs
+> de documentação seguem assim). Se a enquete escolher GitFlow, esta seção é reescrita.
+
 ```mermaid
 flowchart LR
     subgraph Kanban["GitHub Projects"]
         B1[Backlog] --> B2[Pronto para fazer<br/>DoR ok] --> B3[Em andamento] --> B4[Em revisão] --> B5[Feito<br/>DoD ok]
     end
     B3 -. branch .-> G1
-    subgraph Git["Fluxo Git (trunk-based)"]
+    subgraph Git["Fluxo Git — proposta ADR-008 (E-10)"]
         G1["feat/os-criar-ordem<br/>fix/…, docs/…, chore/…"] --> G2[PR com template] --> G3[CI: build · testes · cobertura · lint · scans]
         G3 --> G4[1 aprovação de outro membro] --> G5["squash merge em master<br/>(master protegida)"]
     end

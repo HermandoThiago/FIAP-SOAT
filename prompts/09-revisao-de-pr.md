@@ -17,5 +17,8 @@ classificando cada apontamento como [bloqueia] / [sugestão] / [dúvida]. Verifi
    dados fictícios válidos?
 7. Docs: README/checklist/ADR/PRD precisam de atualização por causa deste PR?
 
+Regras cuja ADR ainda não está Aceita (tabela "Definidas por votação" em CLAUDE.md) entram como [dúvida], nunca
+como [bloqueia].
+
 Termine com um veredito: APROVAR / APROVAR COM AJUSTES / SOLICITAR MUDANÇAS, e a lista mínima para destravar.
 ```

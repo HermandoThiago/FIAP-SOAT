@@ -32,6 +32,8 @@ DECISÕES (preencher com o resultado das enquetes)
 - Estoque: {{ESTOQUE}}                                       (ADR-012)
 
 CONVENÇÕES
+- O que depende de ADR (camadas, schemas, ids, idioma, estoque, acesso do cliente, Git) só vale depois de a ADR estar
+  Aceita — tabela "Definidas por votação" em CLAUDE.md; até lá, trate como suposição e diga qual enquete resolve.
 - Estrutura: docs/04-arquitetura/estrutura-do-repositorio.md. Contrato da API: docs/04-arquitetura/contrato-api.md.
 - Domínio puro (sem framework/ORM); casos de uso um por comando; adapters implementam portas.
 - Dinheiro como decimal (2 casas), quantidades decimal(10,3), datas UTC ISO-8601, ids gerados na aplicação.
