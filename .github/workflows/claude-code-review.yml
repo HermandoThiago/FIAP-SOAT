@@ -1,7 +1,7 @@
 name: Claude Code Review
 
 # Revisão automática de todo PR (exceto rascunhos), com o checklist do grupo (CLAUDE.md + prompts/09-revisao-de-pr.md).
-# É apoio: não substitui a aprovação humana exigida pela proteção da main (ADR-008).
+# É apoio: não substitui a aprovação humana exigida pela proteção da master (ADR-008).
 
 on:
   pull_request:
@@ -55,5 +55,6 @@ jobs:
             --model claude-fable-5-1
             --effort max
             --fallback-model claude-opus-4-8
-            --max-turns 12
+            --max-turns 60
+            --allowedTools "Bash(gh pr create:*),Bash(git fetch:*)"
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
