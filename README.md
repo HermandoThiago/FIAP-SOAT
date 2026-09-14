@@ -36,7 +36,7 @@ Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário Git
 | `docs/05-qualidade-e-seguranca/` | Estratégia de testes, checklist OWASP, plano da análise de vulnerabilidades | Frente de qualidade/segurança |
 | `docs/06-entrega/` | Checklist de entrega (rastreabilidade enunciado → evidência), roteiro do vídeo (15 min), templates do PDF e do relatório | Últimas 2 semanas |
 | `prompts/` | Prompts prontos para sessões de IA por frente (referência, não obrigatório) | Ao abrir uma sessão |
-| `_github/` | Templates de issue/PR — **renomear a pasta para `.github/`** ao subir o repositório | Setup do repo |
+| `.github/` | Templates de issue/PR, workflows do Claude e o guia *Claude no GitHub* (`.github/README.md`) | Setup do repo e uso do `@claude` |
 
 Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.md` → `docs/00-guia-do-grupo/enquetes.md`.
 

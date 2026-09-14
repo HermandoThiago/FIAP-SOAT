@@ -39,7 +39,7 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 | CI (`master`) | tudo acima + publica `openapi.json` + relatório de cobertura como artefatos; ZAP manual/agendado |
 | Proteções | `master`: sem push direto; exigir CI; exigir 1 aprovação; branches apagadas após merge |
 | Versionamento | Tags anotadas SemVer nos marcos (`v0.1.0` M2 → `v0.2.0` M3 → `v0.3.0` M4 → `v1.0.0-rc.1` freeze → **`v1.0.0` entrega**); release no GitHub só na entrega, com notas automáticas e anexos; Fase 2 começa em `v2.0.0` (detalhes em `docs/00-guia-do-grupo/como-trabalhamos.md`) |
-| Issues/PR | templates em `_github/` (mover para `.github/`) |
+| Issues/PR | templates em `.github/` (`ISSUE_TEMPLATE/tarefa.md`, `ISSUE_TEMPLATE/decisao.md`, `PULL_REQUEST_TEMPLATE.md`) |
 
 ## Recomendação (não vinculante)
 
