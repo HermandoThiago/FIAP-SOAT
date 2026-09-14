@@ -75,7 +75,7 @@ Convenções:
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
 - `master` protegida: sem push direto, sem merge com CI vermelho.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
-- Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista em `_github/labels.yml`).
+- Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista na aba *Labels* do repositório).
 
 ### Tags e releases
 
@@ -131,7 +131,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 
 | Necessidade | Ferramenta | Observação |
 |---|---|---|
-| Código | GitHub (repo privado, acesso a `soat-architecture`) | Projects para kanban; Issues com templates em `_github/` |
+| Código | GitHub (repo privado, acesso a `soat-architecture`) | Projects para kanban; Issues com templates em `.github/` |
 | Documentação DDD oficial | Miro (ou Excalidraw/Lucid) | Montar a partir de `docs/03-ddd/*.md` (Mermaid) |
 | Diagramas versionados | Mermaid nos `.md` | Renderiza no GitHub; base do Miro e do vídeo |
 | Sessões de IA | Claude (contas do grupo) | Prompts em `prompts/`; **tudo que a IA gerar passa por revisão humana e teste** |
@@ -144,7 +144,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 - Sem dados pessoais reais (CPF/CNPJ/placa) em prompts, seeds ou testes — usar geradores de dados válidos fictícios.
 - Prompts úteis ficam versionados em `prompts/` para reuso pelo grupo.
 - No GitHub, `@claude` em issues/PRs responde e pode abrir PRs (branch `claude/`), e todo PR recebe uma revisão
-  automática com o checklist do grupo (`_github/README.md`, seção "Claude no GitHub"). As regras que ele segue estão
+  automática com o checklist do grupo (`.github/README.md`, seção *Claude no GitHub*). As regras que ele segue estão
   em `CLAUDE.md`. A revisão automática **não substitui** a aprovação humana obrigatória.
 
 ## 8. Riscos e mitigação
