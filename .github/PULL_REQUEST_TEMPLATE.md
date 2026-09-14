@@ -25,6 +25,7 @@
 - [ ] Sem segredos, senhas ou dados pessoais reais no código/commits
 - [ ] README/docs atualizados (se mudou execução ou comportamento)
 - [ ] CI verde (build, testes, lint, scans)
+- [ ] Checklist de entrega atualizado (`docs/06-entrega/checklist-de-entrega.md`) se este PR cobre requisito do enunciado
 
 ## Evidências
 

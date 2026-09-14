@@ -16,11 +16,11 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 
 | Integrante | RM | Discord | Frente (sugestão — confirmar na E-02; ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
 |---|---|---|---|
-| Vi (Victor H. C. Reis Santos) | RM377398 | `preencher` | **F1** Tech Lead & Arquiteta — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
-| Shirley Balbino | `preencher` | `preencher` | **F2** Product & DDD Lead — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
-| Diego Marques | RM369305 | `preencher` | **F3** Domínio & API — core `atendimento`; co-revisão de arquitetura (F1) |
-| Daniel Henrique (Dan) | RM377497 | `preencher` | **F3** módulos `cadastro` e `catalogo-estoque` + **F5** Infra (Docker, compose, CI, README, Swagger) |
-| Hermando Thiago | RM378259 | `preencher` | **F4** Qualidade — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
+| Vi (Victor H. C. Reis Santos) | RM377398 | `preencher` | **F1 Arquitetura & Repositório** (Tech Lead & Arquiteta) — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
+| Shirley Balbino | `preencher` | `preencher` | **F2 DDD & Documentação + Produto** (Product & DDD Lead) — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
+| Diego Marques | RM369305 | `preencher` | **F3 Domínio & API** — core `atendimento`; co-revisão de arquitetura (F1) |
+| Daniel Henrique (Dan) | RM377497 | `preencher` | **F3 Domínio & API** — módulos `cadastro` e `catalogo-estoque` + **F5 Infra & Entrega** (Docker, compose, CI, README, Swagger) |
+| Hermando Thiago | RM378259 | `preencher` | **F4 Qualidade & Segurança** — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 
@@ -37,6 +37,8 @@ Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário Git
 | `docs/06-entrega/` | Checklist de entrega (rastreabilidade enunciado → evidência), roteiro do vídeo (15 min), templates do PDF e do relatório | Últimas 2 semanas |
 | `prompts/` | Prompts prontos para sessões de IA por frente (referência, não obrigatório) | Ao abrir uma sessão |
 | `.github/` | Templates de issue/PR, workflows do Claude e o guia *Claude no GitHub* (`.github/README.md`) | Setup do repo e uso do `@claude` |
+| `CLAUDE.md` | Regras que o Claude segue (fonte da verdade, regras fixas × definidas por votação, como revisar PR) | Ao usar `@claude` ou o Claude Code |
+| `CONTRIBUTING.md` | Resumo do fluxo de contribuição (issue → branch → PR → DoD) | Antes do primeiro PR |
 
 Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.md` → `docs/00-guia-do-grupo/enquetes.md`.
 

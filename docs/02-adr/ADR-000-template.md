@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | Proposta · Em votação · Aceita · Rejeitada · Substituída por ADR-0XX |
+| Status | Proposta · Em votação · Aceita · Rejeitada · Substituída por ADR-0XX · Descontinuada |
 | Tipo | Tipo 1 (exige enquete) · Tipo 2 (dono da frente decide) |
 | Decisores | Grupo (enquete E-xx) · ou nome do dono da frente |
 | Data | AAAA-MM-DD |

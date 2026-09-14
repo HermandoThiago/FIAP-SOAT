@@ -24,7 +24,7 @@ docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config p/owasp-top
 docker run --rm -v "$PWD:/src" aquasec/trivy fs --scanners vuln,misconfig,secret --format table -o reports/trivy-fs.txt /src
 
 # Imagem
-docker build -t oficina-api:scan .
+docker build -t oficina-api:scan .   # nome da imagem provisório até a E-01 (nome do sistema)
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL oficina-api:scan
 
 # Segredos no histórico
