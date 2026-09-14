@@ -14,15 +14,13 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 
 ## Grupo
 
-Grupo 49
-
-| Integrante | RM FIAP | Discord | Whatsapp | Frente(s) (ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
-| --- | --- | --- | --- | --- |
-| Victor Hugo Carvalho Dos Reis Santos | RM377398 | @katomaro | (16) 99137-0464 | a definir |
-| Shirley Balbino | `preencher` | @shirleybalbino | (11) 98332-1552 | Documentação DDD / Event Storming (voluntária) |
-| Hermando Thiago Costa Fernandes | RM378259 | @hermandothiago | (84) 9868-1388 | a definir |
-| Daniel Henrique dos Santos | RM377497 | @medanielsantos | `preencher` | a definir |
-| Diego Marques de Oliveira Santos | RM369305 | @dmosantos | (12) 99111-5131 | a definir |
+| Integrante | RM | Discord | Frente (sugestão — confirmar na E-02; ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
+|---|---|---|---|
+| Vi (Victor H. C. Reis Santos) | RM377398 | `preencher` | **F1** Tech Lead & Arquiteta — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
+| Shirley Balbino | `preencher` | `preencher` | **F2** Product & DDD Lead — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
+| Diego Marques | RM369305 | `preencher` | **F3** Domínio & API — core `atendimento`; co-revisão de arquitetura (F1) |
+| Daniel Henrique (Dan) | RM377497 | `preencher` | **F3** módulos `cadastro` e `catalogo-estoque` + **F5** Infra (Docker, compose, CI, README, Swagger) |
+| Hermando Thiago | RM378259 | `preencher` | **F4** Qualidade — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 

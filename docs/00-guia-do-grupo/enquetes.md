@@ -16,8 +16,13 @@ Resultado: `pendente`
 
 ### E-02 · Frentes de trabalho — 🟢
 > **Enquete E-02 — Confirmação das frentes** (prazo 48 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
-> Cada um responde no chat: **frente principal** + **frente de apoio** (F1 Arquitetura/Repo · F2 DDD/Docs · F3 Domínio/API ·
-> F4 Qualidade/Segurança · F5 Infra/Entrega). Shirley já se ofereceu para F2. O líder consolida e publica a tabela.
+> Sugestão montada a partir das apresentações de cada um:
+> • **Vi** — F1 Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
+> • **Shirley** — F2 Product & DDD Lead (PRDs, event storming/Miro, Gherkin, checklist, roteiro, PDF) + facilitação do assíncrono
+> • **Diego** — F3 core `atendimento` + co-revisão de arquitetura
+> • **Dan** — F3 `cadastro` e `catalogo-estoque` + F5 Infra (Docker, compose, CI, README, Swagger)
+> • **Hermando** — F4 Qualidade (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
+> 👍 topo assim · ✍️ quero trocar (diga qual frente prefere e por quê)
 
 Resultado: `pendente`
 
@@ -36,6 +41,8 @@ Resultado: `pendente`
 > Critérios: familiaridade da maioria > produtividade em 6–8 semanas > ecossistema (testes, cobertura, OpenAPI, JWT) > fases futuras (K8s, Lambda).
 > ☕ Java 21 + Spring Boot 3 · 🟦 TypeScript + NestJS · 🟪 C# .NET 8 · 🐍 Python + FastAPI · 🐹 Go
 > **Responda também no chat: qual você usa no dia a dia hoje?**
+> Contexto pelas apresentações: Vi = Nest/TS · Diego = .NET e Node · Dan = Go (e JS) · Hermando = generalista · Shirley = Python.
+> Quem votar numa stack que só você domina assume revisar o código dos outros nela.
 
 Resultado: `pendente`
 
