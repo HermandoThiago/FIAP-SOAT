@@ -71,10 +71,14 @@ flowchart LR
 
 Convenções:
 
-- Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/estoque-baixa`).
-- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(estoque): impedir quantidade negativa`,
-  `docs(adr): aceitar ADR-002`, `test(orcamento): cobrir cálculo total`.
-- Escopos = módulos do monólito: `cadastro`, `catalogo`, `estoque`, `atendimento`, `identidade`, `shared`, `infra`, `docs`.
+- Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/catalogo-estoque-baixa`).
+- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(catalogo-estoque): impedir quantidade negativa`,
+  `docs(adr): aceitar ADR-002`, `test(atendimento): cobrir cálculo do orçamento`.
+- Escopos: os módulos do monólito (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou os transversais
+  (`docs`, `infra`, `ci`). `catalogo-estoque` é **um** módulo (não `catalogo` + `estoque`), como em
+  `docs/04-arquitetura/estrutura-do-repositorio.md`. No tipo `docs`, o escopo pode ser a pasta afetada (`guia`, `prd`,
+  `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`, `github`, `prompts`) ou ficar vazio em mudanças na raiz
+  (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
 - `master` protegida: sem push direto, sem merge com CI vermelho.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
@@ -124,7 +128,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 **DoD — uma tarefa só é "Feito" se:**
 
 - [ ] Código + testes (unitários e/ou integração) passando no CI;
-- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo`/`estoque`) ≥ 80 %;
+- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo-estoque`) ≥ 80 %;
 - [ ] Swagger/OpenAPI atualizado (se houver endpoint);
 - [ ] Linguagem ubíqua respeitada nos nomes;
 - [ ] README/docs atualizados se mudou execução ou comportamento;
