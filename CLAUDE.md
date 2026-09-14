@@ -67,7 +67,9 @@ em revisão de PR, aponte como `[dúvida]`, nunca `[bloqueia]`. Quando a ADR for
 ## Git
 
 - Convenção **provisória** até a ADR-008 (E-10) ser aceita — já usada nos PRs de documentação: branches
-  `feat/<modulo>-<descricao>`, `fix/…`, `docs/…`, `test/…`, `chore/…`; Conventional Commits com escopo = módulo.
+  `feat/<modulo>-<descricao>`, `fix/…`, `docs/…`, `test/…`, `chore/…`; Conventional Commits com escopo = módulo
+  (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou área transversal (`docs`, `adr`, `guia`,
+  `github`, `infra`, `ci`).
 - PRs pequenos (≤ 400 linhas), template preenchido, 1 aprovação humana, CI verde, squash merge. Branches criadas pelo
   Claude usam o prefixo `claude/`.
 

@@ -77,9 +77,11 @@ flowchart LR
 Convenções:
 
 - Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/estoque-baixa`).
-- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(estoque): impedir quantidade negativa`,
+- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(catalogo-estoque): impedir quantidade negativa`,
   `docs(adr): aceitar ADR-002`, `test(orcamento): cobrir cálculo total`.
-- Escopos = módulos do monólito: `cadastro`, `catalogo`, `estoque`, `atendimento`, `identidade`, `shared`, `infra`, `docs`.
+- Escopos = módulos do monólito (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou áreas
+  transversais (`docs`, `adr`, `guia`, `github`, `infra`, `ci`). `catalogo-estoque` é **um** módulo — não separar em
+  `catalogo`/`estoque`.
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
 - `master` protegida: sem push direto, sem merge com CI vermelho.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
@@ -130,7 +132,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 **DoD — uma tarefa só é "Feito" se:**
 
 - [ ] Código + testes (unitários e/ou integração) passando no CI;
-- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo`/`estoque`) ≥ 80 %;
+- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo-estoque`) ≥ 80 %;
 - [ ] Swagger/OpenAPI atualizado (se houver endpoint);
 - [ ] Linguagem ubíqua respeitada nos nomes;
 - [ ] README/docs atualizados se mudou execução ou comportamento;

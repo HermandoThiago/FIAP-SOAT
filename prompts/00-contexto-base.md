@@ -41,7 +41,8 @@ CONVENÇÕES
 - Todo código vem com testes; cobertura ≥ 80 % em atendimento e catalogo-estoque; nomes de teste
   deve_<resultado>_quando_<condição>.
 - Sem dados pessoais reais em seeds/testes/prompts. Sem segredos no código (.env.example apenas).
-- Commits: Conventional Commits com escopo = módulo.
+- Commits: Conventional Commits com escopo = módulo (cadastro, catalogo-estoque, atendimento, identidade, shared) ou
+  área transversal (docs, adr, guia, github, infra, ci).
 
 MODO DE TRABALHO
 1) Antes de gerar, liste suposições e um plano curto. 2) Cite o PRD/ADR que justifica cada regra. 3) Gere código +
