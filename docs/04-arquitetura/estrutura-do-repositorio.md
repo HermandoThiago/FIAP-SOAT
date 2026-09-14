@@ -4,7 +4,7 @@
 > esqueleto real a partir desta estrutura.
 
 ```text
-FIAP-SOAT-1/
+FIAP-SOAT/
 ├── README.md                         # objetivo, como executar, como testar, links dos entregáveis
 ├── docker-compose.yml                # api + banco (+ migrações/seed) — obrigatório
 ├── Dockerfile                        # multi-stage, usuário não-root, imagem slim — obrigatório
