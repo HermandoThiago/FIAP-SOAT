@@ -25,9 +25,9 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %d/%m
     section Decisões
-    Lote 1 enquetes (linguagem, banco, arquitetura, idioma)  :a1, 2026-09-14, 3d
-    Lote 2 enquetes (auth, API docs, Git/CI, IDs)             :a2, 2026-09-17, 3d
-    Lote 3 enquetes (testes, scans, estados, cliente, estoque):a3, 2026-09-21, 3d
+    Lote 1 enquetes (linguagem, banco, arquitetura, idioma)  :a1, 2026-09-14, 4d
+    Lote 2 enquetes (auth, API docs, Git/CI, IDs)             :a2, 2026-09-17, 4d
+    Lote 3 enquetes (testes, scans, estados, cliente, estoque):a3, 2026-09-21, 4d
     Revisão dos PRDs e contrato da API                        :a4, 2026-09-15, 10d
     section DDD (F2)
     Linguagem ubíqua + domain storytelling                    :b1, 2026-09-15, 7d

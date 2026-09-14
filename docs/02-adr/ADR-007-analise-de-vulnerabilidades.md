@@ -55,6 +55,6 @@ correções) — o relatório mostra o antes/depois, o que valoriza muito a entr
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-13 — ADR-007 Scans de vulnerabilidade** (prazo 48 h)
+> **Enquete E-13 — ADR-007 Scans de vulnerabilidade** (prazo 72 h)
 > Conjunto mínimo: Semgrep (SAST) + auditoria de dependências/Dependency-Check (SCA) + Trivy (imagem) + gitleaks (segredos) + OWASP ZAP baseline (DAST)
 > 👍 ok · 🔧 quero trocar algo (comente)
