@@ -10,7 +10,7 @@ contrato de funcionamento do grupo. Mudanças nele passam por enquete.
 2. **Decisão registrada é decisão que existe.** Se não está em uma ADR, no PRD ou numa enquete encerrada, não foi decidido.
 3. **Ninguém bloqueia ninguém.** Se uma dúvida trava você por mais de 24 h sem resposta, tome a decisão mais simples,
    registre-a (issue/ADR leve) e siga. Reversível > perfeito.
-4. **Pequeno e frequente.** PRs pequenos (≤ 400 linhas), commits diários, `main` sempre executável.
+4. **Pequeno e frequente.** PRs pequenos (≤ 400 linhas), commits diários, `master` sempre executável.
 5. **A nota vem da evidência.** Cada requisito do enunciado precisa aparecer em código + teste + Swagger + vídeo
    (`docs/06-entrega/checklist-de-entrega.md`).
 
@@ -61,7 +61,7 @@ flowchart LR
     B3 -. branch .-> G1
     subgraph Git["Fluxo Git (trunk-based)"]
         G1["feat/os-criar-ordem<br/>fix/…, docs/…, chore/…"] --> G2[PR com template] --> G3[CI: build · testes · cobertura · lint · scans]
-        G3 --> G4[1 aprovação de outro membro] --> G5["squash merge em main<br/>(main protegida)"]
+        G3 --> G4[1 aprovação de outro membro] --> G5["squash merge em master<br/>(master protegida)"]
     end
     G5 -. fecha issue .-> B5
 ```
@@ -73,13 +73,13 @@ Convenções:
   `docs(adr): aceitar ADR-002`, `test(orcamento): cobrir cálculo total`.
 - Escopos = módulos do monólito: `cadastro`, `catalogo`, `estoque`, `atendimento`, `identidade`, `shared`, `infra`, `docs`.
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
-- `main` protegida: sem push direto, sem merge com CI vermelho.
+- `master` protegida: sem push direto, sem merge com CI vermelho.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
 - Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista em `_github/labels.yml`).
 
 ### Tags e releases
 
-- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `main` com CI verde.
+- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `master` com CI verde.
   Nunca mover ou apagar uma tag publicada; erro depois de um marco vira patch (`v0.2.1`).
 - Fase 1 é a série `v0.x`; a entrega vira **`v1.0.0`**. A Fase 2 começa em `v2.0.0` no mesmo repositório — assim o avaliador
   (e nós) sempre encontram exatamente o que foi entregue em cada fase.
@@ -100,7 +100,7 @@ Convenções:
 - Comandos:
 
 ```bash
-git checkout main && git pull
+git checkout master && git pull
 git tag -a v0.1.0 -m "M2 walking skeleton: auth, cadastro, criar OS, compose, CI"
 git push origin v0.1.0
 # entrega
@@ -151,7 +151,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 
 | Risco | Sinal | Mitigação |
 |---|---|---|
-| Prazo | Semana 3 sem `main` executável | Escopo congelado no MoSCoW do PRD-000; "Could" cai primeiro |
+| Prazo | Semana 3 sem `master` executável | Escopo congelado no MoSCoW do PRD-000; "Could" cai primeiro |
 | Disponibilidade irregular | Check-in faltando 2× seguidas | Frente redistribuída; tarefas pequenas (≤ 2 dias) |
 | Scope creep | Tarefa sem RF/ADR de origem | DoR bloqueia; líder devolve para backlog |
 | Integração tardia | Módulos prontos, fluxo ponta a ponta não | Fluxo "criar OS → aprovar → entregar" é a **primeira** história ponta a ponta (walking skeleton) |

@@ -44,7 +44,7 @@ flowchart TB
 
 | Frente | Entregas | Documentos base | Dono (sugestão) | Apoio |
 |---|---|---|---|---|
-| **F1 Arquitetura & Repositório** | ADRs aceitas; esqueleto do monólito (módulos, camadas); pipeline CI; `main` protegida; revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Vi** — Tech Lead & Arquiteta | **Diego** (co-revisão; substitui a líder se ela sumir) |
+| **F1 Arquitetura & Repositório** | ADRs aceitas; esqueleto do monólito (módulos, camadas); pipeline CI; `master` protegida; revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Vi** — Tech Lead & Arquiteta | **Diego** (co-revisão; substitui a líder se ela sumir) |
 | **F2 DDD & Documentação + Produto** | Miro com event storming (2 fluxos), context map, agregados, linguagem ubíqua; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes) | `docs/03-ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | Vi |
 | **F3 Domínio & API** | Módulos `atendimento` (core, Diego), `cadastro` e `catalogo-estoque` (Dan); casos de uso; controllers; OpenAPI; seeds | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md` | **Diego** — core `atendimento` | **Dan** — `cadastro` + `catalogo-estoque` |
 | **F4 Qualidade & Segurança** | Testes unitários/integração/BDD; gate de cobertura; validações CPF/CNPJ/placa; SAST/SCA/DAST; relatório de vulnerabilidades; métrica de tempo médio | `docs/05-qualidade-e-seguranca/` | **Hermando** — Qualidade | **Vi** — segurança (JWT/papéis, dados sensíveis, revisão do relatório) |

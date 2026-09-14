@@ -49,7 +49,7 @@ correções) — o relatório mostra o antes/depois, o que valoriza muito a entr
 
 ## Consequências
 
-- Workflow `security.yml` no CI (Semgrep + SCA + Trivy + gitleaks em todo PR; ZAP em `main`/manual).
+- Workflow `security.yml` no CI (Semgrep + SCA + Trivy + gitleaks em todo PR; ZAP em `master`/manual).
 - Relatórios versionados em `docs/06-entrega/evidencias/` (HTML/JSON) e consolidados no template do relatório.
 - Política: **0 críticas/altas abertas** na entrega; médias/baixas justificadas no relatório.
 
