@@ -37,7 +37,8 @@ stateDiagram-v2
 | [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Momento da baixa de estoque e comportamento sem estoque | Tipo 1 | 3 | ⏳ Proposta | E-16 |
 | [ADR-013](ADR-013-idioma-do-codigo-e-da-api.md) | Idioma do código e da API | Tipo 1 | 1 | 🗳️ Em votação | E-07 |
 
-Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional).
+Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional) —
+decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md).
 
 ## Como criar uma nova ADR
 

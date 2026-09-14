@@ -9,7 +9,7 @@ contrato de funcionamento do grupo. Mudanças nele passam por enquete.
    scope creep e retrabalho (o enunciado é o limite do escopo; "Could" só se sobrar tempo).
 2. **Decisão registrada é decisão que existe.** Se não está em uma ADR, no PRD ou numa enquete encerrada, não foi decidido.
 3. **Ninguém bloqueia ninguém.** Se uma dúvida trava você por mais de 24 h sem resposta, tome a decisão mais simples,
-   registre-a (issue/ADR leve) e siga. Reversível > perfeito.
+   registre-a em `docs/02-adr/decisoes-leves.md` (com link da issue) e siga. Reversível > perfeito.
 4. **Pequeno e frequente.** PRs pequenos (≤ 400 linhas), commits diários, `master` sempre executável.
 5. **A nota vem da evidência.** Cada requisito do enunciado precisa aparecer em código + teste + Swagger + vídeo
    (`docs/06-entrega/checklist-de-entrega.md`).
@@ -31,21 +31,22 @@ contrato de funcionamento do grupo. Mudanças nele passam por enquete.
 ```mermaid
 flowchart LR
     A[Alguém identifica uma decisão] --> B{Reversível?}
-    B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>na issue/PR ou ADR leve]
+    B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>em decisoes-leves.md + issue/PR]
     B -- "Não / afeta todos (Tipo 1)" --> D[Escreve ADR com opções<br/>status: Proposta]
     D --> E[Enquete no Discord<br/>prazo padrão 72 h]
     E --> F{Alguma opção<br/>com 3 votos?}
     F -- Sim --> G[ADR: Aceita<br/>atualiza docs e issues]
     F -- "Não (empate / votos dispersos)" --> H[Discussão no canal +<br/>enquete rápida de 24 h<br/>entre as mais votadas]
     H --> G
-    C --> I[Registro no PR / issue]
+    C --> I[Linha em docs/02-adr/decisoes-leves.md<br/>com link da issue/PR]
     G --> J[Comunicado no canal]
 ```
 
 Regras da enquete:
 
 - **Tipo 1** (difícil de reverter ou afeta todo mundo): linguagem, banco, arquitetura, fluxo Git, escopo. Exige ADR + enquete.
-- **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e registra.
+- **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e
+  registra em `docs/02-adr/decisoes-leves.md` (uma linha, com link da issue/PR).
 - Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção.
 - Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **3 votos** (maioria
   absoluta dos 5 membros). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,

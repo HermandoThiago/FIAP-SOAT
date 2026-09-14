@@ -14,6 +14,7 @@
 | 01 | [PRD-005 Segurança](01-requisitos/PRD-005-seguranca-autenticacao.md) | JWT, papéis, validação de dados sensíveis | | 📝 revisar |
 | 01 | [PRD-006 Gestão administrativa e métricas](01-requisitos/PRD-006-gestao-administrativa-e-metricas.md) | Listagens, detalhamento, tempo médio de execução | | 📝 revisar |
 | 02 | [ADRs](02-adr/README.md) | 13 decisões com opções, recomendação e enquete | Grupo | 🗳️ votação |
+| 02 | [Decisões leves](02-adr/decisoes-leves.md) | Log das decisões Tipo 2 (dono da frente decide), uma linha por decisão com link da issue/PR | Donos das frentes | 🟡 atualizar sempre |
 | 03 | [Linguagem ubíqua](03-ddd/linguagem-ubiqua.md) | Glossário do domínio | | 📝 revisar |
 | 03 | [Domain storytelling](03-ddd/domain-storytelling.md) | Histórias do domínio (base para Egon.io/Miro) | | 📝 revisar |
 | 03 | [Event storming](03-ddd/event-storming.md) | Eventos, comandos, políticas, agregados, hotspots — 2 fluxos | | 📝 levar ao Miro |

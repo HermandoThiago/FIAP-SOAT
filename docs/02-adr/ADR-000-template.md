@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Status | Proposta · Em votação · Aceita · Rejeitada · Substituída por ADR-0XX · Descontinuada (deixou de valer, ex.: fase seguinte) |
-| Tipo | Tipo 1 (exige enquete) · Tipo 2 (dono da frente decide) |
+| Tipo | Tipo 1 (exige enquete) · Tipo 2 (dono da frente decide; sem ADR, basta uma linha em `decisoes-leves.md`) |
 | Decisores | Grupo (enquete E-xx) · ou nome do dono da frente |
 | Data | AAAA-MM-DD |
 | Relacionadas | PRD-0XX, ADR-0YY |
