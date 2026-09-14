@@ -37,3 +37,20 @@ Legenda: ✅ pronto · 🗳️ em votação/confirmação · 🟡 vivo (atualiza
 
 Convenções: documentos em português; termos do domínio conforme a linguagem ubíqua; diagramas em **Mermaid** (renderizam
 no GitHub) — o Miro é montado a partir deles para a entrega oficial.
+
+
+
+Como usar no dia a dia:
+
+| Onde | Escreva | O que acontece |
+|---|---|---|
+| Comentário em issue ou PR | `@claude explique o que este PR muda em relação ao PRD-003` | Responde no mesmo lugar (comentário único, editável) |
+| Issue | `@claude implemente esta issue` | Cria branch `claude/...`, commita e abre PR para revisão humana |
+| PR aberto (automático) | — | Revisão com o checklist de `prompts/09-revisao-de-pr.md`: comentários inline + resumo com veredito |
+| PR (manual) | `@claude revise de novo considerando a ADR-012` | Nova revisão focada |
+
+Limites: `--max-turns` configurado (15 no `@claude`, 12 na revisão) e `timeout-minutes` para não estourar a
+assinatura nem os minutos do GitHub Actions (repositório privado: 2.000 min/mês no plano gratuito). Rascunhos
+(*draft*) não são revisados automaticamente — marque *Ready for review* quando quiser a revisão.
+
+Configurações recomendadas no GitHub (Settings):

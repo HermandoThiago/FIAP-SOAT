@@ -143,6 +143,9 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 - Nada de código que ninguém do grupo sabe explicar: o vídeo e a avaliação exigem que a gente justifique cada escolha.
 - Sem dados pessoais reais (CPF/CNPJ/placa) em prompts, seeds ou testes — usar geradores de dados válidos fictícios.
 - Prompts úteis ficam versionados em `prompts/` para reuso pelo grupo.
+- No GitHub, `@claude` em issues/PRs responde e pode abrir PRs (branch `claude/`), e todo PR recebe uma revisão
+  automática com o checklist do grupo (`_github/README.md`, seção "Claude no GitHub"). As regras que ele segue estão
+  em `CLAUDE.md`. A revisão automática **não substitui** a aprovação humana obrigatória.
 
 ## 8. Riscos e mitigação
 

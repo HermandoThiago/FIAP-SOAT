@@ -1,0 +1,54 @@
+name: Claude Code
+
+# Responde a menções "@claude" em issues, comentários de issue/PR e reviews.
+# Exemplos de uso pelo grupo:
+#   @claude explique o que este PR muda em relação ao PRD-003
+#   @claude gere os testes unitários da máquina de estados conforme docs/01-requisitos/PRD-004.md
+#   @claude abra um PR implementando a issue (branch claude/<numero>)
+#
+# Pré-requisitos (ver _github/README.md, seção "Claude no GitHub"):
+#   1) GitHub App "Claude" instalado no repositório (https://github.com/apps/claude)
+#   2) Secret CLAUDE_CODE_OAUTH_TOKEN (assinatura Pro/Max, via `claude setup-token`)
+#      ou ANTHROPIC_API_KEY (API paga) — troque o input abaixo conforme o caso.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write        # criar branches/commits quando pedirem implementação
+      pull-requests: write   # comentar e abrir PRs
+      issues: write          # responder issues
+      id-token: write        # autenticação do GitHub App (OIDC)
+      actions: read          # ler resultado do CI nos PRs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_sticky_comment: true       # uma única resposta editável por thread, em vez de vários comentários
+          track_progress: true           # mostra o andamento no comentário
+          branch_prefix: "claude/"       # branches que o Claude criar: claude/issue-123-...
+          claude_args: |
+            --max-turns 15
+            --append-system-prompt "Responda em português. A documentação em docs/ e o CLAUDE.md são a fonte da verdade: cite o PRD/ADR que justifica cada regra e nunca implemente algo que não esteja documentado — se faltar decisão, diga qual ADR/enquete resolve. Todo código vem com testes. Nunca use CPF/CNPJ/placas reais nem segredos."

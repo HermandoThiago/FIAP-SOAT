@@ -1,0 +1,52 @@
+name: Claude Code Review
+
+# Revisão automática de todo PR (exceto rascunhos), com o checklist do grupo (CLAUDE.md + prompts/09-revisao-de-pr.md).
+# É apoio: não substitui a aprovação humana exigida pela proteção da main (ADR-008).
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true   # novo push no mesmo PR cancela a revisão anterior
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write   # postar comentários inline e o resumo
+      issues: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Revisar PR
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_sticky_comment: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: #${{ github.event.pull_request.number }}
+
+            Revise este pull request como revisor sênior do projeto, em português, seguindo CLAUDE.md e
+            prompts/09-revisao-de-pr.md. Use `gh pr diff` e `gh pr view` para ler o PR.
+
+            Verifique nesta ordem: (1) rastreabilidade a PRD/ADR — aponte scope creep; (2) regras de arquitetura
+            (domínio sem framework, módulos só por portas, sem JOIN entre schemas); (3) regras de domínio e linguagem
+            ubíqua; (4) contrato da API e Swagger; (5) segurança (rota protegida, validação, PII mascarada, segredos);
+            (6) testes e cobertura dos módulos críticos; (7) docs que precisam de atualização.
+
+            Poste comentários inline apenas onde houver algo concreto (com a classificação [bloqueia] / [sugestão] /
+            [dúvida]) e um comentário-resumo no PR terminando com o veredito: APROVAR / APROVAR COM AJUSTES /
+            SOLICITAR MUDANÇAS e a lista mínima para destravar. Seja objetivo; não elogie por elogiar.
+          claude_args: |
+            --max-turns 12
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
