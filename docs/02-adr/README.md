@@ -10,13 +10,16 @@ stateDiagram-v2
     direction LR
     [*] --> Proposta: alguém escreve a ADR
     Proposta --> EmVotacao: enquete aberta (48 h)
-    EmVotacao --> Aceita: maioria simples
-    EmVotacao --> Rejeitada: maioria contra / nova proposta
+    EmVotacao --> Aceita: opção com 3 votos
+    EmVotacao --> Rejeitada: nenhuma opção aceita / nova proposta
     Aceita --> Substituida: nova ADR a substitui
     Aceita --> Descontinuada: deixou de valer (ex.: fase seguinte)
     state "Em votação" as EmVotacao
     state "Substituída" as Substituida
 ```
+
+Prazo, regra de vitória e empate estão definidos em **um único lugar**: `docs/00-guia-do-grupo/como-trabalhamos.md` §3.
+As ADRs e este índice só apontam para lá.
 
 ## Índice
 

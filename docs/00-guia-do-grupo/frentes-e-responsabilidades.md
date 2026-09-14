@@ -21,7 +21,7 @@ votar em uma stack que só ela domina precisa assumir que vai revisar o código 
 
 ```mermaid
 flowchart TB
-    L["👤 Líder do grupo<br/>coordenação · integração · desempate"]
+    L["👤 Líder do grupo<br/>coordenação · integração · facilitação das enquetes"]
     L --> F1
     L --> F2
     L --> F3
