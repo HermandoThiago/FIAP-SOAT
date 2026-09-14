@@ -28,6 +28,8 @@ jobs:
 
       - name: Revisar PR
         uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_EFFORT_LEVEL: max
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -47,6 +49,11 @@ jobs:
             Poste comentários inline apenas onde houver algo concreto (com a classificação [bloqueia] / [sugestão] /
             [dúvida]) e um comentário-resumo no PR terminando com o veredito: APROVAR / APROVAR COM AJUSTES /
             SOLICITAR MUDANÇAS e a lista mínima para destravar. Seja objetivo; não elogie por elogiar.
+          # Roda em todo push de PR com effort máximo (decisão do grupo). Se a cota semanal apertar,
+          # reduza aqui para "high" antes de mexer no @claude — este é o workflow que mais executa.
           claude_args: |
+            --model claude-fable-5-1
+            --effort max
+            --fallback-model claude-opus-4-8
             --max-turns 12
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"

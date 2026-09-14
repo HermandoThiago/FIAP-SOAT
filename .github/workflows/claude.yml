@@ -29,7 +29,7 @@ jobs:
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write        # criar branches/commits quando pedirem implementação
       pull-requests: write   # comentar e abrir PRs
@@ -43,12 +43,19 @@ jobs:
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_EFFORT_LEVEL: max   # "max" só persiste via variável de ambiente; a flag abaixo reforça na sessão
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           use_sticky_comment: true       # uma única resposta editável por thread, em vez de vários comentários
           track_progress: true           # mostra o andamento no comentário
           branch_prefix: "claude/"       # branches que o Claude criar: claude/issue-123-...
+          # Modelo e esforço (ver _github/README.md): Fable 5.1 com effort máximo; se indisponível, Opus 4.8.
+          # O effort é da sessão, então vale também para o fallback. Valores: low | medium | high | xhigh | max.
           claude_args: |
-            --max-turns 15
+            --model claude-fable-5-1
+            --effort max
+            --fallback-model claude-opus-4-8
+            --max-turns 30
             --append-system-prompt "Responda em português. A documentação em docs/ e o CLAUDE.md são a fonte da verdade: cite o PRD/ADR que justifica cada regra e nunca implemente algo que não esteja documentado — se faltar decisão, diga qual ADR/enquete resolve. Todo código vem com testes. Nunca use CPF/CNPJ/placas reais nem segredos."

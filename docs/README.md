@@ -39,8 +39,7 @@ Convenções: documentos em português; termos do domínio conforme a linguagem 
 no GitHub) — o Miro é montado a partir deles para a entrega oficial.
 
 
-
-Como usar no dia a dia:
+Como usar Claude no dia a dia:
 
 | Onde | Escreva | O que acontece |
 |---|---|---|
@@ -49,8 +48,21 @@ Como usar no dia a dia:
 | PR aberto (automático) | — | Revisão com o checklist de `prompts/09-revisao-de-pr.md`: comentários inline + resumo com veredito |
 | PR (manual) | `@claude revise de novo considerando a ADR-012` | Nova revisão focada |
 
-Limites: `--max-turns` configurado (15 no `@claude`, 12 na revisão) e `timeout-minutes` para não estourar a
+Limites: `--max-turns` configurado (30 no `@claude` — cabe implementar uma issue com testes e abrir PR; 12 na
+revisão — tarefa fechada) e `timeout-minutes` (45 e 20) para não estourar a
 assinatura nem os minutos do GitHub Actions (repositório privado: 2.000 min/mês no plano gratuito). Rascunhos
 (*draft*) não são revisados automaticamente — marque *Ready for review* quando quiser a revisão.
 
-Configurações recomendadas no GitHub (Settings):
+**Modelo e esforço** (em `claude_args` nos dois workflows):
+
+| Flag | Valores | Configurado |
+|---|---|---|
+| `--model` | `claude-fable-5-1` (ID fixo) ou alias `fable` (sempre a versão mais recente); também `opus`, `sonnet`, `haiku` | `claude-fable-5-1` nos dois |
+| `--effort` | `low` · `medium` · `high` · `xhigh` · `max` | `max` nos dois (também via `CLAUDE_CODE_EFFORT_LEVEL=max` no `env` do passo, porque `max` só persiste por variável de ambiente) |
+| `--fallback-model` | lista separada por vírgula, sem espaço | `claude-opus-4-8` — o effort é da sessão, então o fallback também roda em `max` |
+
+Cota: no plano **Max**, o Fable 5.1 usa até 50 % do limite semanal da conta sem custo extra e, acima disso, créditos
+de uso (pagos); no **Pro**, só créditos de uso. Effort `max` é o cenário de maior consumo por execução e a revisão
+automática dispara em **todo push** de PR não-rascunho — se a cota da conta do token apertar, o primeiro ajuste é
+`--effort high` na revisão (mantendo `max` no `@claude`), o segundo é usar *draft* durante o trabalho e só marcar
+*Ready for review* quando o PR estiver fechado. Requer Claude Code ≥ 2.1.255 (a action instala a versão atual sozinha).
