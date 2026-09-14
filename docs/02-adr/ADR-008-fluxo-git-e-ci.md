@@ -51,7 +51,8 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 ## Consequências
 
-- Configurar proteção de `master` no dia 1 (mesmo com docs apenas).
+- Proteção de `master` já configurada em 14/09/2026 (todos os membros com *bypass* só para emergências — regra em
+  `como-trabalhamos.md` §4); ao ativar o CI, exigir os checks na proteção.
 - Workflows: `ci.yml` (build/test/cobertura) e `security.yml` (scans) — esqueleto gerado após ADR-001 (`prompts/02-esqueleto-do-projeto.md`).
 
 ## Enquete (texto para o Discord)

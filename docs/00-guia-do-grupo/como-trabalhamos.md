@@ -83,7 +83,9 @@ Convenções:
   transversais (`docs`, `adr`, `guia`, `github`, `infra`, `ci`). `catalogo-estoque` é **um** módulo — não separar em
   `catalogo`/`estoque`.
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
-- `master` protegida: sem push direto, sem merge com CI vermelho.
+- `master` protegida (configurada em 14/09/2026): sem push direto, sem merge com CI vermelho. Todos os membros têm
+  permissão de **bypass** — só para emergência (ex.: CI quebrado travando a entrega), avisando no canal e registrando o
+  uso em `docs/02-adr/decisoes-leves.md`.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
 - Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (cadastradas em *Issues → Labels* no GitHub; arquivo
   `labels.yml` versionado ainda sem decisão — item 6 da issue #1).
