@@ -16,11 +16,11 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 
 | Integrante | RM | Discord | Frente (sugestão — confirmar na E-02; ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
 |---|---|---|---|
-| Vi (Victor H. C. Reis Santos) | RM377398 | `preencher` | **F1** Tech Lead & Arquiteta — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
-| Shirley Balbino | `preencher` | `preencher` | **F2** Product & DDD Lead — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
-| Diego Marques | RM369305 | `preencher` | **F3** Domínio & API — core `atendimento`; co-revisão de arquitetura (F1) |
-| Daniel Henrique (Dan) | RM377497 | `preencher` | **F3** módulos `cadastro` e `catalogo-estoque` + **F5** Infra (Docker, compose, CI, README, Swagger) |
-| Hermando Thiago | RM378259 | `preencher` | **F4** Qualidade — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
+| Victor Hugo Carvalho Dos Reis Santos | RM377398 | katomaro | **F1** Tech Lead & Arquiteta — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
+| Shirley Balbino | `preencher` | shirleybalbino | **F2** Product & DDD Lead — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
+| Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `atendimento`; co-revisão de arquitetura (F1) |
+| Daniel Henrique (Dan) | RM377497 | medanielsantos | **F3** módulos `cadastro` e `catalogo-estoque` + **F5** Infra (Docker, compose, CI, README, Swagger) |
+| Hermando Thiago | RM378259 | hermandothiago | **F4** Qualidade — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 
