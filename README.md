@@ -38,7 +38,7 @@ Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário Git
 | `prompts/` | Prompts prontos para sessões de IA por frente (referência, não obrigatório) | Ao abrir uma sessão |
 | `CLAUDE.md` | Regras que o Claude segue neste repositório (fonte da verdade, arquitetura, segurança, testes, Git); lido pelo CLI e pelas actions | Ao usar IA; ao revisar PR |
 | `CONTRIBUTING.md` | Resumo das regras de contribuição (branch, commits, PR, Definition of Done, decisões) | Antes do primeiro PR |
-| `.github/` | Templates de issue/PR, workflows do Claude (`@claude` e revisão automática de PR) e o guia *Claude no GitHub* (`.github/README.md`) | Ao abrir issue/PR; setup do repo |
+| `.github/` | Templates de issue/PR e workflows do Claude (`@claude` e revisão automática de PR) — guia *Claude no GitHub* em `docs/README.md` | Ao abrir issue/PR; setup do repo |
 
 Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.md` → `docs/00-guia-do-grupo/enquetes.md`.
 
