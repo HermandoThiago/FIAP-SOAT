@@ -17,11 +17,11 @@ Resultado: `pendente`
 ### E-02 · Frentes de trabalho — 🟢
 > **Enquete E-02 — Confirmação das frentes** (prazo 72 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
 > Sugestão montada a partir das apresentações de cada um:
-> • **Vi** — F1 Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
-> • **Shirley** — F2 Product & DDD Lead (PRDs, event storming/Miro, Gherkin, checklist, roteiro, PDF) + facilitação do assíncrono
-> • **Diego** — F3 core `atendimento` + co-revisão de arquitetura
-> • **Dan** — F3 `cadastro` e `catalogo-estoque` + F5 Infra (Docker, compose, CI, README, Swagger)
-> • **Hermando** — F4 Qualidade (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
+> • **Vi** — F1 Arquitetura & Repositório, como Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
+> • **Shirley** — F2 DDD & Documentação + Produto, como Product & DDD Lead (PRDs, event storming/Miro, Gherkin, checklist, roteiro, PDF) + facilitação do assíncrono
+> • **Diego** — F3 Domínio & API, core `atendimento` + co-revisão de arquitetura
+> • **Dan** — F3 `cadastro` e `catalogo-estoque` + F5 Infra & Entrega (Docker, compose, CI, README, Swagger)
+> • **Hermando** — F4 Qualidade & Segurança (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
 > 👍 topo assim · ✍️ quero trocar (diga qual frente prefere e por quê)
 
 Resultado: `pendente`

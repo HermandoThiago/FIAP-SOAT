@@ -102,8 +102,9 @@ Convenções:
 - **Release no GitHub** só para `v1.0.0` ("Fase 1 — Entrega"): notas geradas automaticamente a partir dos títulos dos PRs
   (Conventional Commits + squash deixam isso legível de graça) e anexos: PDF de entrega, relatório de vulnerabilidades,
   link do vídeo e do Miro.
-- **Imagem Docker no CI:** sempre `oficina-api:<sha-curto>`; quando uma tag é criada, também `oficina-api:vX.Y.Z` —
-  é o que a Fase 2 vai empurrar para o ECR.
+- **Imagem Docker no CI:** sempre `<sistema>-api:<sha-curto>`; quando uma tag é criada, também `<sistema>-api:vX.Y.Z` —
+  é o que a Fase 2 vai empurrar para o ECR. `<sistema>` é o nome escolhido na enquete E-01 (`oficina-api` é só o
+  provisório dos exemplos).
 - Comandos:
 
 ```bash
