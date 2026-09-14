@@ -75,6 +75,39 @@ Convenções:
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
 - `main` protegida: sem push direto, sem merge com CI vermelho.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
+- Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista em `_github/labels.yml`).
+
+### Tags e releases
+
+- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `main` com CI verde.
+  Nunca mover ou apagar uma tag publicada; erro depois de um marco vira patch (`v0.2.1`).
+- Fase 1 é a série `v0.x`; a entrega vira **`v1.0.0`**. A Fase 2 começa em `v2.0.0` no mesmo repositório — assim o avaliador
+  (e nós) sempre encontram exatamente o que foi entregue em cada fase.
+
+| Tag | Marco | Quando | O que precisa estar verdadeiro |
+|---|---|---|---|
+| `v0.1.0` | M2 walking skeleton | 04/10 | `docker compose up` sobe; login; criar cliente/veículo/OS; Swagger; CI com gate |
+| `v0.2.0` | M3 fluxo completo | 18/10 | Diagnóstico → orçamento → aprovação → execução → entrega; estoque; histórico |
+| `v0.3.0` | M4 qualidade & segurança | 25/10 | Cobertura ≥ 80 %; **scan 1** feito sobre esta tag (o relatório cita a tag) |
+| `v1.0.0-rc.1` | M6 code freeze | 01/11 | README final; **scan 2** sobre esta tag; ensaio do vídeo gravado a partir dela |
+| `v1.0.0` | M7 entrega | ~08/11 | Commit citado no PDF e mostrado no vídeo; release no GitHub com os anexos |
+
+- **Release no GitHub** só para `v1.0.0` ("Fase 1 — Entrega"): notas geradas automaticamente a partir dos títulos dos PRs
+  (Conventional Commits + squash deixam isso legível de graça) e anexos: PDF de entrega, relatório de vulnerabilidades,
+  link do vídeo e do Miro.
+- **Imagem Docker no CI:** sempre `oficina-api:<sha-curto>`; quando uma tag é criada, também `oficina-api:vX.Y.Z` —
+  é o que a Fase 2 vai empurrar para o ECR.
+- Comandos:
+
+```bash
+git checkout main && git pull
+git tag -a v0.1.0 -m "M2 walking skeleton: auth, cadastro, criar OS, compose, CI"
+git push origin v0.1.0
+# entrega
+gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-entrega/evidencias/*.pdf
+```
+
+- Proteção opcional: *Settings → Rules → Rulesets → New tag ruleset* com padrão `v*`, bloqueando deleção e atualização.
 
 ## 5. Definition of Ready (DoR) e Definition of Done (DoD)
 
