@@ -85,7 +85,8 @@ Convenções:
   `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`, `github`, `prompts`) ou ficar vazio em mudanças na raiz
   (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
-- `master` protegida: sem push direto, sem merge com CI vermelho.
+- `master` protegida (configuração já feita — issue #1): sem push direto, sem merge com CI vermelho. Todos os
+  membros têm permissão de *bypass*, **reservada a emergências**; fora disso, o caminho é sempre PR com revisão.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
 - Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista na aba *Labels* do repositório).
 
