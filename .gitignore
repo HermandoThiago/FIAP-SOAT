@@ -1,0 +1,42 @@
+# Segredos e ambiente
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Relatórios de scan / cobertura (versionar só os consolidados em docs/06-entrega/evidencias)
+reports/
+coverage/
+*.lcov
+.nyc_output/
+target/site/jacoco/
+TestResults/
+htmlcov/
+.coverage
+
+# Dependências e builds (genérico — refinar após ADR-001)
+node_modules/
+dist/
+build/
+out/
+target/
+bin/
+obj/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.gradle/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDEs e SO
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+docker-compose.override.yml
