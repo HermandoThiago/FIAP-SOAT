@@ -5,7 +5,8 @@ Revise o diff deste PR como revisor sênior do projeto (leia docs/ antes). Respo
 classificando cada apontamento como [bloqueia] / [sugestão] / [dúvida]. Verifique, nesta ordem:
 
 1. Rastreabilidade: o PR referencia um PRD/RF ou ADR? A regra implementada existe na documentação? Se implementa algo
-   não documentado, aponte como scope creep.
+   não documentado, aponte como scope creep. Regra que depende de ADR ainda não **Aceita** (status em
+   docs/02-adr/README.md): classifique como [dúvida] citando a enquete, nunca como [bloqueia].
 2. Arquitetura (ADR-003 + docs/04-arquitetura/estrutura-do-repositorio.md): domínio sem framework/ORM; casos de uso
    sem HTTP; módulos se comunicando só por portas; sem JOIN entre schemas; sem abstrações sem uso.
 3. Domínio: invariantes dentro do agregado; transições só por comandos; orçamento derivado; snapshot de preço;

@@ -61,5 +61,5 @@ testes unitários exaustivos; validação também nos DTOs de entrada (422 padro
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-11 — ADR-009 Identificadores** (prazo 48 h)
+> **Enquete E-11 — ADR-009 Identificadores** (prazo 72 h)
 > 🆔 UUID v4 + número legível da OS · 🔢 Auto-incremento · 🆔🔢 UUID v7 + número legível (recomendada)

@@ -75,5 +75,5 @@ colunares e de grafos, com "um banco por microsserviço" — o monólito de agor
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-05 — ADR-002 Banco de dados** (prazo 48 h) — precisamos justificar no vídeo/README
+> **Enquete E-05 — ADR-002 Banco de dados** (prazo 72 h) — precisamos justificar no vídeo/README
 > 🐘 PostgreSQL · 🐬 MySQL · 🍃 MongoDB · 🟦 SQL Server

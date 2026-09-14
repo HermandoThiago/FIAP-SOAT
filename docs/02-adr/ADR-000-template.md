@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 |---|---|
-| Status | Proposta · Em votação · Aceita · Rejeitada · Substituída por ADR-0XX |
-| Tipo | Tipo 1 (exige enquete) · Tipo 2 (dono da frente decide) |
+| Status | Proposta · Em votação · Aceita · Rejeitada · Substituída por ADR-0XX · Descontinuada (deixou de valer, ex.: fase seguinte) |
+| Tipo | Tipo 1 (exige enquete) · Tipo 2 (dono da frente decide; sem ADR, basta uma linha em `decisoes-leves.md`) |
 | Decisores | Grupo (enquete E-xx) · ou nome do dono da frente |
 | Data | AAAA-MM-DD |
 | Relacionadas | PRD-0XX, ADR-0YY |
@@ -48,5 +48,5 @@ Qual opção quem escreveu recomenda e por quê, em 2–4 linhas.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-xx — ADR-0NN Título** (prazo 48 h) — link para esta ADR
+> **Enquete E-xx — ADR-0NN Título** (prazo 72 h) — link para esta ADR
 > 🅰️ Opção A · 🅱️ Opção B · ✍️ outra (comente)

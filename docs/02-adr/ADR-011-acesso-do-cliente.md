@@ -57,5 +57,5 @@ em `APP_ENV=dev` a resposta de `POST /ordens-servico/{id}/orcamento/enviar` incl
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-15 — ADR-011 Acesso do cliente** (prazo 48 h)
+> **Enquete E-15 — ADR-011 Acesso do cliente** (prazo 72 h)
 > 🔗 Token de acompanhamento gerado no envio do orçamento (recomendada) · 🪪 Número da OS + CPF/CNPJ · 👤 Login de cliente

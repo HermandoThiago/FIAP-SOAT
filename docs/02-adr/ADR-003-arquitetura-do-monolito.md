@@ -98,5 +98,5 @@ flowchart LR
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 48 h)
+> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 72 h)
 > 🥞 Camadas clássica · ⬡ Monólito modular + hexagonal (recomendada) · 🧅 Clean Architecture completa

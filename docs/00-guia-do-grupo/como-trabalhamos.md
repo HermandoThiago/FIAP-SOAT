@@ -9,8 +9,8 @@ contrato de funcionamento do grupo. Mudanças nele passam por enquete.
    scope creep e retrabalho (o enunciado é o limite do escopo; "Could" só se sobrar tempo).
 2. **Decisão registrada é decisão que existe.** Se não está em uma ADR, no PRD ou numa enquete encerrada, não foi decidido.
 3. **Ninguém bloqueia ninguém.** Se uma dúvida trava você por mais de 24 h sem resposta, tome a decisão mais simples,
-   registre-a (issue/ADR leve) e siga. Reversível > perfeito.
-4. **Pequeno e frequente.** PRs pequenos (≤ 400 linhas), commits diários, `main` sempre executável.
+   registre-a em `docs/02-adr/decisoes-leves.md` (com link da issue) e siga. Reversível > perfeito.
+4. **Pequeno e frequente.** PRs pequenos (≤ 400 linhas), commits diários, `master` sempre executável.
 5. **A nota vem da evidência.** Cada requisito do enunciado precisa aparecer em código + teste + Swagger + vídeo
    (`docs/06-entrega/checklist-de-entrega.md`).
 
@@ -31,22 +31,27 @@ contrato de funcionamento do grupo. Mudanças nele passam por enquete.
 ```mermaid
 flowchart LR
     A[Alguém identifica uma decisão] --> B{Reversível?}
-    B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>na issue/PR ou ADR leve]
+    B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>em decisoes-leves.md + issue/PR]
     B -- "Não / afeta todos (Tipo 1)" --> D[Escreve ADR com opções<br/>status: Proposta]
-    D --> E[Enquete no Discord<br/>prazo padrão 48 h]
-    E --> F{Maioria simples?}
+    D --> E[Enquete no Discord<br/>prazo padrão 72 h]
+    E --> F{Alguma opção<br/>com 3 votos?}
     F -- Sim --> G[ADR: Aceita<br/>atualiza docs e issues]
-    F -- "Empate / sem quórum" --> H[Líder desempata ou<br/>prorroga 24 h]
+    F -- "Não (empate / votos dispersos)" --> H[Discussão no canal +<br/>enquete rápida de 24 h<br/>entre as mais votadas]
     H --> G
-    C --> I[Registro no PR / issue]
+    C --> I[Linha em docs/02-adr/decisoes-leves.md<br/>com link da issue/PR]
     G --> J[Comunicado no canal]
 ```
 
 Regras da enquete:
 
 - **Tipo 1** (difícil de reverter ou afeta todo mundo): linguagem, banco, arquitetura, fluxo Git, escopo. Exige ADR + enquete.
-- **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e registra.
-- Prazo padrão de enquete: **48 h**. Quem não votou no prazo = abstenção. Empate: o líder desempata (ou prorroga 24 h, uma vez).
+- **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e
+  registra em `docs/02-adr/decisoes-leves.md` (uma linha, com link da issue/PR).
+- Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção.
+- Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **3 votos** (maioria
+  absoluta dos 5 membros). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,
+  **enquete rápida de 24 h** entre as opções mais votadas; o resultado da enquete rápida decide. Ninguém desempata
+  sozinho. Esta é a única definição da regra — os demais documentos apontam para cá.
 - Toda enquete tem o texto pronto em `enquetes.md` com link para a ADR/PRD. Resultado é copiado para a ADR (seção *Decisão*).
 - Lotes de votação para não travar: **Lote 1** (linguagem, banco, arquitetura, idioma do código) → **Lote 2** (auth, API
   docs, Git/CI, IDs/validação) → **Lote 3** (testes, scans, máquina de estados, acesso do cliente, estoque).
@@ -61,25 +66,33 @@ flowchart LR
     B3 -. branch .-> G1
     subgraph Git["Fluxo Git (trunk-based)"]
         G1["feat/os-criar-ordem<br/>fix/…, docs/…, chore/…"] --> G2[PR com template] --> G3[CI: build · testes · cobertura · lint · scans]
-        G3 --> G4[1 aprovação de outro membro] --> G5["squash merge em main<br/>(main protegida)"]
+        G3 --> G4[1 aprovação de outro membro] --> G5["squash merge em master<br/>(master protegida)"]
     end
     G5 -. fecha issue .-> B5
 ```
 
+> 🗳️ O fluxo Git (trunk-based, squash, Conventional Commits) é **definido por votação**: é a proposta da ADR-008, em
+> votação na enquete E-10. O texto abaixo descreve essa proposta; o resultado da E-10 atualiza esta seção.
+
 Convenções:
 
-- Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/estoque-baixa`).
-- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(estoque): impedir quantidade negativa`,
-  `docs(adr): aceitar ADR-002`, `test(orcamento): cobrir cálculo total`.
-- Escopos = módulos do monólito: `cadastro`, `catalogo`, `estoque`, `atendimento`, `identidade`, `shared`, `infra`, `docs`.
+- Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/catalogo-estoque-baixa`).
+- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(catalogo-estoque): impedir quantidade negativa`,
+  `docs(adr): aceitar ADR-002`, `test(atendimento): cobrir cálculo do orçamento`.
+- Escopos: os módulos do monólito (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou os transversais
+  (`docs`, `infra`, `ci`). `catalogo-estoque` é **um** módulo (não `catalogo` + `estoque`), como em
+  `docs/04-arquitetura/estrutura-do-repositorio.md`. No tipo `docs`, o escopo pode ser a pasta afetada (`guia`, `prd`,
+  `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`, `github`, `prompts`) ou ficar vazio em mudanças na raiz
+  (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
-- `main` protegida: sem push direto, sem merge com CI vermelho.
+- `master` protegida (configuração já feita — issue #1): sem push direto, sem merge com CI vermelho. Todos os
+  membros têm permissão de *bypass*, **reservada a emergências**; fora disso, o caminho é sempre PR com revisão.
 - Issues: título no imperativo (`Implementar aprovação do orçamento`), com PRD/ADR referenciados e critérios de aceite.
-- Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista em `_github/labels.yml`).
+- Labels: 1 `frente:*` + 1 `tipo:*` + 1 `prioridade:*` por issue (lista na aba *Labels* do repositório).
 
 ### Tags e releases
 
-- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `main` com CI verde.
+- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `master` com CI verde.
   Nunca mover ou apagar uma tag publicada; erro depois de um marco vira patch (`v0.2.1`).
 - Fase 1 é a série `v0.x`; a entrega vira **`v1.0.0`**. A Fase 2 começa em `v2.0.0` no mesmo repositório — assim o avaliador
   (e nós) sempre encontram exatamente o que foi entregue em cada fase.
@@ -95,12 +108,13 @@ Convenções:
 - **Release no GitHub** só para `v1.0.0` ("Fase 1 — Entrega"): notas geradas automaticamente a partir dos títulos dos PRs
   (Conventional Commits + squash deixam isso legível de graça) e anexos: PDF de entrega, relatório de vulnerabilidades,
   link do vídeo e do Miro.
-- **Imagem Docker no CI:** sempre `oficina-api:<sha-curto>`; quando uma tag é criada, também `oficina-api:vX.Y.Z` —
-  é o que a Fase 2 vai empurrar para o ECR.
+- **Imagem Docker no CI:** sempre `<sistema>-api:<sha-curto>`; quando uma tag é criada, também `<sistema>-api:vX.Y.Z` —
+  é o que a Fase 2 vai empurrar para o ECR. `<sistema>` é o nome escolhido na enquete E-01 (`oficina-api` é só o
+  provisório dos exemplos).
 - Comandos:
 
 ```bash
-git checkout main && git pull
+git checkout master && git pull
 git tag -a v0.1.0 -m "M2 walking skeleton: auth, cadastro, criar OS, compose, CI"
 git push origin v0.1.0
 # entrega
@@ -121,7 +135,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 **DoD — uma tarefa só é "Feito" se:**
 
 - [ ] Código + testes (unitários e/ou integração) passando no CI;
-- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo`/`estoque`) ≥ 80 %;
+- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo-estoque`) ≥ 80 %;
 - [ ] Swagger/OpenAPI atualizado (se houver endpoint);
 - [ ] Linguagem ubíqua respeitada nos nomes;
 - [ ] README/docs atualizados se mudou execução ou comportamento;
@@ -131,7 +145,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 
 | Necessidade | Ferramenta | Observação |
 |---|---|---|
-| Código | GitHub (repo privado, acesso a `soat-architecture`) | Projects para kanban; Issues com templates em `_github/` |
+| Código | GitHub (repo privado, acesso a `soat-architecture`) | Projects para kanban; Issues com templates em `.github/` |
 | Documentação DDD oficial | Miro (ou Excalidraw/Lucid) | Montar a partir de `docs/03-ddd/*.md` (Mermaid) |
 | Diagramas versionados | Mermaid nos `.md` | Renderiza no GitHub; base do Miro e do vídeo |
 | Sessões de IA | Claude (contas do grupo) | Prompts em `prompts/`; **tudo que a IA gerar passa por revisão humana e teste** |
@@ -144,14 +158,14 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 - Sem dados pessoais reais (CPF/CNPJ/placa) em prompts, seeds ou testes — usar geradores de dados válidos fictícios.
 - Prompts úteis ficam versionados em `prompts/` para reuso pelo grupo.
 - No GitHub, `@claude` em issues/PRs responde e pode abrir PRs (branch `claude/`), e todo PR recebe uma revisão
-  automática com o checklist do grupo (`_github/README.md`, seção "Claude no GitHub"). As regras que ele segue estão
+  automática com o checklist do grupo (`.github/README.md`, seção *Claude no GitHub*). As regras que ele segue estão
   em `CLAUDE.md`. A revisão automática **não substitui** a aprovação humana obrigatória.
 
 ## 8. Riscos e mitigação
 
 | Risco | Sinal | Mitigação |
 |---|---|---|
-| Prazo | Semana 3 sem `main` executável | Escopo congelado no MoSCoW do PRD-000; "Could" cai primeiro |
+| Prazo | Semana 3 sem `master` executável | Escopo congelado no MoSCoW do PRD-000; "Could" cai primeiro |
 | Disponibilidade irregular | Check-in faltando 2× seguidas | Frente redistribuída; tarefas pequenas (≤ 2 dias) |
 | Scope creep | Tarefa sem RF/ADR de origem | DoR bloqueia; líder devolve para backlog |
 | Integração tardia | Módulos prontos, fluxo ponta a ponta não | Fluxo "criar OS → aprovar → entregar" é a **primeira** história ponta a ponta (walking skeleton) |

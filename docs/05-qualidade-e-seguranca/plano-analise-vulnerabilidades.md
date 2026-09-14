@@ -43,7 +43,7 @@ docker run --rm --network host -v "$PWD/reports:/zap/wrk" zaproxy/zap-stable zap
 | Gatilho | Passos | Bloqueia merge? |
 |---|---|---|
 | Todo PR | Semgrep · SCA · gitleaks · hadolint · build da imagem + Trivy (HIGH/CRITICAL) | **Sim** para CRITICAL; HIGH gera alerta (bloqueia a partir da semana 6) |
-| `main` / manual | Tudo acima + ZAP baseline/API contra o compose | Não (gera relatório) |
+| `master` / manual | Tudo acima + ZAP baseline/API contra o compose | Não (gera relatório) |
 
 ## 4. Cronograma de scans
 

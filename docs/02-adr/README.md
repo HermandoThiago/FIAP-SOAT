@@ -9,8 +9,8 @@ Cada ADR apresenta **contexto, critérios, opções com prós/contras, recomenda
 stateDiagram-v2
     direction LR
     [*] --> Proposta: alguém escreve a ADR
-    Proposta --> EmVotacao: enquete aberta (48 h)
-    EmVotacao --> Aceita: maioria simples
+    Proposta --> EmVotacao: enquete aberta (72 h)
+    EmVotacao --> Aceita: 3 votos (regra em como-trabalhamos.md §3)
     EmVotacao --> Rejeitada: maioria contra / nova proposta
     Aceita --> Substituida: nova ADR a substitui
     Aceita --> Descontinuada: deixou de valer (ex.: fase seguinte)
@@ -37,7 +37,8 @@ stateDiagram-v2
 | [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Momento da baixa de estoque e comportamento sem estoque | Tipo 1 | 3 | ⏳ Proposta | E-16 |
 | [ADR-013](ADR-013-idioma-do-codigo-e-da-api.md) | Idioma do código e da API | Tipo 1 | 1 | 🗳️ Em votação | E-07 |
 
-Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional).
+Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional) —
+decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md).
 
 ## Como criar uma nova ADR
 
