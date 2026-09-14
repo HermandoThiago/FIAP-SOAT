@@ -34,9 +34,9 @@ flowchart LR
     B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>na issue/PR ou ADR leve]
     B -- "Não / afeta todos (Tipo 1)" --> D[Escreve ADR com opções<br/>status: Proposta]
     D --> E[Enquete no Discord<br/>prazo padrão 72 h]
-    E --> F{Maioria simples?}
+    E --> F{Alguma opção<br/>com 3 votos?}
     F -- Sim --> G[ADR: Aceita<br/>atualiza docs e issues]
-    F -- "Empate / sem quórum" --> H[Líder desempata ou<br/>prorroga 24 h]
+    F -- "Não (empate / votos dispersos)" --> H[Discussão no canal +<br/>enquete rápida de 24 h<br/>entre as mais votadas]
     H --> G
     C --> I[Registro no PR / issue]
     G --> J[Comunicado no canal]
@@ -46,7 +46,11 @@ Regras da enquete:
 
 - **Tipo 1** (difícil de reverter ou afeta todo mundo): linguagem, banco, arquitetura, fluxo Git, escopo. Exige ADR + enquete.
 - **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e registra.
-- Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção. Empate: o líder desempata (ou prorroga 24 h, uma vez).
+- Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção.
+- Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **3 votos** (maioria
+  absoluta dos 5 membros). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,
+  **enquete rápida de 24 h** entre as opções mais votadas; o resultado da enquete rápida decide. Ninguém desempata
+  sozinho. Esta é a única definição da regra — os demais documentos apontam para cá.
 - Toda enquete tem o texto pronto em `enquetes.md` com link para a ADR/PRD. Resultado é copiado para a ADR (seção *Decisão*).
 - Lotes de votação para não travar: **Lote 1** (linguagem, banco, arquitetura, idioma do código) → **Lote 2** (auth, API
   docs, Git/CI, IDs/validação) → **Lote 3** (testes, scans, máquina de estados, acesso do cliente, estoque).

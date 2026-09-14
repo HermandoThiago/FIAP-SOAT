@@ -10,7 +10,7 @@ stateDiagram-v2
     direction LR
     [*] --> Proposta: alguém escreve a ADR
     Proposta --> EmVotacao: enquete aberta (72 h)
-    EmVotacao --> Aceita: maioria simples
+    EmVotacao --> Aceita: 3 votos (regra em como-trabalhamos.md §3)
     EmVotacao --> Rejeitada: maioria contra / nova proposta
     Aceita --> Substituida: nova ADR a substitui
     Aceita --> Descontinuada: deixou de valer (ex.: fase seguinte)
