@@ -56,6 +56,6 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-10 — ADR-008 Git/CI** (prazo 48 h)
+> **Enquete E-10 — ADR-008 Git/CI** (prazo 72 h)
 > 🌳 Trunk-based (recomendada) · 🌊 GitFlow
 > Conventional Commits obrigatórios? 👍 / 👎

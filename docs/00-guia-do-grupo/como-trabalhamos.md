@@ -33,7 +33,7 @@ flowchart LR
     A[Alguém identifica uma decisão] --> B{Reversível?}
     B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>na issue/PR ou ADR leve]
     B -- "Não / afeta todos (Tipo 1)" --> D[Escreve ADR com opções<br/>status: Proposta]
-    D --> E[Enquete no Discord<br/>prazo padrão 48 h]
+    D --> E[Enquete no Discord<br/>prazo padrão 72 h]
     E --> F{Maioria simples?}
     F -- Sim --> G[ADR: Aceita<br/>atualiza docs e issues]
     F -- "Empate / sem quórum" --> H[Líder desempata ou<br/>prorroga 24 h]
@@ -46,7 +46,7 @@ Regras da enquete:
 
 - **Tipo 1** (difícil de reverter ou afeta todo mundo): linguagem, banco, arquitetura, fluxo Git, escopo. Exige ADR + enquete.
 - **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e registra.
-- Prazo padrão de enquete: **48 h**. Quem não votou no prazo = abstenção. Empate: o líder desempata (ou prorroga 24 h, uma vez).
+- Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção. Empate: o líder desempata (ou prorroga 24 h, uma vez).
 - Toda enquete tem o texto pronto em `enquetes.md` com link para a ADR/PRD. Resultado é copiado para a ADR (seção *Decisão*).
 - Lotes de votação para não travar: **Lote 1** (linguagem, banco, arquitetura, idioma do código) → **Lote 2** (auth, API
   docs, Git/CI, IDs/validação) → **Lote 3** (testes, scans, máquina de estados, acesso do cliente, estoque).

@@ -48,5 +48,5 @@ Qual opção quem escreveu recomenda e por quê, em 2–4 linhas.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-xx — ADR-0NN Título** (prazo 48 h) — link para esta ADR
+> **Enquete E-xx — ADR-0NN Título** (prazo 72 h) — link para esta ADR
 > 🅰️ Opção A · 🅱️ Opção B · ✍️ outra (comente)

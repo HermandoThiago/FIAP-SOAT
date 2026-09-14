@@ -94,6 +94,6 @@ Se o grupo estiver dividido, **Java/Spring** ou **TypeScript/NestJS** são as ap
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 48 h)
+> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 72 h)
 > ☕ Java 21 + Spring Boot 3 · 🟦 TypeScript + NestJS · 🟪 C# .NET 8 · 🐍 Python + FastAPI · 🐹 Go
 > Responda também no chat: qual você usa no dia a dia hoje?

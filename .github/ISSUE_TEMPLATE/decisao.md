@@ -11,7 +11,7 @@ labels: ["tipo:docs", "decisao"]
 
 ## Tipo
 
-- [ ] Tipo 1 — difícil de reverter / afeta todos → ADR + enquete (48 h)
+- [ ] Tipo 1 — difícil de reverter / afeta todos → ADR + enquete (72 h)
 - [ ] Tipo 2 — reversível → dono da frente decide e registra aqui
 
 ## Opções (mínimo 2)

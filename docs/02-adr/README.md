@@ -9,7 +9,7 @@ Cada ADR apresenta **contexto, critérios, opções com prós/contras, recomenda
 stateDiagram-v2
     direction LR
     [*] --> Proposta: alguém escreve a ADR
-    Proposta --> EmVotacao: enquete aberta (48 h)
+    Proposta --> EmVotacao: enquete aberta (72 h)
     EmVotacao --> Aceita: maioria simples
     EmVotacao --> Rejeitada: maioria contra / nova proposta
     Aceita --> Substituida: nova ADR a substitui

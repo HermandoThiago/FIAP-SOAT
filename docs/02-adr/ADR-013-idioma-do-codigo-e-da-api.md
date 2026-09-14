@@ -57,5 +57,5 @@ acentos.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-07 — ADR-013 Idioma do código/API** (prazo 48 h)
+> **Enquete E-07 — ADR-013 Idioma do código/API** (prazo 72 h)
 > 🇧🇷 Domínio em português + técnico em inglês (recomendada) · 🇺🇸 Tudo em inglês + glossário · 🇧🇷🇧🇷 Tudo em português
