@@ -2,7 +2,7 @@
 
 | # | Documento | Descrição | Dono | Status |
 |---|---|---|---|---|
-| 00 | [Como trabalhamos](00-guia-do-grupo/como-trabalhamos.md) | Regras do trabalho assíncrono, decisões por enquete, fluxo Git, Definition of Done | Líder | ✅ v1 |
+| 00 | [Como trabalhamos](00-guia-do-grupo/como-trabalhamos.md) | Regras do trabalho assíncrono, decisões por enquete, fluxo Git, Definition of Done | Líder | ✅ v1 (§4 Git: proposta da ADR-008, 🗳️ E-10) |
 | 00 | [Frentes e responsabilidades](00-guia-do-grupo/frentes-e-responsabilidades.md) | Frentes de trabalho, RACI, diagramas organizacionais | Líder | 🗳️ confirmar |
 | 00 | [Cronograma](00-guia-do-grupo/cronograma.md) | Plano macro por semana, marcos, Gantt | Líder | 🗳️ ajustar data |
 | 00 | [Enquetes](00-guia-do-grupo/enquetes.md) | Todas as decisões pendentes com texto pronto para o Discord | Líder | 🟡 em andamento |

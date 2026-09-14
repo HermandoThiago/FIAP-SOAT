@@ -66,6 +66,9 @@ flowchart LR
     G5 -. fecha issue .-> B5
 ```
 
+> 🗳️ O fluxo Git (trunk-based, squash, Conventional Commits) é **definido por votação**: é a proposta da ADR-008, em
+> votação na enquete E-10. O texto abaixo descreve essa proposta; o resultado da E-10 atualiza esta seção.
+
 Convenções:
 
 - Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/estoque-baixa`).
