@@ -1,6 +1,6 @@
 # Enquetes — decisões pendentes (texto pronto para o Discord)
 
-> Como usar: copie o bloco da enquete para o Discord (recurso **Enquete** do canal), marque `@everyone`, prazo 48 h.
+> Como usar: copie o bloco da enquete para o Discord (recurso **Enquete** do canal), marque `@everyone`, prazo 72 h.
 > Ao encerrar, registre o resultado aqui e na seção *Decisão* da ADR/PRD correspondente. Ordem = prioridade.
 
 Legenda de status: 🟢 aberta · ✅ encerrada · ⏳ aguardando lote anterior.
@@ -8,36 +8,36 @@ Legenda de status: 🟢 aberta · ✅ encerrada · ⏳ aguardando lote anterior.
 ## Lote 0 — organização (abrir hoje, junto com o Lote 1)
 
 ### E-01 · Nome do grupo e do sistema — 🟢
-> **Enquete E-01 — Nome do grupo / sistema** (prazo 48 h)
+> **Enquete E-01 — Nome do grupo / sistema** (prazo 72 h)
 > O PDF de entrega pede o nome do grupo. Sugestões (vote em uma ou proponha no chat):
 > 🔧 Oficina Ágil · ⚙️ SGO — Sistema de Gestão da Oficina · 🚗 AutoOS · 🛠️ Boxe Digital · ✍️ outra (comente)
 
 Resultado: `pendente`
 
 ### E-02 · Frentes de trabalho — 🟢
-> **Enquete E-02 — Confirmação das frentes** (prazo 48 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
+> **Enquete E-02 — Confirmação das frentes** (prazo 72 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
 > Sugestão montada a partir das apresentações de cada um:
-> • **Vi** — F1 Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
-> • **Shirley** — F2 Product & DDD Lead (PRDs, event storming/Miro, Gherkin, checklist, roteiro, PDF) + facilitação do assíncrono
-> • **Diego** — F3 core `atendimento` + co-revisão de arquitetura
-> • **Dan** — F3 `cadastro` e `catalogo-estoque` + F5 Infra (Docker, compose, CI, README, Swagger)
-> • **Hermando** — F4 Qualidade (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
+> • **Vi** — F1 Arquitetura & Repositório, como Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
+> • **Shirley** — F2 DDD & Documentação + Produto, como Product & DDD Lead (PRDs, event storming/Miro, Gherkin, checklist, roteiro, PDF) + facilitação do assíncrono
+> • **Diego** — F3 Domínio & API, core `atendimento` + co-revisão de arquitetura
+> • **Dan** — F3 `cadastro` e `catalogo-estoque` + F5 Infra & Entrega (Docker, compose, CI, README, Swagger)
+> • **Hermando** — F4 Qualidade & Segurança (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
 > 👍 topo assim · ✍️ quero trocar (diga qual frente prefere e por quê)
 
 Resultado: `pendente`
 
 ### E-03 · Data oficial de entrega e cadência — 🟢
-> **E-03 — Prazo e cadência** (prazo 48 h)
+> **E-03 — Prazo e cadência** (prazo 72 h)
 > 1) Alguém confirma a **data oficial de entrega** na plataforma? (o cronograma assume ~08/11).
 > 2) Check-in assíncrono 3×/semana (seg/qua/sex) está ok? 👍 sim · 👎 prefiro 2× · 🗓️ prefiro diário
 > 3) Uma call opcional de 30 min por semana: 👍 sim, qual dia? · 👎 100 % assíncrono
 
 Resultado: sim
 
-## Lote 1 — decisões estruturais (bloqueiam o código) — abrir 14/09, encerrar 16/09
+## Lote 1 — decisões estruturais (bloqueiam o código) — abrir 14/09, encerrar 17/09
 
 ### E-04 · ADR-001 Linguagem e framework — 🟢
-> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 48 h) — `docs/02-adr/ADR-001-linguagem-e-framework.md`
+> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 72 h) — `docs/02-adr/ADR-001-linguagem-e-framework.md`
 > Critérios: familiaridade da maioria > produtividade em 6–8 semanas > ecossistema (testes, cobertura, OpenAPI, JWT) > fases futuras (K8s, Lambda).
 > ☕ Java 21 + Spring Boot 3 · 🟦 TypeScript + NestJS · 🟪 C# .NET 8 · 🐍 Python + FastAPI · 🐹 Go
 > **Responda também no chat: qual você usa no dia a dia hoje?**
@@ -47,27 +47,27 @@ Resultado: sim
 Resultado: `pendente`
 
 ### E-05 · ADR-002 Banco de dados — 🟢
-> **Enquete E-05 — ADR-002 Banco de dados** (prazo 48 h) — `docs/02-adr/ADR-002-banco-de-dados.md`
+> **Enquete E-05 — ADR-002 Banco de dados** (prazo 72 h) — `docs/02-adr/ADR-002-banco-de-dados.md`
 > Precisamos justificar a escolha no vídeo/README.
 > 🐘 PostgreSQL · 🐬 MySQL · 🍃 MongoDB · 🟦 SQL Server
 
 Resultado: PostgreSQL
 
 ### E-06 · ADR-003 Estilo arquitetural do monólito — 🟢
-> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 48 h) — `docs/02-adr/ADR-003-arquitetura-do-monolito.md`
+> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 72 h) — `docs/02-adr/ADR-003-arquitetura-do-monolito.md`
 > 🥞 Camadas clássica (controller/service/repository) · ⬡ Monólito modular + hexagonal (ports & adapters) · 🧅 Clean Architecture completa
 
 Resultado: `pendente`
 
 ### E-07 · ADR-013 Idioma do código e da API — 🟢
-> **Enquete E-07 — ADR-013 Idioma** (prazo 48 h) — `docs/02-adr/ADR-013-idioma-do-codigo-e-da-api.md`
+> **Enquete E-07 — ADR-013 Idioma** (prazo 72 h) — `docs/02-adr/ADR-013-idioma-do-codigo-e-da-api.md`
 > 🇧🇷 Domínio em português (OrdemDeServico, /ordens-servico) + termos técnicos em inglês (Repository, Controller)
 > 🇺🇸 Tudo em inglês (ServiceOrder, /service-orders) com glossário mapeando a linguagem ubíqua
 > 🇧🇷🇧🇷 Tudo em português, inclusive termos técnicos
 
 Resultado: Tudo em inglês com glossário mapeando a linguagem ubíqua
 
-## Lote 2 — decisões de plataforma — abrir 17/09, encerrar 19/09
+## Lote 2 — decisões de plataforma — abrir 17/09, encerrar 20/09
 
 ### E-08 · ADR-004 Autenticação JWT — ⏳
 > **Enquete E-08 — ADR-004 Autenticação** — `docs/02-adr/ADR-004-autenticacao-jwt.md`
@@ -79,14 +79,14 @@ Resultado: Tudo em inglês com glossário mapeando a linguagem ubíqua
 
 ### E-10 · ADR-008 Fluxo Git e CI — ⏳
 > **Enquete E-10 — ADR-008 Git/CI** — `docs/02-adr/ADR-008-fluxo-git-e-ci.md`
-> 🌳 Trunk-based (main protegida, branches curtas, squash, 1 aprovação) · 🌊 GitFlow (develop/release/hotfix)
+> 🌳 Trunk-based (master protegida, branches curtas, squash, 1 aprovação) · 🌊 GitFlow (develop/release/hotfix)
 > Conventional Commits obrigatórios? 👍 / 👎
 
 ### E-11 · ADR-009 IDs e validação de dados sensíveis — ⏳
 > **Enquete E-11 — ADR-009 Identificadores** — `docs/02-adr/ADR-009-identificadores-e-dados-sensiveis.md`
 > 🆔 UUID como chave + número legível da OS (ex.: `OS-2026-000123`) · 🔢 Auto-incremento · 🆔🔢 UUID v7 (ordenável) + número legível
 
-## Lote 3 — regras de domínio e qualidade — abrir 21/09, encerrar 23/09
+## Lote 3 — regras de domínio e qualidade — abrir 21/09, encerrar 24/09
 
 ### E-12 · ADR-006 Estratégia de testes — ⏳
 > **Enquete E-12 — ADR-006 Testes** — `docs/02-adr/ADR-006-estrategia-de-testes-e-cobertura.md`

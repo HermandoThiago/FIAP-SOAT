@@ -23,9 +23,9 @@ docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config p/owasp-top
 # SCA + IaC + segredos no filesystem
 docker run --rm -v "$PWD:/src" aquasec/trivy fs --scanners vuln,misconfig,secret --format table -o reports/trivy-fs.txt /src
 
-# Imagem
-docker build -t oficina-api:scan .
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL oficina-api:scan
+# Imagem — <sistema> é o nome escolhido na enquete E-01; padrão `<sistema>-api` (como-trabalhamos.md §4, "Imagem Docker no CI")
+docker build -t <sistema>-api:scan .
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL <sistema>-api:scan
 
 # Segredos no histórico
 docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect -s /repo --report-path /repo/reports/gitleaks.json
@@ -43,7 +43,7 @@ docker run --rm --network host -v "$PWD/reports:/zap/wrk" zaproxy/zap-stable zap
 | Gatilho | Passos | Bloqueia merge? |
 |---|---|---|
 | Todo PR | Semgrep · SCA · gitleaks · hadolint · build da imagem + Trivy (HIGH/CRITICAL) | **Sim** para CRITICAL; HIGH gera alerta (bloqueia a partir da semana 6) |
-| `main` / manual | Tudo acima + ZAP baseline/API contra o compose | Não (gera relatório) |
+| `master` / manual | Tudo acima + ZAP baseline/API contra o compose | Não (gera relatório) |
 
 ## 4. Cronograma de scans
 

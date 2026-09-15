@@ -74,5 +74,5 @@ Fase 3. Keycloak pode ser mencionado no vídeo como evolução.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-08 — ADR-004 Autenticação** (prazo 48 h)
+> **Enquete E-08 — ADR-004 Autenticação** (prazo 72 h)
 > 🔑 JWT próprio (recomendada) · 🛡️ Keycloak no compose · ☁️ Provedor externo (Cognito/Auth0)

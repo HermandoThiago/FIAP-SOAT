@@ -61,6 +61,6 @@ na inclusão **e** novamente na aprovação (o estoque pode ter mudado). Se sobr
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-16 — ADR-012 Estoque** (prazo 48 h)
+> **Enquete E-16 — ADR-012 Estoque** (prazo 72 h)
 > ✅ Baixa na aprovação (recomendada) · 📌 Reserva na aprovação + baixa na finalização · 🏁 Baixa só na finalização
 > Sem estoque ao incluir peça: ⛔ bloqueia (recomendada) · ⚠️ permite e sinaliza

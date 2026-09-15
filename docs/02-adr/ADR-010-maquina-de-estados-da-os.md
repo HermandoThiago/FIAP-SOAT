@@ -63,5 +63,5 @@ estado terminal para desistência, mantendo os seis obrigatórios intactos".
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-14 — ADR-010 Orçamento recusado / cancelamento** (prazo 48 h)
+> **Enquete E-14 — ADR-010 Orçamento recusado / cancelamento** (prazo 72 h)
 > 🔁 Volta para Em diagnóstico · 🚫 Novo status Cancelada · 🔁🚫 Ambos (recomendada)

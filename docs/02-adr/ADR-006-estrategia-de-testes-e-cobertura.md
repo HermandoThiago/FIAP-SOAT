@@ -50,6 +50,6 @@ Testcontainers + BDD para os 3 fluxos. O custo é baixo com IA gerando o esquele
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-12 — ADR-006 Testes** (prazo 48 h)
+> **Enquete E-12 — ADR-006 Testes** (prazo 72 h)
 > Banco nos testes de integração: 🐳 Testcontainers/compose · 💾 em memória
 > BDD (Gherkin) para os 3 fluxos principais: 👍 sim · 👎 não

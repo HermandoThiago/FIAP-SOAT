@@ -24,6 +24,7 @@
 - [ ] Validação de dados sensíveis (CPF/CNPJ/placa) onde aplicável
 - [ ] Sem segredos, senhas ou dados pessoais reais no código/commits
 - [ ] README/docs atualizados (se mudou execução ou comportamento)
+- [ ] Checklist de entrega atualizado (`docs/06-entrega/checklist-de-entrega.md`), se o PR cobre requisito do enunciado
 - [ ] CI verde (build, testes, lint, scans)
 
 ## Evidências
