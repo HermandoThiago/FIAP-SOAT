@@ -32,7 +32,7 @@ Resultado: `pendente`
 > 2) Check-in assíncrono 3×/semana (seg/qua/sex) está ok? 👍 sim · 👎 prefiro 2× · 🗓️ prefiro diário
 > 3) Uma call opcional de 30 min por semana: 👍 sim, qual dia? · 👎 100 % assíncrono
 
-Resultado: `pendente`
+Resultado: sim
 
 ## Lote 1 — decisões estruturais (bloqueiam o código) — abrir 14/09, encerrar 16/09
 
@@ -51,7 +51,7 @@ Resultado: `pendente`
 > Precisamos justificar a escolha no vídeo/README.
 > 🐘 PostgreSQL · 🐬 MySQL · 🍃 MongoDB · 🟦 SQL Server
 
-Resultado: `pendente`
+Resultado: PostgreSQL
 
 ### E-06 · ADR-003 Estilo arquitetural do monólito — 🟢
 > **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 48 h) — `docs/02-adr/ADR-003-arquitetura-do-monolito.md`
@@ -65,7 +65,7 @@ Resultado: `pendente`
 > 🇺🇸 Tudo em inglês (ServiceOrder, /service-orders) com glossário mapeando a linguagem ubíqua
 > 🇧🇷🇧🇷 Tudo em português, inclusive termos técnicos
 
-Resultado: `pendente`
+Resultado: Tudo em inglês com glossário mapeando a linguagem ubíqua
 
 ## Lote 2 — decisões de plataforma — abrir 17/09, encerrar 19/09
 
