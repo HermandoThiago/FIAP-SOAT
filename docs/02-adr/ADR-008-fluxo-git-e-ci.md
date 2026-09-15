@@ -33,7 +33,7 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 | Item | Proposta |
 |---|---|
-| Commits | **Conventional Commits** (`feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`) com escopo = módulo ou transversal (`docs`, `infra`, `ci`) — lista em `docs/00-guia-do-grupo/como-trabalhamos.md` §4 |
+| Commits | **Conventional Commits** (`feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`) com escopo = módulo ou transversal (`infra`, `ci`); no tipo `docs`, escopo = pasta afetada — lista em `docs/00-guia-do-grupo/como-trabalhamos.md` §4 |
 | Revisão | 1 aprovação; autor não aprova o próprio PR; revisar em ≤ 24 h (check-in cobra) |
 | CI (todo PR) | build → lint/format → testes unit + integração → cobertura com gate → Semgrep/SCA/gitleaks → build da imagem + Trivy |
 | CI (`master`) | tudo acima + publica `openapi.json` + relatório de cobertura como artefatos; ZAP manual/agendado |
