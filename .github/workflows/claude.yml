@@ -6,7 +6,7 @@ name: Claude Code
 #   @claude gere os testes unitários da máquina de estados conforme docs/01-requisitos/PRD-004.md
 #   @claude abra um PR implementando a issue (branch claude/<numero>)
 #
-# Pré-requisitos (ver .github/README.md, seção "Claude no GitHub"):
+# Pré-requisitos (ver docs/README.md, seção "Claude no GitHub"):
 #   1) GitHub App "Claude" instalado no repositório (https://github.com/apps/claude)
 #   2) Secret CLAUDE_CODE_OAUTH_TOKEN (assinatura Pro/Max, via `claude setup-token`)
 #      ou ANTHROPIC_API_KEY (API paga) — troque o input abaixo conforme o caso.
@@ -51,7 +51,7 @@ jobs:
           use_sticky_comment: true       # uma única resposta editável por thread, em vez de vários comentários
           track_progress: true           # mostra o andamento no comentário
           branch_prefix: "claude/"       # branches que o Claude criar: claude/issue-123-...
-          # Modelo e esforço (ver _github/README.md): Fable 5.1 com effort máximo; se indisponível, Opus 4.8.
+          # Modelo e esforço (ver docs/README.md): Fable 5.1 com effort máximo; se indisponível, Opus 4.8.
           # O effort é da sessão, então vale também para o fallback. Valores: low | medium | high | xhigh | max.
           claude_args: |
             --model claude-fable-5-1
