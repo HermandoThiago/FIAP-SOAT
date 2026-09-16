@@ -1,23 +1,26 @@
-# 04 — Módulo `catalogo-estoque` (F3)
+# 04 — Módulo `catalog` (F3, Hermando)
 
 ```text
-Implemente o módulo catalogo-estoque conforme docs/01-requisitos/PRD-002, docs/03-ddd/agregados.md (Servico, Peca,
-MovimentacaoEstoque) e docs/04-arquitetura/contrato-api.md §3.3. Decisão de estoque: {{ESTOQUE}} (ADR-012).
+Implemente o módulo catalog conforme docs/01-requisitos/PRD-002, docs/03-ddd/agregados.md (Service, Part,
+StockMovement), docs/03-ddd/linguagem-ubiqua.md §4 e docs/04-arquitetura/contrato-api.md §3.3, na estrutura Clean
+de docs/04-arquitetura/estrutura-do-repositorio.md. Decisão de estoque: {{ESTOQUE}} (ADR-012, E-16) — se ainda não
+Aceita, implemente a recomendada (baixa na aprovação; bloquear sem estoque) e marque como [dúvida].
 
 TDD, nesta ordem:
 
-1. Domínio: Servico (nome único, preco, tempoEstimadoMin, ativo); Peca (sku único, tipo PECA|INSUMO, unidadeMedida,
-   precoUnitario, quantidadeEstoque, quantidadeReservada, estoqueMinimo, ativo) com métodos registrarEntrada, baixar,
-   reservar, liberar, ajustar, disponivel(); cada método gera uma MovimentacaoEstoque; invariantes: estoque ≥ 0,
-   reservado ≤ estoque, quantidade > 0; evento EstoqueAbaixoDoMinimo quando cruzar o mínimo.
-   Testes unitários de todas as invariantes.
-2. Aplicação: CRUDs (inativar em vez de apagar), RegistrarEntradaDeEstoque, AjustarEstoque, BaixarEstoquePorOS
-   (recebe lista {pecaId, quantidade, osId}; tudo-ou-nada), LiberarReservaPorOS; porta exposta ConsultaCatalogo
-   (obterServico/obterPeca com nome, preço, disponibilidade, ativo) e MovimentacaoEstoque (para o módulo atendimento).
-3. Adapters: persistência com constraints de docs/04-arquitetura/modelo-de-dados.md §3; REST conforme contrato;
-   OpenAPI com exemplos; testes de integração (entrada → baixa → histórico; constraint de estoque ≥ 0 no banco;
-   filtro abaixoDoMinimo).
+1. domain/: Service (name único, price: Money, estimatedMinutes, active); Part (sku único, type PART|SUPPLY,
+   unitOfMeasure, unitPrice, stockQuantity, reservedQuantity, minimumStock, active) com recordInbound, withdraw,
+   reserve, release, adjust, availableQuantity(); cada método gera um StockMovement (INBOUND|OUTBOUND|RESERVATION|
+   RELEASE|ADJUSTMENT); invariantes: stockQuantity ≥ 0, reservedQuantity ≤ stockQuantity, quantity > 0; evento
+   StockBelowMinimum quando cruzar o mínimo. Testes unitários de todas as invariantes.
+2. application/: RegisterService/UpdateService/DeactivateService, RegisterPart/UpdatePart/DeactivatePart,
+   RecordStockInbound, AdjustStock, WithdrawStockForServiceOrder (lista {partId, quantity, serviceOrderId};
+   tudo-ou-nada), ReleaseReservationForServiceOrder, ListPartsBelowMinimum; portas expostas CatalogLookup
+   (getService/getPart com name, price, availableQuantity, active) e StockMovements (para o módulo service-orders).
+3. adapters/ + infrastructure/: gateways com {{ORM}} e as constraints de docs/04-arquitetura/modelo-de-dados.md §3;
+   controllers/presenters/DTOs conforme o contrato; OpenAPI com exemplos; testes de integração (inbound → withdraw →
+   stock-movements; constraint stock_quantity ≥ 0 no banco; filtro belowMinimum).
 
-Regra: nenhuma edição direta de quantidadeEstoque por API (PUT /pecas não altera estoque). Ao final, cobertura do
-módulo e checklist atualizado.
+Regra: nenhuma edição direta de stockQuantity por API (PUT /parts não altera estoque). Ao final, cobertura do módulo
+(≥ 80 % em domain + application) e checklist atualizado.
 ```
