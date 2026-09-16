@@ -1,132 +1,133 @@
 # Agregados, entidades, value objects e invariantes
 
-> Diagramas "conforme apresentado na disciplina de DDD". Nomes conforme ADR-013 (domínio em português, sem acentos em
-> identificadores). Cada agregado é a **unidade de consistência**: invariantes valem dentro dele e são garantidas pela raiz.
+> Diagramas "conforme apresentado na disciplina de DDD". Identificadores em inglês conforme ADR-013 (Aceita) e o
+> glossário `linguagem-ubiqua.md`; o texto explicativo fica em português. Cada agregado é a **unidade de consistência**:
+> invariantes valem dentro dele e são garantidas pela raiz.
 
 ## 1. Visão geral dos agregados
 
 ```mermaid
 classDiagram
     direction LR
-    class Cliente {
+    class Customer {
         <<AggregateRoot>>
-        +ClienteId id
-        +TipoPessoa tipo
-        +Documento documento
-        +String nome
+        +CustomerId id
+        +CustomerType customerType
+        +Document document
+        +String name
         +Email email
-        +Telefone telefone
-        +boolean ativo
-        +atualizarContato()
-        +inativar()
+        +Phone phone
+        +boolean active
+        +updateContact()
+        +deactivate()
     }
-    class Veiculo {
+    class Vehicle {
         <<AggregateRoot>>
-        +VeiculoId id
-        +ClienteId clienteId
-        +Placa placa
-        +String marca
-        +String modelo
-        +int ano
-        +boolean ativo
-        +inativar()
+        +VehicleId id
+        +CustomerId customerId
+        +LicensePlate licensePlate
+        +String brand
+        +String model
+        +int year
+        +boolean active
+        +deactivate()
     }
-    class Servico {
+    class Service {
         <<AggregateRoot>>
-        +ServicoId id
-        +String nome
-        +Dinheiro preco
-        +int tempoEstimadoMin
-        +boolean ativo
+        +ServiceId id
+        +String name
+        +Money price
+        +int estimatedMinutes
+        +boolean active
     }
-    class Peca {
+    class Part {
         <<AggregateRoot>>
-        +PecaId id
+        +PartId id
         +String sku
-        +TipoItem tipo
-        +UnidadeMedida unidade
-        +Dinheiro precoUnitario
-        +Quantidade estoque
-        +Quantidade reservado
-        +Quantidade estoqueMinimo
-        +registrarEntrada(qtd)
-        +baixar(qtd, osId)
-        +reservar(qtd, osId)
-        +liberar(qtd, osId)
-        +ajustar(qtd, motivo)
-        +disponivel() Quantidade
+        +PartType type
+        +UnitOfMeasure unitOfMeasure
+        +Money unitPrice
+        +Quantity stockQuantity
+        +Quantity reservedQuantity
+        +Quantity minimumStock
+        +recordInbound(qty)
+        +withdraw(qty, serviceOrderId)
+        +reserve(qty, serviceOrderId)
+        +release(qty, serviceOrderId)
+        +adjust(qty, reason)
+        +availableQuantity() Quantity
     }
-    class OrdemDeServico {
+    class ServiceOrder {
         <<AggregateRoot>>
-        +OrdemDeServicoId id
-        +NumeroOS numero
-        +ClienteId clienteId
-        +VeiculoId veiculoId
-        +StatusOS status
-        +Orcamento orcamento
-        +MarcosTemporais marcos
-        +int versao
-        +iniciarDiagnostico()
-        +incluirServico(ServicoSnapshot, qtd)
-        +incluirPeca(PecaSnapshot, qtd)
-        +removerItem(itemId)
-        +enviarOrcamento()
-        +aprovarOrcamento()
-        +recusarOrcamento(motivo, desistiu)
-        +finalizar()
-        +entregar()
-        +cancelar(motivo)
+        +ServiceOrderId id
+        +ServiceOrderNumber number
+        +CustomerId customerId
+        +VehicleId vehicleId
+        +ServiceOrderStatus status
+        +Quote quote
+        +Milestones milestones
+        +int version
+        +startDiagnosis()
+        +addServiceItem(ServiceSnapshot, qty)
+        +addPartItem(PartSnapshot, qty)
+        +removeItem(itemId)
+        +sendQuote()
+        +approveQuote()
+        +rejectQuote(reason, withdrawn)
+        +complete()
+        +deliver()
+        +cancel(reason)
     }
-    class ItemServico {
+    class ServiceItem {
         <<Entity>>
         +ItemId id
-        +ServicoId servicoId
-        +String nomeSnapshot
-        +Dinheiro precoSnapshot
-        +int quantidade
-        +subtotal() Dinheiro
+        +ServiceId serviceId
+        +String nameSnapshot
+        +Money priceSnapshot
+        +int quantity
+        +subtotal() Money
     }
-    class ItemPeca {
+    class PartItem {
         <<Entity>>
         +ItemId id
-        +PecaId pecaId
-        +String nomeSnapshot
-        +Dinheiro precoUnitarioSnapshot
-        +Quantidade quantidade
-        +subtotal() Dinheiro
+        +PartId partId
+        +String nameSnapshot
+        +Money unitPriceSnapshot
+        +Quantity quantity
+        +subtotal() Money
     }
-    class HistoricoStatus {
+    class StatusHistoryEntry {
         <<Entity>>
-        +StatusOS de
-        +StatusOS para
-        +Instant ocorridoEm
-        +String autor
-        +String motivo
+        +ServiceOrderStatus fromStatus
+        +ServiceOrderStatus toStatus
+        +Instant occurredAt
+        +String actor
+        +String reason
     }
-    class Orcamento {
+    class Quote {
         <<ValueObject>>
-        +Dinheiro valorTotal
-        +StatusOrcamento status
-        +Instant enviadoEm
-        +Instant respondidoEm
+        +Money totalAmount
+        +QuoteStatus status
+        +Instant sentAt
+        +Instant respondedAt
     }
-    class Usuario {
+    class User {
         <<AggregateRoot>>
-        +UsuarioId id
+        +UserId id
         +Email email
-        +SenhaHash senha
-        +Papel[] papeis
-        +boolean ativo
+        +PasswordHash passwordHash
+        +Role[] roles
+        +boolean active
     }
-    OrdemDeServico "1" *-- "0..*" ItemServico
-    OrdemDeServico "1" *-- "0..*" ItemPeca
-    OrdemDeServico "1" *-- "1..*" HistoricoStatus
-    OrdemDeServico "1" *-- "1" Orcamento
-    OrdemDeServico ..> Cliente : referencia por id
-    OrdemDeServico ..> Veiculo : referencia por id
-    ItemServico ..> Servico : snapshot
-    ItemPeca ..> Peca : snapshot
-    Veiculo ..> Cliente : referencia por id
+    ServiceOrder "1" *-- "0..*" ServiceItem
+    ServiceOrder "1" *-- "0..*" PartItem
+    ServiceOrder "1" *-- "1..*" StatusHistoryEntry
+    ServiceOrder "1" *-- "1" Quote
+    ServiceOrder ..> Customer : referencia por id
+    ServiceOrder ..> Vehicle : referencia por id
+    ServiceItem ..> Service : snapshot
+    PartItem ..> Part : snapshot
+    Vehicle ..> Customer : referencia por id
 ```
 
 Referências entre agregados são **sempre por id** (nunca objeto navegável) — regra de DDD que também evita JOINs
@@ -136,63 +137,64 @@ entre módulos.
 
 | VO | Regras | Testes obrigatórios |
 |---|---|---|
-| `Documento` (`CPF` \| `CNPJ`) | só dígitos; tamanho 11/14; dígitos verificadores; rejeita sequências repetidas; `mascarado()` | válidos, inválidos por DV, tamanho errado, repetidos, formatação com pontos/traço |
-| `Placa` | normaliza maiúsculas/sem hífen; antiga `AAA9999` ou Mercosul `AAA9A99`; `mascarada()` | ambos os padrões, minúsculas, com hífen, inválidas |
-| `Dinheiro` | decimal 2 casas, BRL, ≥ 0; soma/multiplicação sem float | arredondamento, soma, multiplicação por quantidade |
-| `Quantidade` | decimal(10,3) ≥ 0 (insumos fracionários) ou inteiro para peças | negativa rejeitada |
-| `Email`, `Telefone` | formato; normalização | válidos/inválidos |
-| `NumeroOS` | `OS-AAAA-NNNNNN`; gerado por sequência anual | formato; sequência |
-| `StatusOS` (enum) + `TransicaoStatus` | tabela de transições da PRD-004 | todas as combinações |
+| `Document` (`Cpf` \| `Cnpj`) | só dígitos; tamanho 11/14; dígitos verificadores; rejeita sequências repetidas; `masked()` | válidos, inválidos por DV, tamanho errado, repetidos, formatação com pontos/traço |
+| `LicensePlate` | normaliza maiúsculas/sem hífen; antiga `AAA9999` ou Mercosul `AAA9A99`; `masked()` | ambos os padrões, minúsculas, com hífen, inválidas |
+| `Money` | decimal 2 casas, BRL, ≥ 0; soma/multiplicação sem float | arredondamento, soma, multiplicação por quantidade |
+| `Quantity` | decimal(10,3) ≥ 0 (insumos fracionários) ou inteiro para peças | negativa rejeitada |
+| `Email`, `Phone` | formato; normalização | válidos/inválidos |
+| `ServiceOrderNumber` | `OS-AAAA-NNNNNN`; gerado por sequência anual | formato; sequência |
+| `ServiceOrderStatus` (enum) + `StatusTransitionPolicy` | tabela de transições da PRD-004 | todas as combinações |
 
 ## 3. Invariantes por agregado
 
-### OrdemDeServico
+### ServiceOrder
 
-1. Itens só podem ser incluídos/removidos em `RECEBIDA` ou `EM_DIAGNOSTICO`.
-2. `orcamento.valorTotal` = Σ `itensServico.subtotal()` + Σ `itensPeca.subtotal()` — recalculado a cada mudança de item; nunca atribuído de fora.
-3. `enviarOrcamento()` exige ≥ 1 item e total > 0; muda status para `AGUARDANDO_APROVACAO`; congela itens; marca `orcamentoEnviadoEm`.
-4. `aprovarOrcamento()` só em `AGUARDANDO_APROVACAO`; muda para `EM_EXECUCAO`; marca `execucaoIniciadaEm`; emite evento `OrcamentoAprovado` (a baixa de estoque é política da aplicação, fora do agregado — módulos diferentes).
-5. `recusarOrcamento()` só em `AGUARDANDO_APROVACAO`; efeito conforme ADR-010.
-6. `finalizar()` só em `EM_EXECUCAO`; `entregar()` só em `FINALIZADA`; após `ENTREGUE`, qualquer comando lança erro.
-7. Toda transição adiciona `HistoricoStatus` (append-only) e incrementa `versao` (lock otimista).
-8. `veiculoId` deve pertencer a `clienteId` — verificado pelo caso de uso (consulta ao cadastro) antes de criar.
+1. Itens só podem ser incluídos/removidos em `RECEIVED` ou `IN_DIAGNOSIS`.
+2. `quote.totalAmount` = Σ `serviceItems.subtotal()` + Σ `partItems.subtotal()` — recalculado a cada mudança de item; nunca atribuído de fora.
+3. `sendQuote()` exige ≥ 1 item e total > 0; muda status para `AWAITING_APPROVAL`; congela itens; marca `quoteSentAt`.
+4. `approveQuote()` só em `AWAITING_APPROVAL`; muda para `IN_PROGRESS`; marca `executionStartedAt`; emite `QuoteApproved`
+   (a baixa de estoque é política da aplicação, fora do agregado — módulos diferentes).
+5. `rejectQuote()` só em `AWAITING_APPROVAL`; efeito conforme ADR-010.
+6. `complete()` só em `IN_PROGRESS`; `deliver()` só em `COMPLETED`; após `DELIVERED`, qualquer comando lança erro.
+7. Toda transição adiciona `StatusHistoryEntry` (append-only) e incrementa `version` (lock otimista).
+8. `vehicleId` deve pertencer a `customerId` — verificado pelo caso de uso (consulta ao módulo `customers`) antes de criar.
 
-### Peca
+### Part
 
-1. `estoque ≥ 0` e `reservado ≥ 0` e `reservado ≤ estoque` sempre.
-2. Estoque só muda por método que gera `MovimentacaoEstoque` (`registrarEntrada`, `baixar`, `reservar`, `liberar`, `ajustar`).
-3. `baixar(qtd)` exige `disponivel() ≥ qtd` (ADR-012 = bloquear).
+1. `stockQuantity ≥ 0` e `reservedQuantity ≥ 0` e `reservedQuantity ≤ stockQuantity` sempre.
+2. Estoque só muda por método que gera `StockMovement` (`recordInbound`, `withdraw`, `reserve`, `release`, `adjust`).
+3. `withdraw(qty)` exige `availableQuantity() ≥ qty` (ADR-012 = bloquear).
 4. Peça inativa não pode ser incluída em OS (verificado pelo caso de uso ao montar o snapshot).
 
-### Cliente / Veiculo
+### Customer / Vehicle
 
 1. Documento único entre clientes ativos (unicidade garantida no repositório + constraint).
 2. Placa única entre veículos ativos.
-3. Inativação bloqueada se houver OS em aberto (verificado pelo caso de uso via consulta ao atendimento).
+3. Inativação bloqueada se houver OS em aberto (verificado pelo caso de uso via consulta ao módulo `service-orders`).
 
-### Usuario
+### User
 
 1. E-mail único; senha sempre em hash; ≥ 1 papel.
 
 ## 4. Eventos de domínio (nomes canônicos)
 
-`ClienteCadastrado` · `VeiculoCadastrado` · `OrdemDeServicoRecebida` · `DiagnosticoIniciado` · `ItemIncluidoNaOS` ·
-`ItemRemovidoDaOS` · `OrcamentoRecalculado` · `OrcamentoEnviado` · `OrcamentoAprovado` · `OrcamentoRecusado` ·
-`ExecucaoIniciada` · `ExecucaoFinalizada` · `VeiculoEntregue` · `OrdemDeServicoCancelada` · `PecaCadastrada` ·
-`EntradaDeEstoqueRegistrada` · `BaixaDeEstoqueRealizada` · `ReservaLiberada` · `EstoqueAbaixoDoMinimo`
+`CustomerRegistered` · `VehicleRegistered` · `ServiceOrderReceived` · `DiagnosisStarted` · `ItemAddedToServiceOrder` ·
+`ItemRemovedFromServiceOrder` · `QuoteRecalculated` · `QuoteSent` · `QuoteApproved` · `QuoteRejected` · `ExecutionStarted` ·
+`ExecutionCompleted` · `VehicleDelivered` · `ServiceOrderCancelled` · `PartRegistered` · `StockInboundRecorded` ·
+`StockWithdrawn` · `ReservationReleased` · `StockBelowMinimum`
 
-Payload mínimo: `id do agregado`, `ocorridoEm`, dados necessários ao handler (ex.: `OrcamentoAprovado { osId, itensPeca[] }`).
+Payload mínimo: `id do agregado`, `occurredAt`, dados necessários ao handler (ex.: `QuoteApproved { serviceOrderId, partItems[] }`).
 
-## 5. Serviços de domínio e de aplicação
+## 5. Serviços de domínio e casos de uso
 
 | Nome | Tipo | Responsabilidade |
 |---|---|---|
-| `CalculadoraDeOrcamento` | Domínio (pode ser método do agregado) | Soma itens com `Dinheiro` |
-| `PoliticaDeTransicao` | Domínio | Tabela de transições válidas e quem pode executar |
-| `CriarOrdemDeServico` | Aplicação (caso de uso) | Valida cliente/veículo via portas; cria OS; persiste; publica evento |
-| `IncluirItemNaOS` | Aplicação | Busca snapshot no catálogo; verifica disponibilidade; chama agregado |
-| `EnviarOrcamento` | Aplicação | Chama agregado; gera token de acompanhamento; notifica |
-| `AprovarOrcamento` | Aplicação (**transacional, 2 módulos**) | Valida token; agregado aprova; política baixa estoque; commit único |
-| `FinalizarExecucao`, `RegistrarEntrega`, `CancelarOS` | Aplicação | Transições + histórico |
-| `ConsultarAcompanhamento` | Aplicação (leitura) | Projeção para o cliente, com máscara |
-| `CalcularTempoMedioExecucao` | Aplicação (leitura) | Consulta agregada |
+| `QuoteCalculator` | Domínio (pode ser método do agregado) | Soma itens com `Money` |
+| `StatusTransitionPolicy` | Domínio | Tabela de transições válidas e quem pode executar |
+| `CreateServiceOrderUseCase` | Aplicação | Valida cliente/veículo via `CustomerLookup`; cria OS; persiste; publica evento |
+| `AddServiceItemUseCase` / `AddPartItemUseCase` | Aplicação | Busca snapshot via `CatalogLookup`; verifica disponibilidade; chama agregado |
+| `SendQuoteUseCase` | Aplicação | Chama agregado; emite `TrackingToken`; notifica via `CustomerNotifier` |
+| `ApproveQuoteUseCase` | Aplicação (**transacional, 2 módulos**) | Valida token; agregado aprova; `StockMovements.withdraw`; commit único |
+| `CompleteExecutionUseCase`, `RegisterDeliveryUseCase`, `CancelServiceOrderUseCase` | Aplicação | Transições + histórico |
+| `GetTrackingUseCase` | Aplicação (leitura) | Projeção para o cliente, com máscara e `statusDescription` em português |
+| `CalculateAverageExecutionTimeUseCase` | Aplicação (leitura) | Consulta agregada |

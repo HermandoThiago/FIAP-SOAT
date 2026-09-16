@@ -1,11 +1,11 @@
-# PRD-002 — Catálogo de serviços, peças/insumos e estoque (contexto `catalogo-estoque`)
+# PRD-002 — Catálogo de serviços, peças/insumos e estoque (contexto `catalog`)
 
 | Campo | Valor |
 |---|---|
 | Status | 📝 Rascunho para revisão |
 | Dono | F3 (Domínio & API) |
 | Origem no enunciado | "CRUD de serviços"; "CRUD de peças e insumos, com controle de estoque"; "Possibilidade de incluir peças e insumos necessários"; Event storming obrigatório do fluxo **gestão de peças e insumos** |
-| Contexto DDD | `catalogo-estoque` (supporting) |
+| Contexto DDD | `catalog` (supporting) |
 
 ## 1. Objetivo
 
@@ -17,7 +17,7 @@ estoque** confiável, para que o orçamento seja calculado automaticamente e o e
 - **Serviço**: item de mão de obra do catálogo (ex.: troca de óleo, alinhamento). Tem preço e tempo estimado.
 - **Peça**: item físico rastreado por unidade (ex.: filtro de óleo, pastilha de freio).
 - **Insumo**: item consumível, geralmente por quantidade fracionária/unidade de medida (ex.: óleo 5W30 em litros). No MVP,
-  peças e insumos compartilham o mesmo agregado (`Peca`, com campo `tipo = PECA | INSUMO` e `unidadeMedida`).
+  peças e insumos compartilham o mesmo agregado (`Part`, com campo `type = PART | SUPPLY` e `unitOfMeasure`).
 - **Movimentação de estoque**: registro imutável de entrada, saída, reserva, liberação ou ajuste.
 
 ## 3. Requisitos funcionais
@@ -65,12 +65,12 @@ Funcionalidade: Controle de estoque
   Cenário: Entrada de estoque
     Dado a peça "Filtro de óleo" com estoque 2
     Quando registro entrada de 10 unidades
-    Então o estoque passa a 12 e existe uma movimentação ENTRADA de 10
+    Então o estoque passa a 12 e existe uma movimentação INBOUND de 10
 
   Cenário: Baixa ao aprovar orçamento
     Dado uma OS aguardando aprovação com 2 unidades de "Filtro de óleo" (estoque 12)
     Quando o cliente aprova o orçamento
-    Então o estoque passa a 10 e existe movimentação SAIDA de 2 vinculada à OS
+    Então o estoque passa a 10 e existe movimentação OUTBOUND de 2 vinculada à OS
 
   Cenário: Estoque insuficiente
     Dado a peça "Pastilha de freio" com estoque 0
@@ -87,17 +87,17 @@ Funcionalidade: Controle de estoque
 
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| POST/GET/PUT/DELETE | `/servicos`, `/servicos/{id}` | GERENTE (leitura: todos) | CRUD de serviços |
-| POST/GET/PUT/DELETE | `/pecas`, `/pecas/{id}` | GERENTE (leitura: todos) | CRUD de peças/insumos |
-| POST | `/pecas/{id}/movimentacoes` | GERENTE | Entrada/ajuste (`tipo`, `quantidade`, `motivo`) |
-| GET | `/pecas/{id}/movimentacoes` | GERENTE | Histórico |
-| GET | `/pecas?abaixoDoMinimo=true` | GERENTE | Alerta (Could) |
+| POST/GET/PUT/DELETE | `/services`, `/services/{id}` | MANAGER (leitura: todos) | CRUD de serviços |
+| POST/GET/PUT/DELETE | `/parts`, `/parts/{id}` | MANAGER (leitura: todos) | CRUD de peças/insumos |
+| POST | `/parts/{id}/stock-movements` | MANAGER | Entrada/ajuste (`type`, `quantity`, `reason`) |
+| GET | `/parts/{id}/stock-movements` | MANAGER | Histórico |
+| GET | `/parts?belowMinimum=true` | MANAGER | Alerta (Could) |
 
 ## 8. Modelo (resumo)
 
-- **Servico**: `id`, `nome`, `descricao`, `preco`, `tempoEstimadoMin`, `ativo`.
-- **Peca**: `id`, `sku`, `nome`, `tipo (PECA|INSUMO)`, `unidadeMedida (UN|L|ML|KG…)`, `precoUnitario`, `quantidadeEstoque`, `quantidadeReservada?`, `estoqueMinimo`, `ativo`.
-- **MovimentacaoEstoque**: `id`, `pecaId`, `tipo (ENTRADA|SAIDA|RESERVA|LIBERACAO|AJUSTE)`, `quantidade`, `ordemServicoId?`, `motivo?`, `usuarioId`, `ocorridoEm`.
+- **Service**: `id`, `name`, `description`, `price`, `estimatedMinutes`, `active`.
+- **Part**: `id`, `sku`, `name`, `type (PART|SUPPLY)`, `unitOfMeasure (UN|L|ML|KG…)`, `unitPrice`, `stockQuantity`, `reservedQuantity?`, `minimumStock`, `active`.
+- **StockMovement**: `id`, `partId`, `type (INBOUND|OUTBOUND|RESERVATION|RELEASE|ADJUSTMENT)`, `quantity`, `serviceOrderId?`, `reason?`, `userId`, `occurredAt`.
 
 ## 9. Questões abertas
 
@@ -105,7 +105,7 @@ Funcionalidade: Controle de estoque
 |---|---|---|
 | Q1 | Momento da baixa (aprovação vs. finalização) e reserva | E-16 / ADR-012 |
 | Q2 | Sem estoque: bloquear inclusão ou permitir com sinalização | E-16 / ADR-012 |
-| Q3 | Insumos fracionários (litros) — aceitar decimal na quantidade? | Proposta: sim, `quantidade` decimal(10,3) |
+| Q3 | Insumos fracionários (litros) — aceitar decimal na quantidade? | Proposta: sim, `quantity` decimal(10,3) |
 
 ## 10. Evidências
 

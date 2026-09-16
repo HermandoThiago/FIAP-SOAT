@@ -49,5 +49,5 @@ springdoc-openapi · `@nestjs/swagger` · Swashbuckle · FastAPI (nativo) · swa
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-09 — ADR-005 OpenAPI** (prazo 72 h)
+> **Enquete E-09 — ADR-005 OpenAPI** (prazo 48 h)
 > 🧩 Code-first · 📄 Design-first · 🔀 Híbrido (recomendada)

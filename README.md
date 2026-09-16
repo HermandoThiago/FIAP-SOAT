@@ -7,20 +7,22 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 **Domain-Driven Design**, **qualidade de software** (testes ≥ 80% nos domínios críticos) e **desenvolvimento seguro**
 (JWT nas APIs administrativas, validação de dados sensíveis, análise de vulnerabilidades).
 
-> **Status atual:** planejamento (documentação primeiro, código depois — decisão do grupo).
-> As decisões de arquitetura estão **em votação**: veja `docs/02-adr/README.md`.
+> **Status atual:** planejamento concluindo → esqueleto do código. Decisões estruturais **aceitas** (Lote 1): TypeScript +
+> NestJS (ADR-001), PostgreSQL (ADR-002), Clean Architecture modular por contexto (ADR-003), código em inglês com glossário
+> (ADR-013). Lotes 2–3 em votação: `docs/02-adr/README.md`.
 > A Fase 1 exige monólito; as fases seguintes do curso (Kubernetes/EKS, API Gateway, serverless, microsserviços com SAGA)
 > vão **refatorar este mesmo projeto**, então as decisões daqui já consideram essa evolução (`docs/04-arquitetura/evolucao-fases.md`).
 
 ## Grupo
 
-| Integrante | RM | Discord | Frente (sugestão — confirmar na E-02; ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
+| Integrante | RM | Discord | Frente (E-02 aprovada; redistribuída em 16/09 — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
 |---|---|---|---|
-| Victor Hugo Carvalho Dos Reis Santos | RM377398 | katomaro | **F1** Arquitetura & Repositório (Tech Lead & Arquiteta) — coordenação, ADRs, esqueleto, CI, revisão; apoio em segurança (F4) |
-| Shirley Balbino | `preencher` | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro do vídeo, PDF |
-| Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `atendimento`; co-revisão de arquitetura (F1) |
-| Daniel Henrique (Dan) | RM377497 | medanielsantos | **F3** módulos `cadastro` e `catalogo-estoque` + **F5** Infra & Entrega (Docker, compose, CI, README, Swagger) |
-| Hermando Thiago | RM378259 | hermandothiago | **F4** Qualidade & Segurança — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
+| Victor Hugo Carvalho Dos Reis Santos (Vi) | RM377398 | katomaro | **F1** Arquitetura & Repositório (Tech Lead & Arquiteta) + **F5** Infra (Docker, compose, CI, README, Swagger); apoio em segurança (F4) |
+| Shirley Balbino | `preencher` | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro e edição do vídeo, PDF |
+| Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `service-orders`; co-revisão de arquitetura (F1) e testes do core (F4) |
+| Hermando Thiago | RM378259 | hermandothiago | **F3** módulos `customers` e `catalog` + **F4** Qualidade & Segurança — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
+
+Daniel Henrique (RM377497) deixou o curso em 16/09/2026; a redistribuição está registrada em `docs/02-adr/decisoes-leves.md`.
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 
@@ -40,19 +42,33 @@ Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário Git
 | `CONTRIBUTING.md` | Resumo das regras de contribuição (branch, commits, PR, Definition of Done, decisões) | Antes do primeiro PR |
 | `.github/` | Templates de issue/PR e workflows do Claude (`@claude` e revisão automática de PR) — guia *Claude no GitHub* em `docs/README.md` | Ao abrir issue/PR; setup do repo |
 
-Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.md` → `docs/00-guia-do-grupo/enquetes.md`.
+Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.md` → `docs/03-ddd/linguagem-ubiqua.md`
+(tradução oficial de cada termo para o código) → `docs/04-arquitetura/estrutura-do-repositorio.md`.
 
 ## Como executar
 
-> A preencher assim que as ADR-001 (linguagem/framework) e ADR-002 (banco) forem aceitas. Meta: `docker compose up` sobe
-> API + banco + Swagger em um comando; `README` explica variáveis de ambiente, como rodar testes e como obter um token JWT.
+> Alvo (esqueleto em construção — `prompts/02-esqueleto-do-projeto.md`): `docker compose up` sobe API (NestJS) + PostgreSQL +
+> migrações/seed em um comando. Esta seção vira o passo a passo real assim que o esqueleto for mesclado.
 
 ```bash
-# alvo
+cp .env.example .env
 docker compose up --build
-# API:      http://localhost:8080
-# Swagger:  http://localhost:8080/swagger  (ou /docs, conforme framework)
+# API:      http://localhost:8080/api/v1
+# Swagger:  http://localhost:8080/docs
+# Health:   http://localhost:8080/health
+# Login:    POST /api/v1/auth/login  { "email": "<ADMIN_EMAIL>", "password": "<ADMIN_PASSWORD>" }
+
+# desenvolvimento local (sem Docker para a API)
+npm ci && npm run start:dev
+npm test            # unitários
+npm run test:e2e    # integração (Testcontainers) + BDD
+npm run test:cov    # cobertura com gate
 ```
+
+**Banco de dados — justificativa (ADR-002):** o domínio é relacional e transacional (aprovar o orçamento muda o status da
+OS e baixa o estoque na mesma transação), `NUMERIC` evita erro de arredondamento em dinheiro, constraints garantem
+invariantes (estoque ≥ 0, documento único) e o tempo médio de execução é SQL simples. PostgreSQL é gratuito, roda em um
+contêiner no compose, tem Testcontainers para testes de integração e caminho direto para RDS/Aurora nas próximas fases.
 
 ## Entregáveis da Fase 1 (resumo do enunciado)
 

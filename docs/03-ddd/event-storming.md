@@ -215,14 +215,17 @@ flowchart LR
 
 ## 5. Software design — agregados por evento
 
-| Agregado | Eventos que emite | Módulo |
-|---|---|---|
-| Cliente | Cliente cadastrado, atualizado, inativado | `cadastro` |
-| Veículo | Veículo cadastrado, atualizado, inativado | `cadastro` |
-| Serviço | Serviço cadastrado, atualizado, inativado | `catalogo-estoque` |
-| Peça (com estoque) | Peça cadastrada/atualizada/inativada; Entrada registrada; Estoque ajustado; Baixa realizada; Reserva liberada; Estoque abaixo do mínimo | `catalogo-estoque` |
-| Ordem de Serviço | OS recebida; Diagnóstico iniciado; Serviço/Peça incluído(a)/removido(a); Orçamento recalculado/enviado/aprovado/recusado; Execução iniciada/finalizada; Veículo entregue; OS cancelada | `atendimento` |
-| Usuário | Usuário criado; Login realizado/falhou | `identidade` |
+Post-its em português (linguagem falada); a coluna *No código* traz o nome em inglês (ADR-013, glossário em
+`linguagem-ubiqua.md` §8).
+
+| Agregado | Eventos que emite (post-it) | No código | Módulo |
+|---|---|---|---|
+| Cliente | Cliente cadastrado, atualizado, inativado | `Customer` — `CustomerRegistered` … | `customers` |
+| Veículo | Veículo cadastrado, atualizado, inativado | `Vehicle` — `VehicleRegistered` … | `customers` |
+| Serviço | Serviço cadastrado, atualizado, inativado | `Service` — `ServiceRegistered` … | `catalog` |
+| Peça (com estoque) | Peça cadastrada/atualizada/inativada; Entrada registrada; Estoque ajustado; Baixa realizada; Reserva liberada; Estoque abaixo do mínimo | `Part` — `PartRegistered`, `StockInboundRecorded`, `StockAdjusted`, `StockWithdrawn`, `ReservationReleased`, `StockBelowMinimum` | `catalog` |
+| Ordem de Serviço | OS recebida; Diagnóstico iniciado; Serviço/Peça incluído(a)/removido(a); Orçamento recalculado/enviado/aprovado/recusado; Execução iniciada/finalizada; Veículo entregue; OS cancelada | `ServiceOrder` — `ServiceOrderReceived`, `DiagnosisStarted`, `ItemAddedToServiceOrder`, `ItemRemovedFromServiceOrder`, `QuoteRecalculated`, `QuoteSent`, `QuoteApproved`, `QuoteRejected`, `ExecutionStarted`, `ExecutionCompleted`, `VehicleDelivered`, `ServiceOrderCancelled` | `service-orders` |
+| Usuário | Usuário criado; Login realizado/falhou | `User` — `UserRegistered`, `UserAuthenticated` | `identity` |
 
 ## 6. Como montar no Miro (F2)
 

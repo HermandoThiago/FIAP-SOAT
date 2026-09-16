@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 🗳️ Em votação (Lote 1) |
+| Status | ✅ **Aceita** — enquete E-05 encerrada em 16/09/2026 |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-05** |
 | Data | 2026-09-14 |
@@ -65,15 +65,16 @@ colunares e de grafos, com "um banco por microsserviço" — o monólito de agor
 
 ## Decisão
 
-> Preencher após a enquete E-05.
+**PostgreSQL 16** (Opção A), resultado da enquete E-05. A justificativa da seção *Recomendação* passa a ser o texto
+oficial para README e vídeo. Imagem no compose: `postgres:16-alpine`, com volume nomeado e healthcheck.
 
 ## Consequências
 
 - Migrações versionadas (Flyway/Liquibase/Prisma Migrate/Alembic/EF Migrations) desde o primeiro PR.
-- Um *schema* (ou prefixo) por módulo (`cadastro`, `catalogo`, `atendimento`, `identidade`); **sem JOIN entre módulos** no código de domínio (só via aplicação) — prepara a Fase 4.
+- Um *schema* por módulo (`customers`, `catalog`, `service_orders`, `identity`); **sem JOIN entre módulos** no código de domínio (só via aplicação) — prepara a Fase 4.
 - `docker-compose.yml` sobe o banco com volume nomeado e seed de demonstração.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-05 — ADR-002 Banco de dados** (prazo 72 h) — precisamos justificar no vídeo/README
+> **Enquete E-05 — ADR-002 Banco de dados** (prazo 48 h) — precisamos justificar no vídeo/README
 > 🐘 PostgreSQL · 🐬 MySQL · 🍃 MongoDB · 🟦 SQL Server

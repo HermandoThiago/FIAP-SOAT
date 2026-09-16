@@ -9,21 +9,21 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 
 | # | Requisito (enunciado) | Evidência no código | Teste | Swagger | Bloco do vídeo | Dono | Status |
 |---|---|---|---|---|---|---|---|
-| F1 | Identificação do cliente por CPF/CNPJ | `POST /ordens-servico` aceita `documentoCliente`; VO `Documento` | unit + integração | ✔ | 6 | | ⬜ |
-| F2 | Cadastro de veículo (placa, marca, modelo, ano) | `POST /veiculos`; VO `Placa` | unit + integração | ✔ | 6 | | ⬜ |
-| F3 | Inclusão dos serviços solicitados | `POST /ordens-servico/{id}/itens/servicos` | integração | ✔ | 7 | | ⬜ |
-| F4 | Inclusão de peças e insumos | `POST /ordens-servico/{id}/itens/pecas` (verifica estoque) | integração | ✔ | 7 | | ⬜ |
-| F5 | Orçamento gerado automaticamente | `OrdemDeServico.recalcularOrcamento()` | unit | ✔ | 8 | | ⬜ |
-| F6 | Envio do orçamento ao cliente para aprovação | `POST …/orcamento/enviar` + notificador (log) + token | integração | ✔ | 8 | | ⬜ |
-| F7 | 6 status da OS | enum `StatusOS` + `PoliticaDeTransicao` | unit parametrizado | — | 9 | | ⬜ |
+| F1 | Identificação do cliente por CPF/CNPJ | `POST /service-orders` aceita `customerDocument`; VO `Document` | unit + integração | ✔ | 6 | | ⬜ |
+| F2 | Cadastro de veículo (placa, marca, modelo, ano) | `POST /vehicles`; VO `LicensePlate` | unit + integração | ✔ | 6 | | ⬜ |
+| F3 | Inclusão dos serviços solicitados | `POST /service-orders/{id}/items/services` | integração | ✔ | 7 | | ⬜ |
+| F4 | Inclusão de peças e insumos | `POST /service-orders/{id}/items/parts` (verifica estoque) | integração | ✔ | 7 | | ⬜ |
+| F5 | Orçamento gerado automaticamente | `ServiceOrder.recalculateQuote()` | unit | ✔ | 8 | | ⬜ |
+| F6 | Envio do orçamento ao cliente para aprovação | `POST …/quote/send` + notificador (log) + token | integração | ✔ | 8 | | ⬜ |
+| F7 | 6 status da OS | enum `ServiceOrderStatus` + `StatusTransitionPolicy` | unit parametrizado | — | 9 | | ⬜ |
 | F8 | Alteração automática dos status conforme ações | transições dentro dos comandos; histórico | unit + integração | ✔ | 9 | | ⬜ |
-| F9 | Consulta do cliente via API | `GET /acompanhamento/ordens-servico/{id}` | integração | ✔ | 6/8 | | ⬜ |
-| F10 | CRUD de clientes | `/clientes` | integração | ✔ | 6 | | ⬜ |
-| F11 | CRUD de veículos | `/veiculos` | integração | ✔ | 6 | | ⬜ |
-| F12 | CRUD de serviços | `/servicos` | integração | ✔ | 7 | | ⬜ |
-| F13 | CRUD de peças e insumos com controle de estoque | `/pecas` + movimentações + baixa na aprovação | unit + integração | ✔ | 7 | | ⬜ |
-| F14 | Listagem e detalhamento de OS | `GET /ordens-servico`, `GET /ordens-servico/{id}` | integração | ✔ | 9 | | ⬜ |
-| F15 | Monitoramento do tempo médio de execução | `GET /metricas/tempo-medio-execucao` | integração (seed) | ✔ | 9 | | ⬜ |
+| F9 | Consulta do cliente via API | `GET /tracking/service-orders/{id}` | integração | ✔ | 6/8 | | ⬜ |
+| F10 | CRUD de clientes | `/customers` | integração | ✔ | 6 | | ⬜ |
+| F11 | CRUD de veículos | `/vehicles` | integração | ✔ | 6 | | ⬜ |
+| F12 | CRUD de serviços | `/services` | integração | ✔ | 7 | | ⬜ |
+| F13 | CRUD de peças e insumos com controle de estoque | `/parts` + movimentações + baixa na aprovação | unit + integração | ✔ | 7 | | ⬜ |
+| F14 | Listagem e detalhamento de OS | `GET /service-orders`, `GET /service-orders/{id}` | integração | ✔ | 9 | | ⬜ |
+| F15 | Monitoramento do tempo médio de execução | `GET /metrics/average-execution-time` | integração (seed) | ✔ | 9 | | ⬜ |
 | F16 | Autenticação JWT para APIs administrativas | filtro JWT + `/auth/login` | integração 401/403 | ✔ | 10 | | ⬜ |
 | F17 | Validação de dados sensíveis (CPF/CNPJ, placa) | VOs + 422 | unit exaustivo | ✔ | 10 | | ⬜ |
 | F18 | Testes unitários e de integração dos principais fluxos | `tests/` | CI verde | — | 13 | | ⬜ |
@@ -33,9 +33,9 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | # | Requisito | Evidência | Dono | Status |
 |---|---|---|---|---|
 | T1 | Back-end monolítico | 1 processo de API no compose; `docs/04-arquitetura/visao-geral.md` | | ⬜ |
-| T2 | Arquitetura em camadas (ou hexagonal) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | | ⬜ |
+| T2 | Arquitetura em camadas (Clean Architecture) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | | ⬜ |
 | T3 | Banco de dados justificado | ADR-002 + README §banco + bloco 4 | | ⬜ |
-| T4 | APIs RESTful documentadas via Swagger | `/swagger` no ar; `openapi.json` versionado | | ⬜ |
+| T4 | APIs RESTful documentadas via Swagger | `/docs` no ar; `openapi.json` versionado | | ⬜ |
 | T5 | Dockerfile | build limpo; Trivy sem críticas | | ⬜ |
 | T6 | docker-compose.yml orquestra ambiente completo | `docker compose up` em máquina limpa (testado por outro membro) | | ⬜ |
 | T7 | Cobertura mínima 80 % nos domínios críticos | relatório de cobertura em `evidencias/` + gate no CI | | ⬜ |

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 🗳️ Em votação (Lote 1) |
+| Status | ✅ **Aceita** — enquete E-06 encerrada em 16/09/2026 (Opção C, diferente da recomendação) |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-06** |
 | Data | 2026-09-14 |
@@ -34,7 +34,7 @@ reescrita nas próximas fases.
 
 ### Opção B — Monólito **modular** por contexto delimitado + **hexagonal** (Ports & Adapters) dentro de cada módulo
 
-Cada módulo (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`) tem: `domain` (agregados, VOs, eventos,
+Cada módulo (`customers`, `catalog`, `service-orders`, `identity`) tem: `domain` (agregados, VOs, eventos,
 interfaces de repositório), `application` (casos de uso / portas de entrada e saída), `adapters` (`in`: REST/DTOs;
 `out`: persistência, notificação, relógio). Módulos se comunicam por **portas de aplicação** (interfaces) ou eventos
 em processo — nunca por tabelas/JOINs cruzados.
@@ -87,16 +87,34 @@ flowchart LR
 
 ## Decisão
 
-> Preencher após a enquete E-06.
+**Clean Architecture completa** (Opção C), resultado da enquete E-06 — o grupo preferiu adiantar o conteúdo da Fase 2 e
+ter uma única organização de código nas cinco fases. Mantém-se a **modularidade por contexto delimitado** (Opção B): cada
+módulo (`customers`, `catalog`, `service-orders`, `identity`) tem as quatro camadas.
+
+Como fica (detalhes e árvore em `docs/04-arquitetura/estrutura-do-repositorio.md`):
+
+| Camada | Pasta | Conteúdo |
+|---|---|---|
+| Entities | `domain/` | agregados, VOs, eventos, `StatusTransitionPolicy`, interfaces de repositório |
+| Use Cases | `application/` | um caso de uso por comando/consulta; **input/output boundaries** e request/response models; portas de saída |
+| Interface Adapters | `adapters/` | controllers, **presenters**, gateways (repositórios/portas mapeando ORM ↔ domínio), DTOs |
+| Frameworks & Drivers | `infrastructure/` | módulo Nest/DI, ORM, migrações, config |
+
+Regra de dependência de fora para dentro, verificada por `dependency-cruiser` no CI. Para conter o custo de boilerplate
+(o contra da Opção C): request/response models são tipos simples, presenters só existem onde o formato de saída difere do
+modelo, e o walking skeleton vem antes de qualquer abstração extra.
 
 ## Consequências
 
-- Estrutura de pastas em `docs/04-arquitetura/estrutura-do-repositorio.md`; regra de dependência verificada em revisão (e,
-  se a linguagem permitir, por lint de arquitetura: ArchUnit, dependency-cruiser, NetArchTest, import-linter).
+- Estrutura de pastas em `docs/04-arquitetura/estrutura-do-repositorio.md`; regra de dependência verificada por
+  `dependency-cruiser` no CI e na revisão de PR.
 - Cobertura ≥ 80 % medida sobre `domain` + `application` dos módulos críticos.
-- Vídeo: bloco "organização do monólito e suas camadas" usa o diagrama acima + árvore do repositório.
+- Vídeo: bloco "organização do monólito e suas camadas" mostra as quatro camadas da Clean, a árvore do repositório e o
+  caminho controller → use case → presenter de um caso real (`visao-geral.md` §5).
+- A disciplina da Fase 1 ensina hexagonal: no vídeo, explicar que a Clean é uma evolução da hexagonal (mesma inversão de
+  dependência, mais boundaries e presenters explícitos) — não uma contradição.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 72 h)
+> **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 48 h)
 > 🥞 Camadas clássica · ⬡ Monólito modular + hexagonal (recomendada) · 🧅 Clean Architecture completa

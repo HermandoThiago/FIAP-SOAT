@@ -1,11 +1,11 @@
-# PRD-005 — Segurança: autenticação JWT, papéis e validação de dados sensíveis (contexto `identidade`)
+# PRD-005 — Segurança: autenticação JWT, papéis e validação de dados sensíveis (contexto `identity`)
 
 | Campo | Valor |
 |---|---|
 | Status | 📝 Rascunho para revisão |
 | Dono | F4 (Qualidade & Segurança) |
 | Origem no enunciado | "Implementação de autenticação JWT para APIs administrativas"; "Validação dos dados sensíveis (CPF/CNPJ, placa de veículo)"; vídeo: "A autenticação das APIs administrativas"; disciplina *Desenvolvimento Seguro* (OWASP Top 10) |
-| Contexto DDD | `identidade` (generic subdomain) |
+| Contexto DDD | `identity` (generic subdomain) |
 
 ## 1. Objetivo
 
@@ -17,12 +17,12 @@ validados e protegidos (entrada, armazenamento, logs, respostas).
 | ID | Requisito | Prioridade |
 |---|---|---|
 | RF-060 | `POST /auth/login` com e-mail + senha → `accessToken` (JWT) com expiração curta (ex.: 60 min) | Must |
-| RF-061 | Todas as rotas administrativas (`/clientes`, `/veiculos`, `/servicos`, `/pecas`, `/ordens-servico`, `/metricas`, `/usuarios`) exigem `Authorization: Bearer <jwt>` | Must |
+| RF-061 | Todas as rotas administrativas (`/customers`, `/vehicles`, `/services`, `/parts`, `/service-orders`, `/metrics`, `/users`) exigem `Authorization: Bearer <jwt>` | Must |
 | RF-062 | Usuário administrativo seed criado na subida do ambiente (credenciais via variáveis de ambiente, documentadas no README) | Must |
-| RF-063 | Papéis `ATENDENTE`, `MECANICO`, `GERENTE` como claim `roles`; autorização por rota conforme PRDs | Should (fallback: papel único `ADMIN`) |
-| RF-064 | CRUD de usuários administrativos (`/usuarios`) restrito a GERENTE | Should |
+| RF-063 | Papéis `ATTENDANT`, `MECHANIC`, `MANAGER` como claim `roles`; autorização por rota conforme PRDs | Should (fallback: papel único `ADMIN`) |
+| RF-064 | CRUD de usuários administrativos (`/users`) restrito a `MANAGER` | Should |
 | RF-065 | Refresh token / logout (revogação) | Could |
-| RF-066 | Rotas do cliente (`/acompanhamento/**`) protegidas pelo mecanismo da ADR-011, **não** por JWT administrativo | Must |
+| RF-066 | Rotas do cliente (`/tracking/**`) protegidas pelo mecanismo da ADR-011, **não** por JWT administrativo | Must |
 | RF-067 | Rotas públicas: `POST /auth/login`, `GET /health`, Swagger (em dev) | Must |
 
 ## 3. Regras e controles de segurança
@@ -54,41 +54,41 @@ Funcionalidade: Autenticação administrativa
     Então recebo 401 sem indicar se o e-mail existe
 
   Cenário: Rota protegida sem token
-    Quando chamo GET /clientes sem Authorization
+    Quando chamo GET /customers sem Authorization
     Então recebo 401
 
   Cenário: Token expirado
     Dado um token com exp no passado
-    Quando chamo GET /clientes
+    Quando chamo GET /customers
     Então recebo 401
 
   Cenário: Papel insuficiente
-    Dado que estou autenticado como ATENDENTE
-    Quando chamo DELETE /pecas/{id}
+    Dado que estou autenticado como ATTENDANT
+    Quando chamo DELETE /parts/{id}
     Então recebo 403
 
 Funcionalidade: Validação de dados sensíveis
   Cenário: CPF com dígito inválido
     Quando cadastro cliente com CPF "52998224726"
-    Então recebo 422 com o campo "documento" apontado
+    Então recebo 422 com o campo "document" apontado
 
   Cenário: Placa fora do padrão
     Quando cadastro veículo com placa "ABCD123"
-    Então recebo 422 com o campo "placa" apontado
+    Então recebo 422 com o campo "licensePlate" apontado
 ```
 
 ## 5. API (resumo)
 
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| POST | `/auth/login` | público | `{email, senha}` → `{accessToken, expiresIn, tokenType}` |
+| POST | `/auth/login` | público | `{email, password}` → `{accessToken, expiresIn, tokenType}` |
 | POST | `/auth/refresh` | portador de refresh | (Could) |
-| GET/POST/PUT/DELETE | `/usuarios` | GERENTE | (Should) |
+| GET/POST/PUT/DELETE | `/users` | MANAGER | (Should) |
 | GET | `/health` | público | liveness/readiness |
 
 ## 6. Modelo
 
-**Usuario**: `id`, `nome`, `email` (único), `senhaHash`, `papeis[]`, `ativo`, timestamps.
+**User**: `id`, `name`, `email` (único), `passwordHash`, `roles[]`, `active`, timestamps.
 
 ## 7. Questões abertas
 

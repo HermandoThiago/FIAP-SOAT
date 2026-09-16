@@ -1,201 +1,202 @@
-# Modelo de dados (relacional — assume ADR-002 = PostgreSQL; adaptável a MySQL/SQL Server)
+# Modelo de dados (PostgreSQL 16 — ADR-002 Aceita)
 
-> Um *schema* (ou prefixo) por módulo. **Sem chaves estrangeiras entre módulos** (apenas colunas de referência com
-> índice) — o que permite separar os bancos na Fase 4 sem migração de esquema. Dentro do módulo, FKs normais.
+> Um *schema* por módulo. **Sem chaves estrangeiras entre módulos** (apenas colunas de referência com índice) — o que
+> permite separar os bancos na Fase 4 sem migração de esquema. Dentro do módulo, FKs normais. Nomes em inglês,
+> `snake_case` (ADR-013; glossário em `docs/03-ddd/linguagem-ubiqua.md`).
 
 ## 1. Diagrama ER
 
 ```mermaid
 erDiagram
-    CLIENTES {
+    CUSTOMERS {
         uuid id PK
-        varchar tipo_pessoa "PF | PJ"
-        varchar documento UK "so digitos (11 ou 14)"
-        varchar nome
+        varchar customer_type "INDIVIDUAL | COMPANY"
+        varchar document UK "so digitos (11 ou 14)"
+        varchar name
         varchar email
-        varchar telefone
-        boolean ativo
-        timestamptz criado_em
-        timestamptz atualizado_em
+        varchar phone
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
     }
-    VEICULOS {
+    VEHICLES {
         uuid id PK
-        uuid cliente_id FK
-        varchar placa UK "normalizada"
-        varchar marca
-        varchar modelo
-        int ano
-        varchar cor
-        boolean ativo
-        timestamptz criado_em
-        timestamptz atualizado_em
+        uuid customer_id FK
+        varchar license_plate UK "normalizada"
+        varchar brand
+        varchar model
+        int year
+        varchar color
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
     }
-    SERVICOS {
+    SERVICES {
         uuid id PK
-        varchar nome UK
-        text descricao
-        numeric preco "12,2"
-        int tempo_estimado_min
-        boolean ativo
-        timestamptz criado_em
-        timestamptz atualizado_em
+        varchar name UK
+        text description
+        numeric price "12,2"
+        int estimated_minutes
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
     }
-    PECAS {
+    PARTS {
         uuid id PK
         varchar sku UK
-        varchar nome
-        varchar tipo "PECA | INSUMO"
-        varchar unidade_medida
-        numeric preco_unitario "12,2"
-        numeric quantidade_estoque "10,3 >= 0"
-        numeric quantidade_reservada "10,3 >= 0"
-        numeric estoque_minimo "10,3"
-        boolean ativo
-        timestamptz criado_em
-        timestamptz atualizado_em
+        varchar name
+        varchar type "PART | SUPPLY"
+        varchar unit_of_measure
+        numeric unit_price "12,2"
+        numeric stock_quantity "10,3 >= 0"
+        numeric reserved_quantity "10,3 >= 0"
+        numeric minimum_stock "10,3"
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
     }
-    MOVIMENTACOES_ESTOQUE {
+    STOCK_MOVEMENTS {
         uuid id PK
-        uuid peca_id FK
-        varchar tipo "ENTRADA | SAIDA | RESERVA | LIBERACAO | AJUSTE"
-        numeric quantidade "10,3"
-        uuid ordem_servico_id "ref. atendimento (sem FK)"
-        varchar motivo
-        uuid usuario_id "ref. identidade (sem FK)"
-        timestamptz ocorrido_em
+        uuid part_id FK
+        varchar type "INBOUND | OUTBOUND | RESERVATION | RELEASE | ADJUSTMENT"
+        numeric quantity "10,3"
+        uuid service_order_id "ref. service_orders (sem FK)"
+        varchar reason
+        uuid user_id "ref. identity (sem FK)"
+        timestamptz occurred_at
     }
-    ORDENS_SERVICO {
+    SERVICE_ORDERS {
         uuid id PK
-        varchar numero UK "OS-AAAA-NNNNNN"
-        uuid cliente_id "ref. cadastro (sem FK)"
-        uuid veiculo_id "ref. cadastro (sem FK)"
-        text descricao_problema
-        varchar status "RECEBIDA ... ENTREGUE | CANCELADA"
-        numeric orcamento_valor_total "12,2"
-        varchar orcamento_status "PENDENTE | ENVIADO | APROVADO | RECUSADO"
-        timestamptz orcamento_enviado_em
-        timestamptz orcamento_respondido_em
-        varchar motivo_recusa_ou_cancelamento
-        timestamptz recebida_em
-        timestamptz diagnostico_iniciado_em
-        timestamptz execucao_iniciada_em
-        timestamptz finalizada_em
-        timestamptz entregue_em
-        uuid criado_por "ref. identidade (sem FK)"
-        int versao "lock otimista"
-        timestamptz criado_em
-        timestamptz atualizado_em
+        varchar number UK "OS-AAAA-NNNNNN"
+        uuid customer_id "ref. customers (sem FK)"
+        uuid vehicle_id "ref. customers (sem FK)"
+        text problem_description
+        varchar status "RECEIVED ... DELIVERED | CANCELLED"
+        numeric quote_total_amount "12,2"
+        varchar quote_status "PENDING | SENT | APPROVED | REJECTED"
+        timestamptz quote_sent_at
+        timestamptz quote_responded_at
+        varchar rejection_or_cancellation_reason
+        timestamptz received_at
+        timestamptz diagnosis_started_at
+        timestamptz execution_started_at
+        timestamptz completed_at
+        timestamptz delivered_at
+        uuid created_by "ref. identity (sem FK)"
+        int version "lock otimista"
+        timestamptz created_at
+        timestamptz updated_at
     }
-    OS_ITENS_SERVICO {
+    SERVICE_ORDER_SERVICE_ITEMS {
         uuid id PK
-        uuid ordem_servico_id FK
-        uuid servico_id "ref. catalogo (sem FK)"
-        varchar nome_snapshot
-        numeric preco_snapshot "12,2"
-        int quantidade
+        uuid service_order_id FK
+        uuid service_id "ref. catalog (sem FK)"
+        varchar name_snapshot
+        numeric price_snapshot "12,2"
+        int quantity
     }
-    OS_ITENS_PECA {
+    SERVICE_ORDER_PART_ITEMS {
         uuid id PK
-        uuid ordem_servico_id FK
-        uuid peca_id "ref. catalogo (sem FK)"
-        varchar nome_snapshot
-        numeric preco_unitario_snapshot "12,2"
-        numeric quantidade "10,3"
+        uuid service_order_id FK
+        uuid part_id "ref. catalog (sem FK)"
+        varchar name_snapshot
+        numeric unit_price_snapshot "12,2"
+        numeric quantity "10,3"
     }
-    OS_HISTORICO_STATUS {
+    SERVICE_ORDER_STATUS_HISTORY {
         uuid id PK
-        uuid ordem_servico_id FK
-        varchar de_status
-        varchar para_status
-        varchar autor "usuario id | CLIENTE | SISTEMA"
-        varchar motivo
-        timestamptz ocorrido_em
+        uuid service_order_id FK
+        varchar from_status
+        varchar to_status
+        varchar actor "user id | CUSTOMER | SYSTEM"
+        varchar reason
+        timestamptz occurred_at
     }
-    TOKENS_ACOMPANHAMENTO {
+    TRACKING_TOKENS {
         uuid id PK
-        uuid ordem_servico_id FK
+        uuid service_order_id FK
         varchar token_hash UK
-        timestamptz expira_em
-        timestamptz revogado_em
+        timestamptz expires_at
+        timestamptz revoked_at
     }
-    USUARIOS {
+    USERS {
         uuid id PK
-        varchar nome
+        varchar name
         varchar email UK
-        varchar senha_hash
-        varchar papeis "ATENDENTE,MECANICO,GERENTE"
-        boolean ativo
-        timestamptz criado_em
-        timestamptz atualizado_em
+        varchar password_hash
+        varchar roles "ATTENDANT,MECHANIC,MANAGER"
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
     }
-    CLIENTES ||--o{ VEICULOS : possui
-    PECAS ||--o{ MOVIMENTACOES_ESTOQUE : registra
-    ORDENS_SERVICO ||--o{ OS_ITENS_SERVICO : contem
-    ORDENS_SERVICO ||--o{ OS_ITENS_PECA : contem
-    ORDENS_SERVICO ||--o{ OS_HISTORICO_STATUS : transiciona
-    ORDENS_SERVICO ||--o{ TOKENS_ACOMPANHAMENTO : emite
-    CLIENTES }o..o{ ORDENS_SERVICO : "referencia por id"
-    VEICULOS }o..o{ ORDENS_SERVICO : "referencia por id"
-    SERVICOS }o..o{ OS_ITENS_SERVICO : "snapshot"
-    PECAS }o..o{ OS_ITENS_PECA : "snapshot"
+    CUSTOMERS ||--o{ VEHICLES : owns
+    PARTS ||--o{ STOCK_MOVEMENTS : records
+    SERVICE_ORDERS ||--o{ SERVICE_ORDER_SERVICE_ITEMS : contains
+    SERVICE_ORDERS ||--o{ SERVICE_ORDER_PART_ITEMS : contains
+    SERVICE_ORDERS ||--o{ SERVICE_ORDER_STATUS_HISTORY : transitions
+    SERVICE_ORDERS ||--o{ TRACKING_TOKENS : issues
+    CUSTOMERS }o..o{ SERVICE_ORDERS : "referencia por id"
+    VEHICLES }o..o{ SERVICE_ORDERS : "referencia por id"
+    SERVICES }o..o{ SERVICE_ORDER_SERVICE_ITEMS : "snapshot"
+    PARTS }o..o{ SERVICE_ORDER_PART_ITEMS : "snapshot"
 ```
 
-`TOKENS_ACOMPANHAMENTO` só existe se a ADR-011 escolher tokens **opacos** persistidos; com JWT assinado (recomendado)
+`TRACKING_TOKENS` só existe se a ADR-011 escolher tokens **opacos** persistidos; com JWT assinado (recomendado)
 a tabela é opcional (útil para revogação — Could).
 
 ## 2. Schemas por módulo
 
 | Schema | Tabelas |
 |---|---|
-| `cadastro` | `clientes`, `veiculos` |
-| `catalogo` | `servicos`, `pecas`, `movimentacoes_estoque` |
-| `atendimento` | `ordens_servico`, `os_itens_servico`, `os_itens_peca`, `os_historico_status`, `tokens_acompanhamento`, `os_numero_seq` (sequência anual) |
-| `identidade` | `usuarios` |
+| `customers` | `customers`, `vehicles` |
+| `catalog` | `services`, `parts`, `stock_movements` |
+| `service_orders` | `service_orders`, `service_order_service_items`, `service_order_part_items`, `service_order_status_history`, `tracking_tokens`, `service_order_number_seq` (sequência anual) |
+| `identity` | `users` |
 
 ## 3. Constraints que protegem invariantes (defesa em profundidade)
 
 | Tabela | Constraint |
 |---|---|
-| `clientes` | `UNIQUE (documento) WHERE ativo` (índice parcial) · `CHECK (tipo_pessoa IN ('PF','PJ'))` · `CHECK (length(documento) IN (11,14))` |
-| `veiculos` | `UNIQUE (placa) WHERE ativo` · `CHECK (ano BETWEEN 1900 AND 2100)` |
-| `pecas` | `CHECK (quantidade_estoque >= 0)` · `CHECK (quantidade_reservada >= 0 AND quantidade_reservada <= quantidade_estoque)` · `CHECK (preco_unitario >= 0)` |
-| `movimentacoes_estoque` | `CHECK (quantidade > 0)` · `CHECK (tipo IN (...))` |
-| `ordens_servico` | `CHECK (status IN (...))` · `CHECK (orcamento_valor_total >= 0)` · `UNIQUE (numero)` · índice parcial "1 OS aberta por veículo" (Should): `UNIQUE (veiculo_id) WHERE status NOT IN ('ENTREGUE','CANCELADA')` |
-| `os_itens_*` | `CHECK (quantidade > 0)` |
-| `os_historico_status` | índice `(ordem_servico_id, ocorrido_em)` |
-| `usuarios` | `UNIQUE (email)` |
+| `customers` | `UNIQUE (document) WHERE active` (índice parcial) · `CHECK (customer_type IN ('INDIVIDUAL','COMPANY'))` · `CHECK (length(document) IN (11,14))` |
+| `vehicles` | `UNIQUE (license_plate) WHERE active` · `CHECK (year BETWEEN 1900 AND 2100)` |
+| `parts` | `CHECK (stock_quantity >= 0)` · `CHECK (reserved_quantity >= 0 AND reserved_quantity <= stock_quantity)` · `CHECK (unit_price >= 0)` |
+| `stock_movements` | `CHECK (quantity > 0)` · `CHECK (type IN (...))` |
+| `service_orders` | `CHECK (status IN (...))` · `CHECK (quote_total_amount >= 0)` · `UNIQUE (number)` · índice parcial "1 OS aberta por veículo" (Should): `UNIQUE (vehicle_id) WHERE status NOT IN ('DELIVERED','CANCELLED')` |
+| `service_order_*_items` | `CHECK (quantity > 0)` |
+| `service_order_status_history` | índice `(service_order_id, occurred_at)` |
+| `users` | `UNIQUE (email)` |
 
 ## 4. Consultas de leitura relevantes
 
 **Tempo médio de execução (geral, período):**
 
 ```sql
-SELECT AVG(EXTRACT(EPOCH FROM (finalizada_em - execucao_iniciada_em)) / 60.0) AS media_minutos,
-       COUNT(*) AS quantidade_os
-FROM atendimento.ordens_servico
-WHERE finalizada_em IS NOT NULL
-  AND execucao_iniciada_em IS NOT NULL
-  AND finalizada_em BETWEEN :de AND :ate;
+SELECT AVG(EXTRACT(EPOCH FROM (completed_at - execution_started_at)) / 60.0) AS average_minutes,
+       COUNT(*) AS service_order_count
+FROM service_orders.service_orders
+WHERE completed_at IS NOT NULL
+  AND execution_started_at IS NOT NULL
+  AND completed_at BETWEEN :from AND :to;
 ```
 
 **Tempo médio por serviço (OS que contêm o serviço):**
 
 ```sql
-SELECT i.servico_id, i.nome_snapshot,
-       AVG(EXTRACT(EPOCH FROM (o.finalizada_em - o.execucao_iniciada_em)) / 60.0) AS media_minutos,
-       COUNT(DISTINCT o.id) AS quantidade_os
-FROM atendimento.ordens_servico o
-JOIN atendimento.os_itens_servico i ON i.ordem_servico_id = o.id
-WHERE o.finalizada_em IS NOT NULL AND o.execucao_iniciada_em IS NOT NULL
-  AND o.finalizada_em BETWEEN :de AND :ate
-GROUP BY i.servico_id, i.nome_snapshot;
+SELECT i.service_id, i.name_snapshot,
+       AVG(EXTRACT(EPOCH FROM (o.completed_at - o.execution_started_at)) / 60.0) AS average_minutes,
+       COUNT(DISTINCT o.id) AS service_order_count
+FROM service_orders.service_orders o
+JOIN service_orders.service_order_service_items i ON i.service_order_id = o.id
+WHERE o.completed_at IS NOT NULL AND o.execution_started_at IS NOT NULL
+  AND o.completed_at BETWEEN :from AND :to
+GROUP BY i.service_id, i.name_snapshot;
 ```
 
-**Fila por status:** `SELECT ... FROM atendimento.ordens_servico WHERE status = :status ORDER BY recebida_em`.
+**Fila por status:** `SELECT ... FROM service_orders.service_orders WHERE status = :status ORDER BY received_at`.
 
 ## 5. Dados de demonstração (seed)
 
-- 1 usuário por papel (`gerente@oficina.local`, `mecanico@…`, `atendente@…`) com senhas via env.
+- 1 usuário por papel (`manager@oficina.local`, `mechanic@…`, `attendant@…`) com senhas via env.
 - 3 clientes (2 PF, 1 PJ) com documentos fictícios válidos; 4 veículos (2 placas antigas, 2 Mercosul).
 - 6 serviços (troca de óleo, alinhamento, balanceamento, troca de pastilhas, revisão, diagnóstico eletrônico).
 - 8 peças/insumos com estoque e mínimo; 2 com estoque baixo para demonstrar alerta.
@@ -204,6 +205,6 @@ GROUP BY i.servico_id, i.nome_snapshot;
 
 ## 6. Migrações
 
-Versionadas na ferramenta da linguagem (Flyway/Liquibase · Prisma Migrate/TypeORM migrations · EF Migrations · Alembic ·
-golang-migrate). `V001__schemas.sql`, `V002__cadastro.sql`, `V003__catalogo.sql`, `V004__atendimento.sql`,
-`V005__identidade.sql`, `V900__seed_dev.sql` (somente em `APP_ENV=dev`).
+Versionadas na ferramenta escolhida para o NestJS (decisão leve pendente de F1/F3: **TypeORM migrations** ou **Prisma
+Migrate** — ver ADR-001, seção *Consequências*). Convenção de nomes: `001_schemas`, `002_customers`, `003_catalog`,
+`004_service_orders`, `005_identity`, `900_seed_dev` (somente em `APP_ENV=dev`).

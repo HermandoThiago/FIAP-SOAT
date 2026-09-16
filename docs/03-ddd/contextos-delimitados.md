@@ -44,16 +44,16 @@ pede ids e preços; Cadastro/Catálogo entregam) · **Conformist** os contextos 
 
 | Relação | Fase 1 (monólito modular) | Fases 4+ (microsserviços) |
 |---|---|---|
-| Atendimento → Cadastro (validar cliente/veículo) | Chamada em processo via **porta** `ConsultaCadastro` (interface no módulo atendimento, implementada por adaptador que chama a aplicação de cadastro) | HTTP síncrono (`GET /clientes/{id}`) ou réplica local via eventos |
-| Atendimento → Catálogo (preço/disponibilidade ao incluir item) | Porta `ConsultaCatalogo`; **snapshot** de nome/preço gravado na OS | HTTP síncrono + snapshot (já preparado) |
-| Atendimento → Estoque (baixa na aprovação) | Caso de uso transacional `AprovarOrcamento` orquestra as duas mudanças na mesma transação, via porta `MovimentacaoEstoque` | **SAGA** (orquestrada ou coreografada) com eventos `OrcamentoAprovado` → `EstoqueBaixado` / `BaixaFalhou` → compensação |
-| Atendimento → Notificação | Porta `NotificadorDeCliente` (adaptador log) | SNS/SES/WhatsApp |
-| Identidade → todos | Middleware/filter JWT compartilhado (`shared/auth`) | API Gateway + Cognito/Lambda authorizer (Fase 3) |
-| Consultas & Métricas | Consultas SQL sobre as tabelas de atendimento (mesmo banco) | Read model próprio alimentado por eventos (CQRS) |
+| Atendimento → Cadastro (validar cliente/veículo) | Chamada em processo via **porta** `CustomerLookup` (interface em `service-orders/application/ports`, implementada por gateway que chama a aplicação de `customers`) | HTTP síncrono (`GET /customers/{id}`) ou réplica local via eventos |
+| Atendimento → Catálogo (preço/disponibilidade ao incluir item) | Porta `CatalogLookup`; **snapshot** de nome/preço gravado na OS | HTTP síncrono + snapshot (já preparado) |
+| Atendimento → Estoque (baixa na aprovação) | Caso de uso transacional `ApproveQuoteUseCase` orquestra as duas mudanças na mesma transação, via porta `StockMovements` | **SAGA** (orquestrada ou coreografada) com eventos `QuoteApproved` → `StockWithdrawn` / `StockWithdrawalFailed` → compensação |
+| Atendimento → Notificação | Porta `CustomerNotifier` (gateway `LogCustomerNotifier`) | SNS/SES/WhatsApp |
+| Identidade → todos | Guard JWT compartilhado (`shared/adapters`) | API Gateway + Cognito/Lambda authorizer (Fase 3) |
+| Consultas & Métricas | Consultas SQL sobre as tabelas de `service_orders` (mesmo banco) | Read model próprio alimentado por eventos (CQRS) |
 
 Regras inegociáveis já na Fase 1 (para que a extração seja barata):
 
-1. **Nenhum módulo importa classes de domínio de outro módulo** — só DTOs/portas de aplicação ou eventos.
+1. **Nenhum módulo importa classes de domínio de outro módulo** — só request/response models, portas de aplicação ou eventos.
 2. **Nenhum JOIN entre tabelas de módulos diferentes** no código de domínio/aplicação; consultas de leitura (`REL`) podem, e são marcadas como tal.
 3. **Ids gerados na aplicação** (ADR-009), nunca dependentes de sequência de outro módulo.
 4. **Eventos de domínio** nomeados no passado e publicados em processo (barramento simples); hoje os handlers rodam na mesma transação, amanhã viram mensagens.
@@ -62,9 +62,12 @@ Regras inegociáveis já na Fase 1 (para que a extração seja barata):
 
 | Contexto | Módulo (Fase 1) | Tabelas (schema) | Candidato a serviço (Fase 4) |
 |---|---|---|---|
-| Atendimento | `atendimento` | `ordens_servico`, `os_itens_servico`, `os_itens_peca`, `os_historico_status` | `os-service` |
-| Catálogo & Estoque | `catalogo-estoque` | `servicos`, `pecas`, `movimentacoes_estoque` | `catalogo-service` (+ `estoque-service` se necessário) |
-| Cadastro | `cadastro` | `clientes`, `veiculos` | `cadastro-service` |
-| Identidade | `identidade` | `usuarios` | Cognito / `auth-service` |
-| Consultas & Métricas | `consultas` (dentro de `atendimento` no MVP) | views/consultas | read model com CQRS |
-| Acompanhamento do Cliente | rotas `/acompanhamento` em `atendimento` | — | BFF / API Gateway |
+| Atendimento | `service-orders` | `service_orders.service_orders`, `service_order_service_items`, `service_order_part_items`, `service_order_status_history` | `service-orders-service` |
+| Catálogo & Estoque | `catalog` | `catalog.services`, `parts`, `stock_movements` | `catalog-service` (+ `stock-service` se necessário) |
+| Cadastro | `customers` | `customers.customers`, `vehicles` | `customers-service` |
+| Identidade | `identity` | `identity.users` | Cognito / `identity-service` |
+| Consultas & Métricas | casos de uso de leitura dentro de `service-orders` no MVP (`ListServiceOrders`, `CalculateAverageExecutionTime`) | views/consultas | read model com CQRS |
+| Acompanhamento do Cliente | rotas `/tracking` em `service-orders` (`GetTracking`) | — | BFF / API Gateway |
+
+Nomes em inglês conforme ADR-013 (Aceita); os nomes dos contextos em português continuam sendo a linguagem ubíqua
+falada — o mapeamento está em `linguagem-ubiqua.md` §1.

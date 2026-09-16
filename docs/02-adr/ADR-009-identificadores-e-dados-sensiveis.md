@@ -24,7 +24,7 @@ separação em microsserviços (ids gerados por serviço). A Fase 5 traz LGPD �
 ### Opção B — Auto-incremento
 
 - **Prós:** simples, compacto, legível.
-- **Contras:** enumerável na API (`/ordens-servico/1,2,3…`), acoplado ao banco; ruim para microsserviços.
+- **Contras:** enumerável na API (`/service-orders/1,2,3…`), acoplado ao banco; ruim para microsserviços.
 
 ### Opção C — UUID **v7** (ordenável por tempo) + número legível
 
@@ -42,7 +42,7 @@ separação em microsserviços (ids gerados por serviço). A Fase 5 traz LGPD �
 | Telefone | 10–11 dígitos com DDD | só dígitos | mascarado em logs |
 | Senhas | tamanho mínimo 8; hash bcrypt/argon2 | hash | nunca |
 
-Implementação: **Value Objects** (`Documento` = `CPF` \| `CNPJ`, `Placa`, `Email`, `Telefone`) no `shared`/`domain`, com
+Implementação: **Value Objects** (`Document` = `CPF` \| `CNPJ`, `LicensePlate`, `Email`, `Phone`) no `shared`/`domain`, com
 testes unitários exaustivos; validação também nos DTOs de entrada (422 padronizado com o campo).
 
 ## Recomendação (não vinculante)
@@ -55,11 +55,11 @@ testes unitários exaustivos; validação também nos DTOs de entrada (422 padro
 
 ## Consequências
 
-- Todos os agregados geram id na aplicação (porta `GeradorDeId`), testável e independente de banco.
+- Todos os agregados geram id na aplicação (porta `IdGenerator`), testável e independente de banco.
 - Número da OS: sequência por ano (`OS-AAAA-NNNNNN`) — sequência no banco ou tabela de contadores com lock; único.
-- Logs estruturados com máscara centralizada (função `mascarar(...)`).
+- Logs estruturados com máscara centralizada (função `mask(...)`).
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-11 — ADR-009 Identificadores** (prazo 72 h)
+> **Enquete E-11 — ADR-009 Identificadores** (prazo 48 h)
 > 🆔 UUID v4 + número legível da OS · 🔢 Auto-incremento · 🆔🔢 UUID v7 + número legível (recomendada)

@@ -18,7 +18,7 @@ críticos". A disciplina de Qualidade cobre pirâmide de testes, **TDD e BDD**. 
 
 | Tema | Proposta |
 |---|---|
-| Domínios críticos | Módulos `atendimento` (OS/orçamento/status) e `catalogo-estoque` (estoque) — camadas `domain` + `application` |
+| Domínios críticos | Módulos `service-orders` (OS/orçamento/status) e `catalog` (estoque) — camadas `domain` + `application` |
 | Meta | ≥ 80 % de linhas **e** de branches nos módulos críticos; ≥ 60 % global (informativo) |
 | Gate | CI falha abaixo da meta (JaCoCo rule / Jest `coverageThreshold` / coverlet threshold / `--cov-fail-under` / `go test -cover` + script) |
 | Pirâmide | ~70 % unitários (domínio puro, sem framework), ~25 % integração (casos de uso + repositório real + HTTP), ~5 % ponta a ponta (fluxo completo via API no compose) |
@@ -50,6 +50,6 @@ Testcontainers + BDD para os 3 fluxos. O custo é baixo com IA gerando o esquele
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-12 — ADR-006 Testes** (prazo 72 h)
+> **Enquete E-12 — ADR-006 Testes** (prazo 48 h)
 > Banco nos testes de integração: 🐳 Testcontainers/compose · 💾 em memória
 > BDD (Gherkin) para os 3 fluxos principais: 👍 sim · 👎 não

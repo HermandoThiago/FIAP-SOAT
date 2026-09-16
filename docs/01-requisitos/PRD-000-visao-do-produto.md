@@ -35,9 +35,9 @@ multi-oficina, relatórios financeiros, integração com fornecedores.
 
 | Ator | Descrição | Acesso |
 |---|---|---|
-| **Atendente** | Recebe o cliente, identifica cliente/veículo, abre a OS, registra a entrega | Admin (JWT) — papel `ATENDENTE` |
-| **Mecânico** | Faz o diagnóstico, inclui serviços/peças, envia orçamento, executa e finaliza | Admin (JWT) — papel `MECANICO` |
-| **Gerente** | Mantém cadastros (serviços, peças, usuários), acompanha métricas | Admin (JWT) — papel `GERENTE` |
+| **Atendente** | Recebe o cliente, identifica cliente/veículo, abre a OS, registra a entrega | Admin (JWT) — papel `ATTENDANT` |
+| **Mecânico** | Faz o diagnóstico, inclui serviços/peças, envia orçamento, executa e finaliza | Admin (JWT) — papel `MECHANIC` |
+| **Gerente** | Mantém cadastros (serviços, peças, usuários), acompanha métricas | Admin (JWT) — papel `MANAGER` |
 | **Cliente** | Pessoa física (CPF) ou jurídica (CNPJ); acompanha a OS e aprova/recusa o orçamento | Acesso do cliente (ADR-011), sem JWT administrativo |
 | **Sistema** | Políticas automáticas: recalcular orçamento, mudar status, baixar estoque, registrar histórico | — |
 
@@ -57,7 +57,7 @@ multi-oficina, relatórios financeiros, integração com fornecedores.
 | **Must** | JWT nas APIs administrativas; validação de CPF/CNPJ e placa | PRD-005 |
 | **Must** | Testes unitários e de integração dos fluxos principais (≥ 80 % nos domínios críticos) | `docs/05` |
 | **Must** | Swagger/OpenAPI; Dockerfile; docker-compose; README; scan de vulnerabilidades + relatório | `docs/05`, `docs/06` |
-| **Should** | Papéis (ATENDENTE/MECANICO/GERENTE); histórico de status com data/hora; movimentações de estoque; recusa de orçamento | PRD-004, PRD-005, PRD-002 |
+| **Should** | Papéis (`ATTENDANT`/`MECHANIC`/`MANAGER`); histórico de status com data/hora; movimentações de estoque; recusa de orçamento | PRD-004, PRD-005, PRD-002 |
 | **Should** | Filtros nas listagens (status, cliente, período); paginação simples | PRD-006 |
 | **Could** | Alerta de estoque mínimo; tempo médio por serviço e por período; refresh token; soft delete | PRD-002, PRD-006, PRD-005 |
 | **Won't (Fase 1)** | Notificação real ao cliente; pagamento; front-end; agendamento; múltiplas oficinas | — |
@@ -67,11 +67,11 @@ multi-oficina, relatórios financeiros, integração com fornecedores.
 ```mermaid
 flowchart LR
     subgraph Monolito["Monólito modular (Fase 1)"]
-        ID["identidade<br/>PRD-005"]
-        CAD["cadastro<br/>clientes · veículos<br/>PRD-001"]
-        CAT["catalogo-estoque<br/>serviços · peças · estoque<br/>PRD-002"]
-        ATD["atendimento (core)<br/>OS · orçamento · status<br/>PRD-003 · PRD-004"]
-        REL["consultas & métricas<br/>PRD-006"]
+        ID["identity<br/>PRD-005"]
+        CAD["customers<br/>clientes · veículos<br/>PRD-001"]
+        CAT["catalog<br/>serviços · peças · estoque<br/>PRD-002"]
+        ATD["service-orders (core)<br/>OS · orçamento · status<br/>PRD-003 · PRD-004"]
+        REL["consultas & métricas<br/>(casos de uso de leitura)<br/>PRD-006"]
     end
     CAD --> ATD
     CAT --> ATD
@@ -83,11 +83,11 @@ flowchart LR
 
 | ID | Requisito | Meta / verificação |
 |---|---|---|
-| NFR-01 | Back-end **monolítico** (camadas permitidas; hexagonal/modular recomendado — ADR-003) | Estrutura do repo; vídeo |
+| NFR-01 | Back-end **monolítico** em Clean Architecture, modular por contexto delimitado (ADR-003, Aceita) | Estrutura do repo; vídeo |
 | NFR-02 | APIs RESTful documentadas via **Swagger/OpenAPI** | Swagger UI acessível no compose |
 | NFR-03 | **Dockerfile** para build da aplicação | `docker build` funciona do zero |
 | NFR-04 | **docker-compose.yml** orquestra ambiente completo (API + banco + seeds) | `docker compose up` em máquina limpa |
-| NFR-05 | Testes automatizados com **cobertura mínima de 80 % nos domínios críticos** (`atendimento`, `catalogo-estoque`) | Relatório de cobertura no CI; gate |
+| NFR-05 | Testes automatizados com **cobertura mínima de 80 % nos domínios críticos** (`service-orders`, `catalog`) | Relatório de cobertura no CI; gate |
 | NFR-06 | **README** com execução local simples, objetivos e instruções | Outra pessoa do grupo executa seguindo só o README |
 | NFR-07 | Repositório **privado** com acesso a `soat-architecture` | Convite aceito |
 | NFR-08 | **Justificativa do banco** documentada | ADR-002 + README + vídeo |
@@ -100,7 +100,7 @@ flowchart LR
 
 - 100 % dos requisitos do enunciado rastreados no checklist com evidência.
 - Fluxo ponta a ponta (criar OS → aprovar orçamento → entregar) demonstrável em < 3 min via Swagger.
-- Cobertura ≥ 80 % em `atendimento` e `catalogo-estoque`; 0 vulnerabilidades críticas/altas abertas no relatório final.
+- Cobertura ≥ 80 % em `service-orders` e `catalog`; 0 vulnerabilidades críticas/altas abertas no relatório final.
 
 ## 8. Premissas e restrições
 

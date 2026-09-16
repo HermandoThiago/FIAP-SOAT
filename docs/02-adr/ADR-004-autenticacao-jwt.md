@@ -23,7 +23,7 @@ deve ser trocável.
 
 ## Opções consideradas
 
-### Opção A — JWT emitido pela própria aplicação (módulo `identidade`)
+### Opção A — JWT emitido pela própria aplicação (módulo `identity`)
 
 Tabela `usuarios` (e-mail, hash bcrypt/argon2, papéis), `POST /auth/login` emite JWT **HS256** (segredo ≥ 32 bytes por env)
 com `sub`, `roles`, `iss`, `iat`, `exp` (60 min). Middleware/filter valida o token e injeta o usuário; autorização por papel
@@ -32,7 +32,7 @@ nas rotas. Refresh token = Could.
 - **Prós:** zero dependência externa; 1 dia de trabalho na maioria dos frameworks; fácil de testar e explicar;
   demonstra na prática o conteúdo de Desenvolvimento Seguro.
 - **Contras:** implementação própria exige cuidado (rotação de segredo, brute force); sem SSO.
-- **Fases futuras:** porta `EmissorDeToken`/`ValidadorDeToken` → trocar por validação de JWT do Cognito (RS256 via JWKS) sem mexer no domínio.
+- **Fases futuras:** porta `JwtTokenService`/`ValidateAccessToken` → trocar por validação de JWT do Cognito (RS256 via JWKS) sem mexer no domínio.
 
 ### Opção B — Keycloak no docker-compose (OIDC)
 
@@ -53,9 +53,9 @@ Realm com usuários/roles; a API só **valida** tokens RS256 via JWKS.
 |---|---|
 | Algoritmo | HS256 no MVP (segredo via `JWT_SECRET`), com abstração para RS256 depois |
 | Expiração | 60 min; refresh = Could |
-| Papéis | `ATENDENTE`, `MECANICO`, `GERENTE` (claim `roles`); usuário seed `GERENTE` |
+| Papéis | `ATTENDANT`, `MECHANIC`, `MANAGER` (claim `roles`); usuário seed `MANAGER` |
 | Hash | bcrypt (custo 10–12) ou argon2id |
-| Rotas públicas | `/auth/login`, `/health`, Swagger (dev), `/acompanhamento/**` (ADR-011) |
+| Rotas públicas | `/auth/login`, `/health`, Swagger (dev), `/tracking/**` (ADR-011) |
 | Erros | 401 sem token/inválido/expirado; 403 papel insuficiente; corpo padronizado (`docs/04-arquitetura/contrato-api.md`) |
 
 ## Recomendação (não vinculante)
@@ -69,10 +69,10 @@ Fase 3. Keycloak pode ser mencionado no vídeo como evolução.
 
 ## Consequências
 
-- Módulo `identidade` com casos de uso `AutenticarUsuario` e `ValidarToken`; usuários seed por env (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
+- Módulo `identity` com casos de uso `AuthenticateUser` e `ValidateAccessToken`; usuários seed por env (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
 - Testes de integração: 401/403/200; teste unitário do emissor/validador; segredo de teste distinto do `.env.example`.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-08 — ADR-004 Autenticação** (prazo 72 h)
+> **Enquete E-08 — ADR-004 Autenticação** (prazo 48 h)
 > 🔑 JWT próprio (recomendada) · 🛡️ Keycloak no compose · ☁️ Provedor externo (Cognito/Auth0)

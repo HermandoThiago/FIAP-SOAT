@@ -18,10 +18,10 @@
 
 | Nome completo | RM | Username no Discord | E-mail (opcional) |
 |---|---|---|---|
-| Daniel Henrique `<sobrenome>` | `<RM>` | `<@username>` | |
-| Shirley Balbino | `<RM>` | `<@username>` | |
-| Victor H. C. Reis Santos | RM377398 | `<@username>` | |
-| `<demais integrantes>` | | | |
+| Victor Hugo Carvalho Dos Reis Santos | RM377398 | katomaro | |
+| Shirley Balbino | `<RM>` | shirleybalbino | |
+| Diego Marques | RM369305 | dmosantos | |
+| Hermando Thiago | RM378259 | hermandothiago | |
 
 ### Links
 
@@ -35,9 +35,9 @@
 
 ### Resumo da solução (1 parágrafo)
 
-`<Sistema de gestão da oficina: back-end monolítico modular (hexagonal) com os contextos cadastro, catálogo/estoque,
-atendimento e identidade; APIs REST documentadas em Swagger; PostgreSQL; JWT; testes ≥ 80 % nos domínios críticos;
-docker-compose para execução local.>`
+`<Sistema de gestão da oficina: back-end monolítico em NestJS/TypeScript, Clean Architecture modular por contexto
+(customers, catalog, service-orders, identity); APIs REST documentadas em Swagger; PostgreSQL; JWT; testes ≥ 80 % nos
+domínios críticos; docker-compose para execução local.>`
 
 ### Como executar (resumo — detalhes no README)
 
@@ -45,8 +45,8 @@ docker-compose para execução local.>`
 git clone <repo> && cd <repo>
 cp .env.example .env
 docker compose up --build
-# Swagger: http://localhost:8080/swagger
-# Login: POST /api/v1/auth/login  { "email": "<ADMIN_EMAIL>", "senha": "<ADMIN_PASSWORD>" }
+# Swagger: http://localhost:8080/docs
+# Login: POST /api/v1/auth/login  { "email": "<ADMIN_EMAIL>", "password": "<ADMIN_PASSWORD>" }
 ```
 
 ### Relatório com análise de vulnerabilidades

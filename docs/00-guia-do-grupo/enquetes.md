@@ -14,7 +14,7 @@ Legenda de status: 🟢 aberta · ✅ encerrada · ⏳ aguardando lote anterior.
 
 Resultado: `pendente`
 
-### E-02 · Frentes de trabalho — 🟢
+### E-02 · Frentes de trabalho — ✅ (redistribuída em 16/09)
 > **Enquete E-02 — Confirmação das frentes** (prazo 72 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
 > Sugestão montada a partir das apresentações de cada um:
 > • **Vi** — F1 Arquitetura & Repositório, como Tech Lead & Arquiteta (coordenação, ADRs, esqueleto, CI, revisão) + apoio em segurança
@@ -24,9 +24,11 @@ Resultado: `pendente`
 > • **Hermando** — F4 Qualidade & Segurança (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
 > 👍 topo assim · ✍️ quero trocar (diga qual frente prefere e por quê)
 
-Resultado: topo assim
+Resultado: topo assim. **Atualização 16/09:** Daniel saiu da faculdade; a carga dele foi dividida — Vi assume a F5 Infra
+(Docker, compose, CI, README, Swagger) e Hermando assume os módulos `customers` e `catalog` da F3, além da F4. Tabela
+atual em `frentes-e-responsabilidades.md`; registro em `docs/02-adr/decisoes-leves.md`.
 
-### E-03 · Data oficial de entrega e cadência — 🟢
+### E-03 · Data oficial de entrega e cadência — ✅ (data oficial ainda a confirmar)
 > **E-03 — Prazo e cadência** (prazo 72 h)
 > 1) Alguém confirma a **data oficial de entrega** na plataforma? (o cronograma assume ~08/11).
 > 2) Check-in assíncrono 3×/semana (seg/qua/sex) está ok? 👍 sim · 👎 prefiro 2× · 🗓️ prefiro diário
@@ -34,9 +36,9 @@ Resultado: topo assim
 
 Resultado: Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3, call opcional de 30m por semana.
 
-## Lote 1 — decisões estruturais (bloqueiam o código) — abrir 14/09, encerrar 17/09
+## Lote 1 — decisões estruturais (bloqueiam o código) — ✅ encerrado em 16/09
 
-### E-04 · ADR-001 Linguagem e framework — 🟢
+### E-04 · ADR-001 Linguagem e framework — ✅
 > **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 72 h) — `docs/02-adr/ADR-001-linguagem-e-framework.md`
 > Critérios: familiaridade da maioria > produtividade em 6–8 semanas > ecossistema (testes, cobertura, OpenAPI, JWT) > fases futuras (K8s, Lambda).
 > ☕ Java 21 + Spring Boot 3 · 🟦 TypeScript + NestJS · 🟪 C# .NET 8 · 🐍 Python + FastAPI · 🐹 Go
@@ -46,20 +48,20 @@ Resultado: Definir prazo de entrega da atividade 1 semana antes da oficial para 
 
 Resultado: TypeScript + NestJS
 
-### E-05 · ADR-002 Banco de dados — 🟢
+### E-05 · ADR-002 Banco de dados — ✅
 > **Enquete E-05 — ADR-002 Banco de dados** (prazo 72 h) — `docs/02-adr/ADR-002-banco-de-dados.md`
 > Precisamos justificar a escolha no vídeo/README.
 > 🐘 PostgreSQL · 🐬 MySQL · 🍃 MongoDB · 🟦 SQL Server
 
 Resultado: PostgreSQL
 
-### E-06 · ADR-003 Estilo arquitetural do monólito — 🟢
+### E-06 · ADR-003 Estilo arquitetural do monólito — ✅
 > **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 72 h) — `docs/02-adr/ADR-003-arquitetura-do-monolito.md`
 > 🥞 Camadas clássica (controller/service/repository) · ⬡ Monólito modular + hexagonal (ports & adapters) · 🧅 Clean Architecture completa
 
 Resultado: Clean Architecture completa
 
-### E-07 · ADR-013 Idioma do código e da API — 🟢
+### E-07 · ADR-013 Idioma do código e da API — ✅
 > **Enquete E-07 — ADR-013 Idioma** (prazo 72 h) — `docs/02-adr/ADR-013-idioma-do-codigo-e-da-api.md`
 > 🇧🇷 Domínio em português (OrdemDeServico, /ordens-servico) + termos técnicos em inglês (Repository, Controller)
 > 🇺🇸 Tudo em inglês (ServiceOrder, /service-orders) com glossário mapeando a linguagem ubíqua
@@ -116,12 +118,12 @@ Resultado: Tudo em inglês com glossário mapeando a linguagem ubíqua
 | Enquete | Encerrada em | Resultado | Registrado em |
 | --- | --- | --- | --- |
 | E-01 | Indefinido | Indefinido | README.md |
-| E-02 | Data da commit | Aprovado | frentes-e-responsabilidades.md |
+| E-02 | 16/09 | Aprovado; redistribuído em 16/09 com a saída do Daniel (Vi → F5 infra, Hermando → módulos da F3) | frentes-e-responsabilidades.md · decisoes-leves.md |
 | E-03 | Data da commit | Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3x semana, call opcional de 30m por semana a combinar. | cronograma.md / como-trabalhamos.md |
-| E-04 | Data da commit | TypeScript + NestJS | ADR-001 |
-| E-05 | Data da commit | PostgreSQL | ADR-002 |
-| E-06 | Data da commit | Clean Architecture completa | ADR-003 |
-| E-07 | Data da commit | Tudo em inglês com glossário mapeando a linguagem ubíqua | ADR-013 |
+| E-04 | 16/09 | TypeScript + NestJS | ADR-001 ✅ Aceita |
+| E-05 | 16/09 | PostgreSQL | ADR-002 ✅ Aceita |
+| E-06 | 16/09 | Clean Architecture completa | ADR-003 ✅ Aceita |
+| E-07 | 16/09 | Tudo em inglês com glossário mapeando a linguagem ubíqua | ADR-013 ✅ Aceita · linguagem-ubiqua.md |
 | E-08 | | | ADR-004 |
 | E-09 | | | ADR-005 |
 | E-10 | | | ADR-008 |

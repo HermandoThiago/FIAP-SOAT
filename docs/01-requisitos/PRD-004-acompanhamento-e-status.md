@@ -1,11 +1,11 @@
-# PRD-004 — Acompanhamento da OS e ciclo de status (contexto `atendimento`)
+# PRD-004 — Acompanhamento da OS e ciclo de status (contexto `service-orders`)
 
 | Campo | Valor |
 |---|---|
 | Status | 📝 Rascunho para revisão |
 | Dono | F3 · apoio F4 (acesso do cliente) |
 | Origem no enunciado | Bloco "Acompanhamento da OS": 6 status; "Alteração automática dos status conforme ações no sistema"; "Permitir consulta por parte do cliente via API para acompanhar o progresso"; vídeo: "A alteração dos status da Ordem de Serviço" |
-| Contexto DDD | `atendimento` (core) + read model de acompanhamento |
+| Contexto DDD | `service-orders` (core) + read model de acompanhamento |
 
 ## 1. Objetivo
 
@@ -25,10 +25,16 @@ stateDiagram-v2
     EmExecucao --> Finalizada: finalizar execução (Mecânico)
     Finalizada --> Entregue: registrar entrega (Atendente)
     Entregue --> [*]
-    state "Em diagnóstico" as EmDiagnostico
-    state "Aguardando aprovação" as AguardandoAprovacao
-    state "Em execução" as EmExecucao
+    state "Recebida · RECEIVED" as Recebida
+    state "Em diagnóstico · IN_DIAGNOSIS" as EmDiagnostico
+    state "Aguardando aprovação · AWAITING_APPROVAL" as AguardandoAprovacao
+    state "Em execução · IN_PROGRESS" as EmExecucao
+    state "Finalizada · COMPLETED" as Finalizada
+    state "Entregue · DELIVERED" as Entregue
 ```
+
+Nomes do enunciado (português) e enums do código (inglês, ADR-013) lado a lado — mapeamento oficial em
+`docs/03-ddd/linguagem-ubiqua.md` §7.
 
 > Extensão em votação (ADR-010): status terminal **Cancelada**, alcançável de Recebida/Em diagnóstico/Aguardando aprovação.
 
@@ -36,13 +42,13 @@ Tabela de transições (fonte da verdade para o código e para os testes):
 
 | De | Ação (comando) | Quem | Para | Efeitos automáticos |
 |---|---|---|---|---|
-| — | Criar OS | Atendente | Recebida | `recebidaEm`; histórico |
-| Recebida | Iniciar diagnóstico | Mecânico | Em diagnóstico | `diagnosticoIniciadoEm`; histórico |
-| Em diagnóstico | Enviar orçamento | Mecânico | Aguardando aprovação | congela itens; `orcamentoEnviadoEm`; token de acompanhamento; notificação simulada |
-| Aguardando aprovação | Aprovar orçamento | Cliente | Em execução | `execucaoIniciadaEm`; baixa/reserva de estoque; histórico |
+| — | Criar OS | Atendente | Recebida | `receivedAt`; histórico |
+| Recebida | Iniciar diagnóstico | Mecânico | Em diagnóstico | `diagnosisStartedAt`; histórico |
+| Em diagnóstico | Enviar orçamento | Mecânico | Aguardando aprovação | congela itens; `quoteSentAt`; token de acompanhamento; notificação simulada |
+| Aguardando aprovação | Aprovar orçamento | Cliente | Em execução | `executionStartedAt`; baixa/reserva de estoque; histórico |
 | Aguardando aprovação | Recusar orçamento | Cliente | Em diagnóstico *ou* Cancelada (ADR-010) | libera estoque (se reservado); motivo; histórico |
-| Em execução | Finalizar | Mecânico | Finalizada | `finalizadaEm`; histórico |
-| Finalizada | Entregar | Atendente | Entregue | `entregueEm`; histórico; OS imutável |
+| Em execução | Finalizar | Mecânico | Finalizada | `completedAt`; histórico |
+| Finalizada | Entregar | Atendente | Entregue | `deliveredAt`; histórico; OS imutável |
 | Recebida / Em diagnóstico / Aguardando aprovação | Cancelar (Could) | Gerente | Cancelada | motivo; libera estoque; histórico |
 
 Qualquer outra combinação → **409 Conflict** com mensagem "transição inválida de X para Y".
@@ -56,7 +62,7 @@ Qualquer outra combinação → **409 Conflict** com mensagem "transição invá
 | RF-052 | Consulta do cliente via API: status atual, descrição amigável, orçamento (valor/status), marcos temporais, itens; dados pessoais mascarados | Must |
 | RF-053 | Consulta do cliente lista suas OS (por documento) — depende da ADR-011 | Should |
 | RF-054 | Listagem administrativa por status (fila de trabalho: "o que está em diagnóstico", "aguardando aprovação há mais de X horas") | Must (listagem) / Could (alertas) |
-| RF-055 | Payload do cliente inclui `proximaAcao` ("aguardando sua aprovação", "em execução, previsão …") | Could |
+| RF-055 | Payload do cliente inclui `nextAction` ("aguardando sua aprovação", "em execução, previsão …") | Could |
 
 ## 4. Regras de negócio
 
@@ -73,20 +79,20 @@ Qualquer outra combinação → **409 Conflict** com mensagem "transição invá
 ```gherkin
 Funcionalidade: Ciclo de status
   Cenário: Transição inválida
-    Dado uma OS em "RECEBIDA"
+    Dado uma OS em "RECEIVED"
     Quando tento finalizar a OS
-    Então a resposta é 409 "transição inválida de RECEBIDA para FINALIZADA"
+    Então a resposta é 409 "transição inválida de RECEIVED para COMPLETED"
 
   Cenário: Histórico registrado
-    Dado uma OS que passou por RECEBIDA → EM_DIAGNOSTICO → AGUARDANDO_APROVACAO
+    Dado uma OS que passou por RECEIVED → IN_DIAGNOSIS → AWAITING_APPROVAL
     Quando consulto o histórico
     Então vejo 3 registros ordenados por data, com o usuário de cada ação
 
 Funcionalidade: Consulta do cliente
   Cenário: Cliente acompanha a OS
-    Dado uma OS "OS-2026-000001" do cliente com CPF "52998224725" em "EM_EXECUCAO"
+    Dado uma OS "OS-2026-000001" do cliente com CPF "52998224725" em "IN_PROGRESS"
     Quando o cliente consulta a OS com sua credencial de acompanhamento
-    Então recebe status "EM_EXECUCAO", o orçamento aprovado e o CPF mascarado "***.982.247-**"
+    Então recebe status "IN_PROGRESS", o orçamento aprovado e o CPF mascarado "***.982.247-**"
 
   Cenário: Cliente não acessa OS de outro
     Quando o cliente tenta consultar uma OS que não é sua
@@ -97,10 +103,10 @@ Funcionalidade: Consulta do cliente
 
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/ordens-servico?status=&clienteId=&de=&ate=&page=&size=` | ATENDENTE+ | Fila/listagem |
-| GET | `/ordens-servico/{id}/historico` | ATENDENTE+ | Histórico de status |
-| GET | `/acompanhamento/ordens-servico/{id}` | Cliente (ADR-011) | Progresso da OS |
-| GET | `/acompanhamento/ordens-servico?documento=` | Cliente (ADR-011) | Minhas OS (Should) |
+| GET | `/service-orders?status=&customerId=&from=&to=&page=&size=` | ATTENDANT+ | Fila/listagem |
+| GET | `/service-orders/{id}/status-history` | ATTENDANT+ | Histórico de status |
+| GET | `/tracking/service-orders/{id}` | Cliente (ADR-011) | Progresso da OS |
+| GET | `/tracking/service-orders?document=` | Cliente (ADR-011) | Minhas OS (Should) |
 
 ## 7. Questões abertas
 

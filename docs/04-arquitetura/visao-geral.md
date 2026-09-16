@@ -1,7 +1,8 @@
-# Visão geral da arquitetura (Fase 1 — monólito modular)
+# Visão geral da arquitetura (Fase 1 — monólito modular em Clean Architecture)
 
 > Diagramas no modelo **C4** (contexto → contêineres → componentes) + a organização em camadas pedida no vídeo.
-> Assume ADR-003 = monólito modular + hexagonal; se a votação escolher camadas clássicas, o nível 3 muda (o resto não).
+> Decisões aceitas: NestJS + TypeScript (ADR-001), PostgreSQL (ADR-002), **Clean Architecture completa** (ADR-003),
+> código em inglês (ADR-013). Identificadores conforme `docs/03-ddd/linguagem-ubiqua.md`.
 
 ## 1. C4 — Nível 1: Contexto
 
@@ -21,7 +22,7 @@ flowchart LR
     AT -- "APIs administrativas<br/>JWT" --> SGO
     ME -- "APIs administrativas<br/>JWT" --> SGO
     GE -- "APIs administrativas<br/>JWT" --> SGO
-    CL -- "API de acompanhamento<br/>token de acompanhamento" --> SGO
+    CL -- "API de acompanhamento (/tracking)<br/>token de acompanhamento" --> SGO
     SGO -- "envia orçamento /<br/>avisos" --> NOT
 ```
 
@@ -31,104 +32,105 @@ flowchart LR
 flowchart TB
     classDef pessoa fill:#08427b,stroke:#052e56,color:#fff
     classDef cont fill:#438dd5,stroke:#2e6295,color:#fff
-    classDef db fill:#438dd5,stroke:#2e6295,color:#fff
     classDef externo fill:#999999,stroke:#6b6b6b,color:#fff
 
     U([Atendente · Mecânico · Gerente · Cliente]):::pessoa
     subgraph Compose["docker-compose.yml"]
-        API["API monolítica<br/>[contêiner: linguagem/framework da ADR-001]<br/>REST + Swagger UI + JWT<br/>porta 8080"]:::cont
-        DB[("Banco de dados<br/>[contêiner: ADR-002]<br/>schemas por módulo · volume nomeado")]:::db
+        API["API monolítica<br/>[contêiner: Node 22 · NestJS]<br/>REST + Swagger UI + JWT<br/>porta 8080"]:::cont
+        DB[("PostgreSQL 16<br/>schemas por módulo · volume nomeado")]:::cont
         MIG["Migrações + seed<br/>[job na subida]"]:::cont
     end
-    SW["Swagger UI<br/>/swagger"]:::externo
+    SW["Swagger UI<br/>/docs"]:::externo
     U -- "HTTPS/JSON" --> API
     U -- "navegador" --> SW --> API
-    API -- "SQL (ORM/driver)" --> DB
+    API -- "SQL (ORM)" --> DB
     MIG -- "aplica migrações e dados de demo" --> DB
 ```
 
-## 3. C4 — Nível 3: Componentes da API (módulos e camadas)
+## 3. C4 — Nível 3: Componentes da API (módulos por contexto delimitado, camadas da Clean Architecture)
 
 ```mermaid
 flowchart TB
-    classDef in fill:#c8e6c9,stroke:#2e7d32,color:#000
+    classDef ad fill:#c8e6c9,stroke:#2e7d32,color:#000
     classDef app fill:#fff9c4,stroke:#f9a825,color:#000
     classDef dom fill:#ffe0b2,stroke:#ef6c00,color:#000
-    classDef out fill:#e1bee7,stroke:#6a1b9a,color:#000
+    classDef inf fill:#e1bee7,stroke:#6a1b9a,color:#000
     classDef shared fill:#eeeeee,stroke:#616161,color:#000
 
-    subgraph API["API monolítica"]
+    subgraph API["API monolítica (NestJS)"]
         direction TB
-        subgraph SH["shared / infra"]
+        subgraph SH["shared"]
             direction LR
-            AUTH["Filtro JWT<br/>+ autorização por papel"]:::shared
-            ERR["Tratamento de erros<br/>(422/401/403/404/409)"]:::shared
-            VO["Value objects<br/>Documento · Placa · Dinheiro"]:::shared
-            BUS["Barramento de eventos<br/>em processo"]:::shared
-            CFG["Config por env · logs<br/>mascarados · health"]:::shared
+            AUTH["JWT guard + Roles<br/>(adapters)"]:::shared
+            ERR["ProblemDetails filter<br/>(422/401/403/404/409)"]:::shared
+            VO["Money · Quantity · Document<br/>LicensePlate (domain)"]:::shared
+            BUS["InProcessEventBus · Clock<br/>IdGenerator · UnitOfWork (infrastructure)"]:::shared
         end
-        subgraph M1["módulo cadastro"]
+        subgraph M1["módulo customers"]
             direction TB
-            I1["REST: /clientes /veiculos"]:::in --> A1["Casos de uso<br/>CadastrarCliente…"]:::app --> D1["Cliente · Veiculo"]:::dom
-            A1 --> O1["Repositórios (ORM)"]:::out
+            A1["Controllers + Presenters<br/>/customers /vehicles"]:::ad --> U1["Use cases<br/>RegisterCustomer · RegisterVehicle …"]:::app --> D1["Customer · Vehicle"]:::dom
+            U1 --> G1["Gateways: repositories<br/>(ORM ↔ domínio)"]:::inf
         end
-        subgraph M2["módulo catalogo-estoque"]
+        subgraph M2["módulo catalog"]
             direction TB
-            I2["REST: /servicos /pecas<br/>/pecas/{id}/movimentacoes"]:::in --> A2["Casos de uso<br/>RegistrarEntrada · BaixarEstoque…"]:::app --> D2["Servico · Peca<br/>MovimentacaoEstoque"]:::dom
-            A2 --> O2["Repositórios (ORM)"]:::out
+            A2["Controllers + Presenters<br/>/services /parts<br/>/parts/{id}/stock-movements"]:::ad --> U2["Use cases<br/>RecordStockInbound · WithdrawStock …"]:::app --> D2["Service · Part<br/>StockMovement"]:::dom
+            U2 --> G2["Gateways: repositories"]:::inf
         end
-        subgraph M3["módulo atendimento (core)"]
+        subgraph M3["módulo service-orders (core)"]
             direction TB
-            I3["REST: /ordens-servico<br/>/acompanhamento /metricas"]:::in --> A3["Casos de uso<br/>CriarOS · IncluirItem · EnviarOrcamento<br/>AprovarOrcamento · Finalizar · Entregar"]:::app --> D3["OrdemDeServico · Orcamento<br/>StatusOS · Historico"]:::dom
-            A3 --> O3["Repositórios · Notificador (log)<br/>Relógio · GeradorDeId"]:::out
+            A3["Controllers + Presenters<br/>/service-orders /tracking /metrics"]:::ad --> U3["Use cases<br/>CreateServiceOrder · AddServiceItem · SendQuote<br/>ApproveQuote · CompleteExecution · RegisterDelivery"]:::app --> D3["ServiceOrder · Quote<br/>ServiceOrderStatus · StatusHistory"]:::dom
+            U3 --> G3["Gateways: repository · LogCustomerNotifier<br/>JwtTrackingTokenIssuer · CustomerLookup · CatalogLookup"]:::inf
         end
-        subgraph M4["módulo identidade"]
+        subgraph M4["módulo identity"]
             direction TB
-            I4["REST: /auth /usuarios"]:::in --> A4["AutenticarUsuario<br/>EmitirToken"]:::app --> D4["Usuario · Papel"]:::dom
-            A4 --> O4["Repositório · Hash · JWT"]:::out
+            A4["AuthController · UsersController"]:::ad --> U4["AuthenticateUser<br/>IssueAccessToken"]:::app --> D4["User · Role"]:::dom
+            U4 --> G4["Gateways: repository<br/>BcryptPasswordHasher · JwtTokenService"]:::inf
         end
     end
-    A3 -- "porta ConsultaCadastro" --> A1
-    A3 -- "porta ConsultaCatalogo /<br/>MovimentacaoEstoque" --> A2
-    AUTH -.-> I1 & I2 & I3 & I4
+    G3 -- "porta CustomerLookup" --> U1
+    G3 -- "portas CatalogLookup /<br/>StockMovements" --> U2
+    AUTH -.-> A1 & A2 & A3 & A4
 ```
 
 ## 4. Camadas do monólito (o que dizer no vídeo)
 
-| Camada | Responsabilidade | Depende de | Nunca depende de |
-|---|---|---|---|
-| **Interface (adapters/in)** | Controllers REST, DTOs de entrada/saída, validação sintática, OpenAPI, mapeamento de erros | Aplicação | Persistência |
-| **Aplicação** | Casos de uso (um por comando), orquestração, transação, portas de entrada/saída (interfaces), publicação de eventos | Domínio | Framework web/ORM |
-| **Domínio** | Agregados, entidades, value objects, regras/invariantes, eventos de domínio, interfaces de repositório | Nada (puro) | Qualquer framework |
-| **Infraestrutura (adapters/out)** | Implementações: repositórios (ORM/SQL), JWT, hash, notificação (log), relógio, gerador de ids, config | Domínio/Aplicação (implementa as portas) | — |
+| Camada (Clean Architecture) | Pasta | Responsabilidade | Depende de | Nunca depende de |
+|---|---|---|---|---|
+| **Entities** | `domain/` | Agregados, entidades, value objects, regras/invariantes, eventos de domínio, interfaces de repositório | nada (puro TypeScript) | Nest, ORM, HTTP |
+| **Use Cases** | `application/` | Um caso de uso por comando/consulta; input/output boundaries e request/response models; portas de saída; transação | `domain` | Framework web/ORM |
+| **Interface Adapters** | `adapters/` | Controllers (HTTP → request model), presenters (response model → DTO), gateways (implementam repositórios/portas mapeando ORM ↔ domínio), DTOs com validação sintática, OpenAPI | `application`, `domain` | `infrastructure` de outros módulos |
+| **Frameworks & Drivers** | `infrastructure/` | Módulo Nest e DI, entidades do ORM, migrações, config, Swagger, servidor HTTP | tudo (camada mais externa) | — |
 
-Regra de dependência: **de fora para dentro** (interface → aplicação → domínio; infraestrutura implementa as
-interfaces do domínio/aplicação). O domínio é testável sem banco e sem HTTP — é o que faz a cobertura de 80 % ser barata.
+Regra de dependência: **de fora para dentro**. O domínio é testável sem banco e sem HTTP — é o que faz a cobertura de
+80 % nos módulos críticos ser barata. A diferença prática para a hexagonal (que a disciplina da Fase 1 ensina) é que a
+Clean explicita **presenters** e **boundaries**: o controller depende da interface do caso de uso, o caso de uso devolve um
+modelo de resposta, e o presenter é o único que conhece o JSON — e é exatamente o conteúdo da Fase 2, já adiantado.
 
 ## 5. Fluxo de uma requisição (exemplo: aprovar orçamento)
 
 ```mermaid
 flowchart LR
-    R["POST /acompanhamento/ordens-servico/{id}/orcamento/aprovar<br/>Bearer token de acompanhamento"] --> F["Filtro: valida token<br/>(aud=cliente, osId)"]
-    F --> C["Controller<br/>DTO → comando"]
-    C --> U["Caso de uso AprovarOrcamento<br/>(transação)"]
-    U --> D["OrdemDeServico.aprovarOrcamento()<br/>invariantes · histórico · evento"]
-    U --> E["Porta MovimentacaoEstoque.baixar(itens)"]
-    E --> P["Peca.baixar() · MovimentacaoEstoque"]
+    R["POST /tracking/service-orders/{id}/quote/approve<br/>Bearer trackingToken"] --> F["Tracking guard: valida token<br/>(aud=customer, serviceOrderId)"]
+    F --> C["TrackingController<br/>HTTP → ApproveQuoteRequest"]
+    C --> U["ApproveQuoteUseCase<br/>(UnitOfWork)"]
+    U --> D["ServiceOrder.approveQuote()<br/>invariantes · histórico · evento"]
+    U --> E["Porta StockMovements.withdraw(partItems)"]
+    E --> P["Part.withdraw() · StockMovement"]
     U --> S["Repositórios salvam<br/>commit único"]
-    S --> N["Evento OrcamentoAprovado →<br/>Notificador (log)"]
-    S --> O["200 + acompanhamento atualizado"]
+    S --> N["QuoteApproved →<br/>LogCustomerNotifier"]
+    U --> O["ApproveQuoteResponse → TrackingPresenter<br/>→ 200 TrackingDto"]
 ```
 
 ## 6. Decisões transversais
 
-| Tema | Decisão (proposta) |
+| Tema | Decisão |
 |---|---|
-| Configuração | 12-factor: tudo por variáveis de ambiente (`DB_URL`, `JWT_SECRET`, `APP_ENV`, `ADMIN_EMAIL/PASSWORD`); `.env.example` versionado |
-| Erros | Formato único (`docs/04-arquitetura/contrato-api.md` §6); erros de domínio → 409/422; nunca stack trace |
-| Logs | Estruturados (JSON), com `requestId`, sem PII (máscara central) |
+| Configuração | 12-factor: tudo por variáveis de ambiente (`DB_URL`, `JWT_SECRET`, `APP_ENV`, `ADMIN_EMAIL/PASSWORD`); `.env.example` versionado; schema validado na subida |
+| Erros | Problem Details (`contrato-api.md` §5); erros de domínio → 409/422; nunca stack trace |
+| Logs | Estruturados (JSON), com `requestId`, sem PII (máscara central em `shared/adapters`) |
 | Health | `GET /health` (liveness) e `GET /ready` (checa banco) — já pensando em Kubernetes |
-| Transações | Uma por caso de uso (Unit of Work); eventos de domínio processados dentro da transação na Fase 1 |
-| Tempo | Porta `Relogio` injetável (testes determinísticos); UTC no banco |
-| Ids | ADR-009 (UUID gerado na aplicação) |
+| Transações | Uma por caso de uso (`UnitOfWork`); eventos de domínio processados dentro da transação na Fase 1 |
+| Tempo | Porta `Clock` injetável (testes determinísticos); UTC no banco |
+| Ids | ADR-009 (em votação; proposta: UUID v7 gerado na aplicação) |
 | Idempotência | Comandos de transição são idempotentes por estado (aprovar duas vezes → 409 na segunda) |
+| Idioma | Código/API em inglês; textos ao usuário e docs em português (ADR-013) |

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 🗳️ Em votação (Lote 1) |
+| Status | ✅ **Aceita** — enquete E-07 encerrada em 16/09/2026 (Opção B, diferente da recomendação) |
 | Tipo | Tipo 1 (renomear depois é caro) |
 | Decisores | Grupo — enquete **E-07** |
 | Data | 2026-09-14 |
@@ -48,14 +48,26 @@ acentos.
 
 ## Decisão
 
-> Preencher após a enquete E-07.
+**Tudo em inglês com glossário mapeando a linguagem ubíqua** (Opção B), resultado da enquete E-07. Vale para classes,
+métodos, campos, rotas, enums, tabelas/colunas, eventos, casos de uso, **nomes de módulo/pasta e escopos de commit**
+(`customers`, `catalog`, `service-orders`, `identity`, `shared`). Continuam em português: documentação, Miro, vídeo,
+mensagens de erro, `statusDescription` e cenários Gherkin (linguagem do negócio). O número da OS mantém o prefixo
+`OS-`.
+
+O glossário `docs/03-ddd/linguagem-ubiqua.md` é a **única** fonte das traduções (ex.: Orçamento = `Quote`, nunca
+`Budget`/`Estimate`; Peça/Insumo = `Part` com `type`; Cadastro = módulo `customers`). Termo sem tradução no glossário
+não entra no código.
 
 ## Consequências
 
-- `linguagem-ubiqua.md` passa a ter a coluna **Identificador no código** (fonte da verdade para nomes).
-- Lint de nomes na revisão de PR (checklist: "nomes conforme glossário").
+- `linguagem-ubiqua.md` ganhou a coluna **Identificador (EN)** e a tabela de mapeamento de status (§7) — usar no vídeo
+  para ligar os seis nomes do enunciado aos enums.
+- Contrato da API, modelo de dados, agregados, fluxos, PRDs e prompts foram atualizados para os nomes em inglês
+  (16/09/2026).
+- Escopos de commit em inglês substituem os registrados na issue #1 (`decisoes-leves.md`, linha de 16/09).
+- Revisão de PR checa "nomes conforme glossário"; tradução divergente é `[bloqueia]`.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-07 — ADR-013 Idioma do código/API** (prazo 72 h)
+> **Enquete E-07 — ADR-013 Idioma do código/API** (prazo 48 h)
 > 🇧🇷 Domínio em português + técnico em inglês (recomendada) · 🇺🇸 Tudo em inglês + glossário · 🇧🇷🇧🇷 Tudo em português

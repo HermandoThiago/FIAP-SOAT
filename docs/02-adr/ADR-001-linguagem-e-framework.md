@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 🗳️ Em votação (Lote 1) |
+| Status | ✅ **Aceita** — enquete E-04 encerrada em 16/09/2026 |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-04** |
 | Data | 2026-09-14 |
@@ -85,15 +85,27 @@ Se o grupo estiver dividido, **Java/Spring** ou **TypeScript/NestJS** são as ap
 
 ## Decisão
 
-> Preencher após a enquete E-04.
+**TypeScript + NestJS** (Opção B), resultado da enquete E-04 registrado em `docs/00-guia-do-grupo/enquetes.md`.
+É a stack do dia a dia da líder e o denominador comum do grupo (JavaScript/Node); Diego transita em Node, Hermando é generalista.
+
+Toolchain concreta (detalhes em `docs/04-arquitetura/estrutura-do-repositorio.md` §5): Node 22 LTS, TypeScript 5 `strict`,
+NestJS 11, `class-validator`, `@nestjs/swagger`, `@nestjs/jwt` + `bcrypt`, Jest + `supertest` + Testcontainers + Cucumber-js,
+ESLint/Prettier, `dependency-cruiser`, imagem `node:22-alpine`.
+
+**Decisão leve pendente (F1 + F3, registrar em `decisoes-leves.md`):** ORM/migrações — TypeORM (mapeamento explícito,
+migrations SQL, mais controle) ou Prisma (schema declarativo, Prisma Migrate, mais rápido). Em ambos, as entidades do ORM
+ficam em `infrastructure/orm` e o domínio não as conhece.
 
 ## Consequências
 
-- Define toolchain de testes/cobertura (ADR-006), Dockerfile base e estrutura do repositório (`docs/04-arquitetura/estrutura-do-repositorio.md`).
-- Quem não domina a linguagem escolhida assume frentes menos dependentes dela (F2 DDD, F5 Entrega, testes de API caixa-preta).
+- Toolchain de testes/cobertura (ADR-006), Dockerfile e estrutura do repositório fixados para Node/Nest
+  (`docs/04-arquitetura/estrutura-do-repositorio.md`).
+- Shirley (Python) contribui com features Gherkin, revisão de contrato/Swagger e validação ponta a ponta
+  (`docs/00-guia-do-grupo/frentes-e-responsabilidades.md`); Vi revisa o código Nest dos demais.
+- Fase 3 (serverless): Node tem cold start baixo em Lambda — sem função separada em outra linguagem.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 72 h)
+> **Enquete E-04 — ADR-001 Linguagem/framework do back-end** (prazo 48 h)
 > ☕ Java 21 + Spring Boot 3 · 🟦 TypeScript + NestJS · 🟪 C# .NET 8 · 🐍 Python + FastAPI · 🐹 Go
 > Responda também no chat: qual você usa no dia a dia hoje?

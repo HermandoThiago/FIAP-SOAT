@@ -1,11 +1,11 @@
-# PRD-001 — Clientes e veículos (contexto `cadastro`)
+# PRD-001 — Clientes e veículos (contexto `customers`)
 
 | Campo | Valor |
 |---|---|
 | Status | 📝 Rascunho para revisão |
 | Dono | F3 (Domínio & API) · apoio F4 (validações) |
 | Origem no enunciado | "Identificação do cliente por CPF/CNPJ"; "Cadastro de veículo (placa, marca, modelo, ano)"; "CRUD de clientes"; "CRUD de veículos"; "Validação dos dados sensíveis (CPF/CNPJ, placa de veículo)" |
-| Contexto DDD | `cadastro` (supporting) — ver `docs/03-ddd/contextos-delimitados.md` |
+| Contexto DDD | `customers` (supporting) — ver `docs/03-ddd/contextos-delimitados.md` |
 
 ## 1. Objetivo
 
@@ -23,7 +23,7 @@ seus veículos às ordens de serviço.
 | RF-005 | Remover cliente (soft delete = inativar) somente se não houver OS em aberto | Must (regra) / Could (soft delete) |
 | RF-006 | Cadastrar veículo vinculado a um cliente: placa, marca, modelo, ano (+ cor opcional) | Must |
 | RF-007 | Consultar veículo por id e por placa; listar veículos de um cliente | Must |
-| RF-008 | Atualizar veículo (placa alterável apenas por GERENTE, com validação) | Must |
+| RF-008 | Atualizar veículo (placa alterável apenas por `MANAGER`, com validação) | Must |
 | RF-009 | Remover veículo se não houver OS em aberto | Must |
 | RF-010 | Na criação da OS, permitir identificar cliente por documento e **cadastrar cliente/veículo na hora** se não existirem (atalho de atendimento) | Should |
 
@@ -45,7 +45,7 @@ seus veículos às ordens de serviço.
 ```gherkin
 Funcionalidade: Cadastro de clientes
   Cenário: Cadastrar cliente PF com CPF válido
-    Dado que estou autenticado como ATENDENTE
+    Dado que estou autenticado como ATTENDANT
     Quando cadastro o cliente "Maria Silva" com CPF "529.982.247-25"
     Então o cliente é criado com id e documento "52998224725"
     E a resposta é 201 com Location
@@ -76,21 +76,21 @@ Funcionalidade: Cadastro de veículos
 
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| POST | `/clientes` | ATENDENTE+ | Cria cliente |
-| GET | `/clientes?documento=&nome=&page=&size=` | ATENDENTE+ | Lista/busca |
-| GET | `/clientes/{id}` | ATENDENTE+ | Detalha |
-| PUT | `/clientes/{id}` | ATENDENTE+ | Atualiza |
-| DELETE | `/clientes/{id}` | GERENTE | Inativa |
-| GET | `/clientes/{id}/veiculos` | ATENDENTE+ | Veículos do cliente |
-| POST | `/veiculos` | ATENDENTE+ | Cria veículo (body inclui `clienteId`) |
-| GET | `/veiculos?placa=` · `/veiculos/{id}` | ATENDENTE+ | Busca/detalha |
-| PUT | `/veiculos/{id}` | ATENDENTE+ (placa: GERENTE) | Atualiza |
-| DELETE | `/veiculos/{id}` | GERENTE | Inativa |
+| POST | `/customers` | ATTENDANT+ | Cria cliente |
+| GET | `/customers?document=&name=&page=&size=` | ATTENDANT+ | Lista/busca |
+| GET | `/customers/{id}` | ATTENDANT+ | Detalha |
+| PUT | `/customers/{id}` | ATTENDANT+ | Atualiza |
+| DELETE | `/customers/{id}` | MANAGER | Inativa |
+| GET | `/customers/{id}/vehicles` | ATTENDANT+ | Veículos do cliente |
+| POST | `/vehicles` | ATTENDANT+ | Cria veículo (body inclui `customerId`) |
+| GET | `/vehicles?licensePlate=` · `/vehicles/{id}` | ATTENDANT+ | Busca/detalha |
+| PUT | `/vehicles/{id}` | ATTENDANT+ (placa: MANAGER) | Atualiza |
+| DELETE | `/vehicles/{id}` | MANAGER | Inativa |
 
 ## 6. Modelo (resumo)
 
-- **Cliente** (agregado): `id`, `tipoPessoa (PF|PJ)`, `documento` (VO `Documento` = CPF | CNPJ), `nome`, `email`, `telefone`, `ativo`, timestamps.
-- **Veículo** (agregado): `id`, `clienteId`, `placa` (VO `Placa`), `marca`, `modelo`, `ano`, `cor?`, `ativo`, timestamps.
+- **Customer** (agregado): `id`, `customerType (INDIVIDUAL|COMPANY)`, `document` (VO `Document` = CPF | CNPJ), `name`, `email`, `phone`, `active`, timestamps.
+- **Vehicle** (agregado): `id`, `customerId`, `licensePlate` (VO `LicensePlate`), `brand`, `model`, `year`, `color?`, `active`, timestamps.
 
 ## 7. Fora de escopo
 
@@ -101,9 +101,9 @@ Endereço completo, múltiplos contatos, histórico de proprietários do veícul
 | # | Questão | Proposta |
 |---|---|---|
 | Q1 | Veículo pode trocar de dono? | Não no MVP (novo cadastro) |
-| Q2 | Remoção física ou soft delete? | Soft delete (`ativo=false`) — preserva histórico das OS |
+| Q2 | Remoção física ou soft delete? | Soft delete (`active=false`) — preserva histórico das OS |
 
 ## 9. Evidências para a entrega
 
-Swagger com os CRUDs; testes unitários dos VOs `Documento` e `Placa` (casos válidos/inválidos); teste de integração de
+Swagger com os CRUDs; testes unitários dos VOs `Document` e `LicensePlate` (casos válidos/inválidos); teste de integração de
 criação + duplicidade; bloco do vídeo "validação de dados sensíveis".

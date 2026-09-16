@@ -49,7 +49,7 @@ Regras da enquete:
   registra em `docs/02-adr/decisoes-leves.md` (uma linha, com link da issue/PR).
 - Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção.
 - Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **3 votos** (maioria
-  absoluta dos 5 membros). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,
+  absoluta — 3 de 4 membros desde 16/09). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,
   **enquete rápida de 24 h** entre as opções mais votadas; o resultado da enquete rápida decide. Ninguém desempata
   sozinho. Esta é a única definição da regra — os demais documentos apontam para cá.
 - Toda enquete tem o texto pronto em `enquetes.md` com link para a ADR/PRD. Resultado é copiado para a ADR (seção *Decisão*).
@@ -76,12 +76,13 @@ flowchart LR
 
 Convenções:
 
-- Branch: `tipo/escopo-descricao-curta` (`feat/atendimento-criar-os`, `docs/adr-002-banco`, `test/catalogo-estoque-baixa`).
-- Commits: **Conventional Commits** — `feat(atendimento): criar ordem de serviço`, `fix(catalogo-estoque): impedir quantidade negativa`,
-  `docs(adr): aceitar ADR-002`, `test(atendimento): cobrir cálculo do orçamento`.
-- Escopos: os módulos do monólito (`cadastro`, `catalogo-estoque`, `atendimento`, `identidade`, `shared`) ou os transversais
-  (`infra`, `ci`). `catalogo-estoque` é **um** módulo (não `catalogo` + `estoque`), como em
-  `docs/04-arquitetura/estrutura-do-repositorio.md`. `docs` é **tipo**, não escopo: mudança só de documentação usa
+- Branch: `tipo/escopo-descricao-curta` (`feat/service-orders-create`, `docs/adr-002-banco`, `test/catalog-withdraw`).
+- Commits: **Conventional Commits** — `feat(service-orders): create service order`, `fix(catalog): prevent negative stock`,
+  `docs(adr): aceitar ADR-002`, `test(service-orders): cover quote calculation`. Mensagens de commit de código em inglês
+  (ADR-013); commits só de documentação podem ser em português.
+- Escopos: os módulos do monólito em inglês (`customers`, `catalog`, `service-orders`, `identity`, `shared`) ou os
+  transversais (`infra`, `ci`) — nomes conforme ADR-013 e `docs/03-ddd/linguagem-ubiqua.md` §1 (substituem os escopos em
+  português da issue #1; `catalog` continua sendo **um** módulo para catálogo e estoque). `docs` é **tipo**, não escopo: mudança só de documentação usa
   `docs(<pasta>)`, com a pasta afetada como escopo (`guia`, `prd`, `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`,
   `github`, `prompts`), ou `docs:` sem escopo em mudanças na raiz (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
 - PR: usa o template; 1 aprovação de **outro** membro; CI verde; squash merge; branch apagada.
@@ -135,7 +136,7 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 **DoD — uma tarefa só é "Feito" se:**
 
 - [ ] Código + testes (unitários e/ou integração) passando no CI;
-- [ ] Cobertura dos módulos críticos (`atendimento`, `catalogo-estoque`) ≥ 80 %;
+- [ ] Cobertura dos módulos críticos (`service-orders`, `catalog`) ≥ 80 %;
 - [ ] Swagger/OpenAPI atualizado (se houver endpoint);
 - [ ] Linguagem ubíqua respeitada nos nomes;
 - [ ] README/docs atualizados se mudou execução ou comportamento;

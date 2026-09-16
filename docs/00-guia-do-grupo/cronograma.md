@@ -1,15 +1,19 @@
 # Cronograma macro
 
 > ⚠️ **Premissa a confirmar:** o plano abaixo assume **8 semanas** a partir de 14/09/2026, com entrega em **~08/11/2026**.
-> A data oficial está na plataforma da FIAP — **confirmar e ajustar** (enquete E-03 pede a data). Se o prazo for menor,
-> cortar na ordem: Could → Should → buffer, nunca os Must.
+> A data oficial está na plataforma da FIAP — ainda **não confirmada**. Decisão da E-03: a **meta interna de entrega é 1
+> semana antes da data oficial**, reservada para revisões; check-in 3×/semana; call opcional de 30 min por semana.
+> Se o prazo for menor, cortar na ordem: Could → Should → buffer, nunca os Must.
+>
+> **16/09:** grupo passou de 5 para 4 pessoas (saída do Daniel). O plano continua o mesmo; o que muda é a folga —
+> por isso as regras de corte abaixo importam mais.
 
 ## 1. Marcos
 
 | Marco | Data alvo | Critério de "atingido" |
 |---|---|---|
-| **M0 — Kickoff assíncrono** | 14/09 | Repo criado (privado, `soat-architecture` convidado), docs base publicadas, Lote 1 de enquetes aberto |
-| **M1 — Decisões fechadas** | 25/09 | ADRs do Lote 1–3 aceitas; PRDs revisados; contrato da API v1; linguagem ubíqua v1 |
+| **M0 — Kickoff assíncrono** | 14/09 ✅ | Repo criado (privado, `soat-architecture` convidado), docs base publicadas, Lote 1 de enquetes aberto |
+| **M1 — Decisões fechadas** | 25/09 | ADRs do Lote 1 ✅ (16/09); Lotes 2–3 aceitas; PRDs revisados; contrato da API v1; linguagem ubíqua v1 (glossário EN) |
 | **M2 — Walking skeleton** | 04/10 | `docker compose up` sobe API + banco; login JWT; criar cliente/veículo/OS; Swagger; CI com gate de cobertura |
 | **M3 — Fluxo completo da OS** | 18/10 | Diagnóstico → itens → orçamento → aprovação do cliente → execução → finalizada → entregue; estoque; histórico |
 | **M4 — Qualidade & segurança** | 25/10 | Cobertura ≥ 80 % nos módulos críticos; validações; scans rodando; relatório v1; tempo médio de execução |

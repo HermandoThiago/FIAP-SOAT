@@ -26,7 +26,7 @@ O mecânico revisa itens e reenvia o orçamento; se o cliente desistir, a OS fic
 
 ### Opção B — Novo status terminal **Cancelada** (7º), alcançável de Recebida / Em diagnóstico / Aguardando aprovação
 
-Recusa do orçamento → Cancelada (com motivo). Cancelamento administrativo (GERENTE) também → Cancelada.
+Recusa do orçamento → Cancelada (com motivo). Cancelamento administrativo (`MANAGER`) também → Cancelada.
 
 - **Prós:** estado final explícito; métricas limpas ("OS canceladas"); libera estoque de forma determinística.
 - **Contras:** vai além da lista do enunciado (precisa ser apresentado como extensão justificada); sem renegociação direta (seria criar nova OS).
@@ -34,15 +34,15 @@ Recusa do orçamento → Cancelada (com motivo). Cancelamento administrativo (GE
 ### Opção C — Combinação: recusa → **Em diagnóstico** (renegociação) **e** existe **Cancelada** (desistência/cancelamento administrativo)
 
 - **Prós:** cobre os dois cenários reais da oficina; mantém os 6 status obrigatórios intactos + 1 extensão justificável.
-- **Contras:** duas ações do cliente na recusa ("recusar e revisar" vs "recusar e cancelar") — ou uma ação com campo `desistiu: true`.
+- **Contras:** duas ações do cliente na recusa ("recusar e revisar" vs "recusar e cancelar") — ou uma ação com campo `withdrawn: true`.
 
 ## Tabela de transições resultante (Opção C)
 
 | De | Ação | Para |
 |---|---|---|
-| Aguardando aprovação | Recusar (`desistiu=false`) | Em diagnóstico |
-| Aguardando aprovação | Recusar (`desistiu=true`) | Cancelada |
-| Recebida / Em diagnóstico / Aguardando aprovação | Cancelar (GERENTE, motivo) | Cancelada |
+| Aguardando aprovação | Recusar (`withdrawn=false`) | Em diagnóstico |
+| Aguardando aprovação | Recusar (`withdrawn=true`) | Cancelada |
+| Recebida / Em diagnóstico / Aguardando aprovação | Cancelar (`MANAGER`, motivo) | Cancelada |
 | Em execução / Finalizada / Entregue | Cancelar | ❌ 409 |
 
 Efeitos: qualquer entrada em Cancelada ou volta para Em diagnóstico libera reservas de estoque (se ADR-012 = reserva).
@@ -58,10 +58,10 @@ estado terminal para desistência, mantendo os seis obrigatórios intactos".
 
 ## Consequências
 
-- Enum `StatusOS` com 6 (+1) valores; testes parametrizados cobrindo **todas** as combinações (válidas → novo estado; inválidas → erro de domínio).
+- Enum `ServiceOrderStatus` com 6 (+1) valores; testes parametrizados cobrindo **todas** as combinações (válidas → novo estado; inválidas → erro de domínio).
 - Event storming: eventos *Orçamento recusado* e *OS cancelada* + política *liberar reservas*.
 
 ## Enquete (texto para o Discord)
 
-> **Enquete E-14 — ADR-010 Orçamento recusado / cancelamento** (prazo 72 h)
+> **Enquete E-14 — ADR-010 Orçamento recusado / cancelamento** (prazo 48 h)
 > 🔁 Volta para Em diagnóstico · 🚫 Novo status Cancelada · 🔁🚫 Ambos (recomendada)
