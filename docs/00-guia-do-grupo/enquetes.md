@@ -24,7 +24,7 @@ Resultado: `pendente`
 > • **Hermando** — F4 Qualidade & Segurança (testes, cobertura, BDD, scans, relatório) + métrica de tempo médio
 > 👍 topo assim · ✍️ quero trocar (diga qual frente prefere e por quê)
 
-Resultado: `pendente`
+Resultado: topo assim
 
 ### E-03 · Data oficial de entrega e cadência — 🟢
 > **E-03 — Prazo e cadência** (prazo 72 h)
@@ -32,7 +32,7 @@ Resultado: `pendente`
 > 2) Check-in assíncrono 3×/semana (seg/qua/sex) está ok? 👍 sim · 👎 prefiro 2× · 🗓️ prefiro diário
 > 3) Uma call opcional de 30 min por semana: 👍 sim, qual dia? · 👎 100 % assíncrono
 
-Resultado: sim
+Resultado: Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3, call opcional de 30m por semana.
 
 ## Lote 1 — decisões estruturais (bloqueiam o código) — abrir 14/09, encerrar 17/09
 
@@ -44,7 +44,7 @@ Resultado: sim
 > Contexto pelas apresentações: Vi = Nest/TS · Diego = .NET e Node · Dan = Go (e JS) · Hermando = generalista · Shirley = Python.
 > Quem votar numa stack que só você domina assume revisar o código dos outros nela.
 
-Resultado: `pendente`
+Resultado: TypeScript + NestJS
 
 ### E-05 · ADR-002 Banco de dados — 🟢
 > **Enquete E-05 — ADR-002 Banco de dados** (prazo 72 h) — `docs/02-adr/ADR-002-banco-de-dados.md`
@@ -57,7 +57,7 @@ Resultado: PostgreSQL
 > **Enquete E-06 — ADR-003 Arquitetura do monólito** (prazo 72 h) — `docs/02-adr/ADR-003-arquitetura-do-monolito.md`
 > 🥞 Camadas clássica (controller/service/repository) · ⬡ Monólito modular + hexagonal (ports & adapters) · 🧅 Clean Architecture completa
 
-Resultado: `pendente`
+Resultado: Clean Architecture completa
 
 ### E-07 · ADR-013 Idioma do código e da API — 🟢
 > **Enquete E-07 — ADR-013 Idioma** (prazo 72 h) — `docs/02-adr/ADR-013-idioma-do-codigo-e-da-api.md`
@@ -114,14 +114,14 @@ Resultado: Tudo em inglês com glossário mapeando a linguagem ubíqua
 ## Registro de resultados
 
 | Enquete | Encerrada em | Resultado | Registrado em |
-|---|---|---|---|
-| E-01 | | | README.md |
-| E-02 | | | frentes-e-responsabilidades.md |
-| E-03 | | | cronograma.md / como-trabalhamos.md |
-| E-04 | | | ADR-001 |
-| E-05 | | | ADR-002 |
-| E-06 | | | ADR-003 |
-| E-07 | | | ADR-013 |
+| --- | --- | --- | --- |
+| E-01 | Indefinido | Indefinido | README.md |
+| E-02 | Data da commit | Aprovado | frentes-e-responsabilidades.md |
+| E-03 | Data da commit | Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3x semana, call opcional de 30m por semana a combinar. | cronograma.md / como-trabalhamos.md |
+| E-04 | Data da commit | TypeScript + NestJS | ADR-001 |
+| E-05 | Data da commit | PostgreSQL | ADR-002 |
+| E-06 | Data da commit | Clean Architecture completa | ADR-003 |
+| E-07 | Data da commit | Tudo em inglês com glossário mapeando a linguagem ubíqua | ADR-013 |
 | E-08 | | | ADR-004 |
 | E-09 | | | ADR-005 |
 | E-10 | | | ADR-008 |
