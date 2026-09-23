@@ -4,7 +4,7 @@
 |---|---|
 | Status | 📝 Rascunho para revisão do grupo |
 | Dono | F2 (Shirley — produto) · apoio F1 (Hermando) |
-| Origem | Enunciado *SOAT — Fase 1 — Tech Challenge* — PDF atualizado recebido em 23/09/2026 (`docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf`) |
+| Origem | Enunciado *SOAT — Fase 1 — Tech Challenge* da FIAP, versão de 23/09/2026 — não versionado; requisitos transcritos em `docs/06-entrega/checklist-de-entrega.md` |
 | Última atualização | 23/09/2026 (revalidado contra o enunciado atualizado) |
 
 ## 1. Problema

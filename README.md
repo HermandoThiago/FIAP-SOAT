@@ -2,7 +2,8 @@
 
 **Sistema de Gestão da Oficina (SGO)** — nome do sistema provisório (enquete E-01); o enunciado pede o **número do grupo: 49**.
 
-> Estrutura no formato mínimo exigido pelo enunciado atualizado (23/09/2026, `docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf`).
+> Estrutura no formato mínimo exigido pelo enunciado da FIAP (versão de 23/09/2026 — não versionado; requisitos transcritos
+> em `docs/06-entrega/checklist-de-entrega.md`).
 > Itens marcados `<a preencher>` fecham na entrega (marcos M6/M7). Status do planejamento: **todas as 13 ADRs aceitas**
 > (`docs/02-adr/README.md`); esqueleto do código em construção (`prompts/02-esqueleto-do-projeto.md`).
 
@@ -136,7 +137,7 @@ as redistribuições estão registradas em `docs/02-adr/decisoes-leves.md` e as 
 
 | Pasta | O que tem | Quando usar |
 |---|---|---|
-| `docs/00-guia-do-grupo/` | Como trabalhamos (assíncrono, GitFlow), frentes e responsabilidades, cronograma, enquetes e resultados, **enunciado atualizado (PDF)** | Todo dia |
+| `docs/00-guia-do-grupo/` | Como trabalhamos (assíncrono, GitFlow), frentes e responsabilidades, cronograma, enquetes e resultados (o enunciado da FIAP não é versionado; requisitos transcritos no checklist de entrega) | Todo dia |
 | `docs/01-requisitos/` | PRDs (requisitos de produto por módulo, com regras de negócio e critérios de aceite) | Antes de codar uma feature |
 | `docs/02-adr/` | ADRs — decisões de arquitetura, **todas aceitas** (opções e enquetes ficam como registro); decisões leves | Ao codar; ao revisar PR |
 | `docs/ddd/` | **Pasta de entrega DDD** do enunciado: glossário (linguagem ubíqua), event storming, agregados, contextos, domain storytelling; PDFs exportados do Miro em M5 | Documentação DDD (Miro) e vídeo |

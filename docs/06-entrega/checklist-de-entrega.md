@@ -1,8 +1,9 @@
 # Checklist de entrega — rastreabilidade enunciado → evidência → vídeo
 
 > Documento **vivo**: atualizar a cada PR que fecha um item. Na última semana, outra pessoa (não o dono) confere cada
-> linha do zero. Nota máxima = todas as linhas com evidência verificável. Fonte: enunciado atualizado de 23/09/2026
-> (`docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf`) — o Tech Challenge vale 90 % da nota da fase.
+> linha do zero. Nota máxima = todas as linhas com evidência verificável. Fonte: enunciado da FIAP, versão de
+> 23/09/2026 — **não versionado** (propriedade intelectual da FIAP): este checklist é a transcrição dos requisitos, entregáveis
+> e itens do vídeo que vale no repositório. O Tech Challenge vale 90 % da nota da fase.
 
 Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por outra pessoa
 
@@ -46,6 +47,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | T11 | Dockerfile para build · docker-compose orquestrando o ambiente completo | build limpo; Trivy sem críticas; `docker compose up` em máquina limpa (testado por outro membro) | Hermando | ⬜ |
 | T12 | Repositório **público** durante a correção e a revisão de notas, só com arquivos necessários, sem credenciais/tokens | visibilidade pública ligada na entrega; gitleaks limpo no histórico | | ⬜ |
 | T13 | Versão identificada (branch, tag ou hash) informada no PDF; código do vídeo = código da documentação = commit entregue | tag `v1.0.0` em `master` + hash no PDF | | ⬜ |
+| T14 | **Branch principal protegida, tudo via PR** (enunciado, entregáveis §2: "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR") | `master` e `develop` protegidas **sem bypass para ninguém**; todo commit desde 23/09 chega por PR; os commits diretos da fase de planejamento até 23/09 estão registrados como exceção em `docs/02-adr/decisoes-leves.md` | Hermando | ⬜ |
 
 ## 3. Entregáveis (enunciado §1–§4)
 
@@ -91,6 +93,7 @@ ao commit informado no PDF (dizer branch/tag/hash na abertura).
 - [ ] Clone limpo → `docker compose up` → Swagger → fluxo completo em < 5 min (pessoa ≠ dono da infra — Hermando)
 - [ ] Repositório **público**; links do PDF abertos em janela anônima (Miro sem pedido de permissão; YouTube público; README e relatório no commit da entrega)
 - [ ] Branch + hash do PDF = tag `v1.0.0` = commit mostrado no vídeo
+- [ ] `master` e `develop` protegidas sem bypass; todo commit desde 23/09 chegou por PR (T14)
 - [ ] Vídeo assistido inteiro com cronômetro (≤ 15:00), áudio ok, integrantes identificados, checklist §4 marcado
 - [ ] README lido do início ao fim contra os 13 itens do enunciado; comandos copiados e executados
 - [ ] Relatório de vulnerabilidades com datas, versões e antes × depois; evidência de cobertura ≥ 80 % versionada

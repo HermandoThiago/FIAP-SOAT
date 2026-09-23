@@ -1,8 +1,8 @@
 # 08 — README, vídeo e entrega (F5 — Hermando: README/execução · Shirley: roteiro e PDF)
 
 ```text
-Com base em docs/06-entrega/*, docs/02-adr/README.md (decisões aceitas), no enunciado atualizado
-(docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf) e no estado atual do repositório:
+Com base em docs/06-entrega/*, docs/02-adr/README.md (decisões aceitas), no enunciado da FIAP
+(não versionado; requisitos transcritos em docs/06-entrega/checklist-de-entrega.md) e no estado atual do repositório:
 
 1. Escreva o README.md final (em português) com, no mínimo, os itens exigidos pelo enunciado, nesta ordem: objetivo do
    projeto; descrição resumida da solução; arquitetura utilizada (camadas clássicas por módulo + C4 nível 2 em Mermaid);

@@ -40,3 +40,8 @@ Thumbs.db
 # Docker
 *.log
 docker-compose.override.yml
+
+# Enunciado da FIAP: propriedade intelectual da FIAP, nunca versionar
+# (requisitos transcritos em docs/06-entrega/checklist-de-entrega.md)
+enunciado*.pdf
+Fase*Tech Challenge*.pdf

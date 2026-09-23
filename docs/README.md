@@ -5,7 +5,7 @@
 | 00 | [Como trabalhamos](00-guia-do-grupo/como-trabalhamos.md) | Regras do trabalho assíncrono, decisões por enquete, fluxo Git (GitFlow), Definition of Done | F2 (Shirley, facilitação) | ✅ v2 (§4 Git: ADR-008 aceita, 22/09; votação 2 de 3) |
 | 00 | [Frentes e responsabilidades](00-guia-do-grupo/frentes-e-responsabilidades.md) | Frentes de trabalho, RACI, diagramas organizacionais, pendências de transição | F2 (Shirley) | ✅ E-02 aprovada; redistribuída em 16/09 (saída do Daniel) e 22/09 (saída da Vi) |
 | 00 | [Cronograma](00-guia-do-grupo/cronograma.md) | Plano macro por semana, marcos, Gantt | F2 (Shirley) | 🟡 data oficial pendente (E-03: meta interna = 1 semana antes) |
-| 00 | [Enunciado da FIAP (PDF, 23/09)](00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf) | Versão atualizada do Tech Challenge — fonte dos requisitos, entregáveis e itens do vídeo | FIAP | ✅ referência |
+| 00 | Enunciado da FIAP (versão de 23/09) | **Não versionado** (propriedade intelectual da FIAP; o PDF circula entre os integrantes) — requisitos, entregáveis e itens do vídeo transcritos no [checklist de entrega](06-entrega/checklist-de-entrega.md) | FIAP | ✅ fora do git |
 | 00 | [Enquetes](00-guia-do-grupo/enquetes.md) | Todas as enquetes com texto pronto para o Discord e os resultados | F2 (Shirley) | ✅ Lotes 1–3 encerrados (22/09); só a E-01 aberta |
 | 01 | [PRD-000 Visão do produto](01-requisitos/PRD-000-visao-do-produto.md) | Problema, objetivos, personas, escopo do MVP, NFRs | | 📝 revisar |
 | 01 | [PRD-001 Clientes e veículos](01-requisitos/PRD-001-clientes-e-veiculos.md) | CRUDs, CPF/CNPJ, placa | | 📝 revisar |

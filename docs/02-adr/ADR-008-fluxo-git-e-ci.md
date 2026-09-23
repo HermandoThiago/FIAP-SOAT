@@ -52,7 +52,7 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 | Branch | Papel | Sai de | Volta para | Regras |
 |---|---|---|---|---|
-| `master` | O que está **entregue/demonstrável**; só recebe `release/*` e `hotfix/*`; cada merge recebe uma tag | — | — | protegida: sem push direto, PR + 1 aprovação + CI verde; *bypass* só em emergência (issue #1) |
+| `master` | O que está **entregue/demonstrável**; só recebe `release/*` e `hotfix/*`; cada merge recebe uma tag | — | — | protegida: sem push direto, PR + 1 aprovação + CI verde; **sem bypass para ninguém** desde 23/09 (o enunciado exige tudo via PR; antes, bypass de emergência — issue #1) |
 | `develop` | **Integração contínua**; base de todo trabalho | `master` (criada uma vez por F1) | — | protegida com as mesmas regras da `master` |
 | `feat/…`, `fix/…`, `docs/…`, `test/…`, `chore/…` | Trabalho do dia a dia — são as *feature branches* do GitFlow, com os prefixos já combinados (`tipo/escopo-descricao`) | `develop` | `develop` | vida ≤ 3 dias; PR com template; **squash merge**; apagada após o merge |
 | `release/vX.Y.Z` | Fechamento de um marco (M2–M7): só correções, docs e ensaio do vídeo | `develop` | `master` (**merge commit**, `--no-ff`) + tag anotada `vX.Y.Z` em `master` + merge de volta em `develop` | criada por F1; correções entram por `fix/…` com PR para a release |
@@ -82,8 +82,9 @@ Sub-decisões fechadas:
 - Workflows `ci.yml` e `security.yml` (esqueleto, `prompts/02-esqueleto-do-projeto.md`) com gatilhos em PR e em push
   para `develop` e `master`.
 - **Enunciado atualizado (23/09):** o repositório deve ser **público** durante a correção e o PDF informa branch + hash da
-  entrega. O texto cita "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR" — a
-  `master` cumpre a regra. Renomear `master` → `main` é decisão leve de F1 (custo baixo antes do esqueleto; se fizer,
+  entrega. O texto cita "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR" — com a
+  proteção **sem bypass** (decisoes-leves, 23/09), a `master` cumpre a regra daqui em diante; os commits diretos da fase de
+  planejamento até 23/09 ficaram registrados como exceção, sem reescrever o histórico. Renomear `master` → `main` é decisão leve de F1 (custo baixo antes do esqueleto; se fizer,
   atualizar workflows, docs e a proteção).
 
 ## Enquete (texto para o Discord)

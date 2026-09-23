@@ -12,8 +12,8 @@ Responda **em português**; escreva código, nomes e mensagens de commit de cód
 
 ## Fonte da verdade (leia antes de propor qualquer coisa)
 
-- `docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf` — enunciado atualizado da FIAP (23/09/2026); requisitos,
-  entregáveis e itens do vídeo rastreados em `docs/06-entrega/checklist-de-entrega.md`.
+- Enunciado da FIAP (versão de 23/09/2026) — **não versionado**: propriedade intelectual da FIAP, nunca commitar o PDF
+  (`.gitignore`). Requisitos, entregáveis e itens do vídeo transcritos em `docs/06-entrega/checklist-de-entrega.md`.
 - `docs/01-requisitos/PRD-*.md` — o que o sistema faz (RF), regras (RN), critérios de aceite.
 - `docs/02-adr/` — decisões de arquitetura. **Todas as 13 ADRs estão Aceitas** (Lotes 1–3 encerrados em 22/09/2026); vale
   a seção *Decisão* de cada uma — opções e recomendações são só registro. Decisões leves (Tipo 2, ex.: ORM = Prisma)
@@ -83,7 +83,8 @@ Cada regra cita a fonte. Divergência de uma regra é `[bloqueia]` na revisão d
 - ADR-008 (Aceita) — **GitFlow**: branches de trabalho `feat/<modulo>-<descricao>`, `fix/…`, `docs/…`, `test/…`, `chore/…`
   saem de **`develop`** e voltam para `develop` por PR (template preenchido, ≤ 400 linhas, 1 aprovação humana, CI verde,
   squash merge, branch apagada). `master` só recebe `release/*` e `hotfix/*` (F1), sempre com tag; nunca abra PR de
-  trabalho contra `master`.
+  trabalho contra `master`. **Ninguém tem bypass**: tudo que chega em `master` e `develop` vem por PR (enunciado); os
+  commits diretos até 23/09 são exceção registrada em `docs/02-adr/decisoes-leves.md`.
 - **Conventional Commits obrigatórios** (o CI valida o título do PR). Escopos: módulo em inglês (`customers`, `catalog`,
   `service-orders`, `identity`, `shared`) ou transversal (`infra`, `ci`); `docs` é tipo, não escopo — mudanças só de
   documentação usam `docs(<pasta>)` — detalhes em `docs/00-guia-do-grupo/como-trabalhamos.md` §4.

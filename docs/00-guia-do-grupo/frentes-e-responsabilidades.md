@@ -121,8 +121,11 @@ Itens que dependem de acesso ou de conta e que a documentação sozinha não res
 
 - [ ] **Repositório**: `katomaro/FIAP-SOAT` está na conta da Vi, que transfere para um membro (ou organização do grupo)
   **assim que o grupo pedir** — o GitHub mantém histórico, issues e PRs. Depois, reaplicar a proteção de `master`, criar e
-  proteger `develop` (ADR-008) e rever quem tem *bypass*. O enunciado atualizado (23/09) exige o repositório **público**
+  proteger `develop` (ADR-008) e aplicar o item *sem bypass* abaixo. O enunciado atualizado (23/09) exige o repositório **público**
   durante a correção; o convite a `soat-architecture` deixou de ser exigido.
+- [ ] **Sem bypass** (enunciado: tudo que chega na branch principal vem por PR — decisoes-leves, 23/09): remover a permissão
+  de *bypass* de todos, inclusive administradores, em `master` agora e em `develop` ao criá-la (F1, com quem for admin do
+  repositório). Os commits diretos até 23/09 ficam como exceção registrada; não reescrever o histórico.
 - [x] **Workflows do Claude** (`.github/workflows/claude*.yml`): a Vi mantém a assinatura e o secret `CLAUDE_CODE_OAUTH_TOKEN`
   à disposição do grupo — nada a fazer enquanto funcionar. Se parar (ou na transferência do repositório), trocar por token
   de outro membro (`claude setup-token`) ou `ANTHROPIC_API_KEY` e reinstalar o GitHub App (`docs/README.md`, *Claude no GitHub*).

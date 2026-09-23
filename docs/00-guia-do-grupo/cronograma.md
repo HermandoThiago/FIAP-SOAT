@@ -9,7 +9,7 @@
 > `frentes-e-responsabilidades.md` §1. O plano continua o mesmo; o que muda é a folga — por isso as regras de corte
 > abaixo importam mais, e o primeiro ajuste de carga (Diego assumir `catalog`) deve ser decidido no check-in de M2.
 >
-> **23/09:** enunciado atualizado da FIAP (`enunciado-fase-1-tech-challenge.pdf`, nesta pasta): repositório **público** na
+> **23/09:** enunciado atualizado da FIAP (não versionado; requisitos transcritos no checklist de entrega): repositório **público** na
 > correção, vídeo **público** no YouTube, exportação da documentação DDD em `docs/ddd/`, rejeição do orçamento obrigatória,
 > tratamento de transações explícito, PDF único com grupo 49 e branch + hash — já refletido nos PRDs e no checklist.
 

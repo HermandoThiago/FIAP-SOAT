@@ -84,8 +84,9 @@ Convenções:
 
 - Branches permanentes: **`develop`** (integração; base de todo trabalho; sempre executável) e **`master`** (entregue; só
   recebe `release/*` e `hotfix/*`, sempre com tag; é o que o avaliador vê). As duas são protegidas: sem push direto,
-  PR + 1 aprovação + CI verde. Todos os membros têm permissão de *bypass*, **reservada a emergências** (issue #1); fora
-  disso, o caminho é sempre PR com revisão.
+  PR + 1 aprovação + CI verde, e **ninguém tem *bypass***, nem administradores: o enunciado exige que tudo que chega na
+  branch principal venha por PR (decisão de 23/09; antes havia bypass de emergência, issue #1). Os commits diretos da fase
+  de planejamento, até 23/09, ficaram registrados como exceção em `docs/02-adr/decisoes-leves.md`, sem reescrever o histórico.
 - Branch de trabalho: `tipo/escopo-descricao-curta` (`feat/service-orders-create`, `docs/adr-002-banco`,
   `test/catalog-withdraw`), criada **a partir de `develop`** e com PR **para `develop`**; vida ≤ 3 dias. Nunca abra PR de
   trabalho contra `master` — o CI recusa PR para `master` que não venha de `release/*` ou `hotfix/*`.
