@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 2) |
+| Status | ✅ **Aceita** — enquete E-10 encerrada em 22/09/2026: **GitFlow** (Opção B, diferente da recomendação) + **Conventional Commits obrigatórios** |
 | Tipo | Tipo 1 |
-| Decisores | Grupo — enquete **E-10** |
-| Data | 2026-09-14 |
+| Decisores | Grupo — enquete **E-10** (duas perguntas: fluxo e commits) |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
 | Relacionadas | `docs/00-guia-do-grupo/como-trabalhamos.md`, ADR-006, ADR-007 |
 
 ## Contexto e problema
@@ -29,7 +29,7 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 - **Prós:** separação entre "em desenvolvimento" e "entregue".
 - **Contras:** overhead para 1 entrega; merges duplos; `develop` diverge de `master`; não há "produção" nesta fase.
 
-## Sub-decisões
+## Sub-decisões propostas
 
 | Item | Proposta |
 |---|---|
@@ -47,13 +47,40 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 ## Decisão
 
-> Preencher após a enquete E-10.
+**GitFlow** (Opção B) **com Conventional Commits obrigatórios**, checados no CI. Adaptado ao tamanho do grupo (4 pessoas,
+1 entrega com 5 marcos):
+
+| Branch | Papel | Sai de | Volta para | Regras |
+|---|---|---|---|---|
+| `master` | O que está **entregue/demonstrável**; só recebe `release/*` e `hotfix/*`; cada merge recebe uma tag | — | — | protegida: sem push direto, PR + 1 aprovação + CI verde; *bypass* só em emergência (issue #1) |
+| `develop` | **Integração contínua**; base de todo trabalho | `master` (criada uma vez por F1) | — | protegida com as mesmas regras da `master` |
+| `feat/…`, `fix/…`, `docs/…`, `test/…`, `chore/…` | Trabalho do dia a dia — são as *feature branches* do GitFlow, com os prefixos já combinados (`tipo/escopo-descricao`) | `develop` | `develop` | vida ≤ 3 dias; PR com template; **squash merge**; apagada após o merge |
+| `release/vX.Y.Z` | Fechamento de um marco (M2–M7): só correções, docs e ensaio do vídeo | `develop` | `master` (**merge commit**, `--no-ff`) + tag anotada `vX.Y.Z` em `master` + merge de volta em `develop` | criada por F1; correções entram por `fix/…` com PR para a release |
+| `hotfix/vX.Y.Z` | Correção em algo já taggeado (ex.: o scan 2 achou algo em `v1.0.0-rc.1`) | `master` | `master` (+ tag patch) + merge de volta em `develop` | criada por F1 |
+
+Sub-decisões fechadas:
+
+| Item | Decisão |
+|---|---|
+| Conventional Commits | **Obrigatórios.** O CI valida o **título do PR** (`amannn/action-semantic-pull-request`) porque, com squash, é ele que vira a mensagem do commit em `develop`. Tipos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`; escopos em `como-trabalhamos.md` §4. Commits individuais na branch seguem o mesmo formato (commitlint local via husky é Could) |
+| Branch padrão no GitHub | continua `master` (o avaliador cai na versão entregue). Todo PR de trabalho aponta para **`develop`** — o template de PR lembra, e o CI recusa PR para `master` cuja origem não seja `release/*` ou `hotfix/*` |
+| Revisão | 1 aprovação de outro membro; autor não aprova o próprio PR; revisar em ≤ 24 h |
+| CI em PR (para `develop`, `release/*` ou `master`) | título Conventional → lint → `dependency-cruiser` → unitários → integração (Testcontainers) → BDD → cobertura com gate → Semgrep/SCA/gitleaks/hadolint → build da imagem + Trivy |
+| CI em push em `develop` | tudo acima + publica relatório de cobertura e `openapi.json` como artefatos |
+| CI em push em `master` / tag | tudo acima + imagem `<sistema>-api:vX.Y.Z` + ZAP (manual ou agendado) |
+| Versionamento | tags criadas **no merge da `release/*` em `master`**: `v0.1.0` (M2) → `v0.2.0` (M3) → `v0.3.0` (M4) → `v1.0.0-rc.1` (M6) → `v1.0.0` (M7); release no GitHub só em `v1.0.0`; Fase 2 começa em `v2.0.0` |
+| `@claude` no GitHub | branches `claude/*` criadas a partir de `develop` (input `base_branch: develop` da action) com PR para `develop` |
 
 ## Consequências
 
-- Proteção de `master` já configurada (issue #1), com *bypass* de todos os membros reservado a emergências;
-  manter após a decisão da E-10.
-- Workflows: `ci.yml` (build/test/cobertura) e `security.yml` (scans) — esqueleto gerado após ADR-001 (`prompts/02-esqueleto-do-projeto.md`).
+- **F1 cria `develop`** a partir de `master` e aplica a mesma proteção (registro em `decisoes-leves.md`, 22/09); a
+  proteção da `master` (issue #1) continua.
+- `como-trabalhamos.md` §4, `CONTRIBUTING.md`, `CLAUDE.md`, o template de PR e os workflows do Claude atualizados em
+  22/09/2026.
+- Custo aceito: merges duplos (release → master → develop) em 5 marcos e `develop` à frente de `master` entre marcos —
+  a demo do vídeo e o PDF usam sempre uma tag em `master`.
+- Workflows `ci.yml` e `security.yml` (esqueleto, `prompts/02-esqueleto-do-projeto.md`) com gatilhos em PR e em push
+  para `develop` e `master`.
 
 ## Enquete (texto para o Discord)
 

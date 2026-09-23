@@ -11,8 +11,8 @@
 ## Contexto e problema
 
 "A escolha do banco de dados é livre, mas é necessário **justificar** a preferência." O domínio tem entidades
-relacionadas (cliente → veículos → OS → itens), **transações** com invariantes (aprovar orçamento + baixar estoque
-atomicamente), consultas agregadas (tempo médio) e valores monetários. Na Fase 4 o curso apresenta bancos documentais,
+relacionadas (cliente → veículos → OS → itens), **transações** com invariantes (aprovar orçamento + reservar estoque
+atomicamente; finalizar + baixar), consultas agregadas (tempo médio) e valores monetários. Na Fase 4 o curso apresenta bancos documentais,
 colunares e de grafos, com "um banco por microsserviço" — o monólito de agora deve facilitar essa separação.
 
 ## Critérios de decisão
@@ -57,7 +57,7 @@ colunares e de grafos, com "um banco por microsserviço" — o monólito de agor
 **PostgreSQL 16.** Justificativa pronta para README/vídeo:
 
 > "Escolhemos PostgreSQL porque o domínio da oficina é relacional e transacional: a aprovação do orçamento precisa mudar o
-> status da OS e baixar o estoque na mesma transação; `NUMERIC` evita erros de arredondamento em valores monetários;
+> status da OS e reservar o estoque na mesma transação (e a finalização, baixá-lo); `NUMERIC` evita erros de arredondamento em valores monetários;
 > constraints garantem invariantes como estoque nunca negativo e documento único; consultas agregadas (tempo médio de
 > execução) são SQL simples. É gratuito, roda em um contêiner no docker-compose, tem Testcontainers para testes de
 > integração e um caminho direto para RDS/Aurora nas próximas fases, quando cada microsserviço poderá ter seu próprio
@@ -70,7 +70,7 @@ oficial para README e vídeo. Imagem no compose: `postgres:16-alpine`, com volum
 
 ## Consequências
 
-- Migrações versionadas (Flyway/Liquibase/Prisma Migrate/Alembic/EF Migrations) desde o primeiro PR.
+- Migrações versionadas com Prisma Migrate (E-17) desde o primeiro PR.
 - Um *schema* por módulo (`customers`, `catalog`, `service_orders`, `identity`); **sem JOIN entre módulos** no código de domínio (só via aplicação) — prepara a Fase 4.
 - `docker-compose.yml` sobe o banco com volume nomeado e seed de demonstração.
 

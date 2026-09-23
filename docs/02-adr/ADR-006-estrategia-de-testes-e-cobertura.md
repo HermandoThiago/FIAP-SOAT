@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 3) |
+| Status | ✅ **Aceita** — enquete E-12 encerrada em 22/09/2026 (Testcontainers + BDD com Cucumber-js, conforme recomendação) |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-12** |
-| Data | 2026-09-14 |
-| Relacionadas | ADR-001, ADR-002, ADR-003, `docs/05-qualidade-e-seguranca/estrategia-de-testes.md` |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
+| Relacionadas | ADR-001, ADR-002, ADR-003, ADR-013, `docs/05-qualidade-e-seguranca/estrategia-de-testes.md` |
 
 ## Contexto e problema
 
@@ -14,22 +14,22 @@ Enunciado: "testes unitários e de integração para os principais fluxos" e "co
 críticos". A disciplina de Qualidade cobre pirâmide de testes, **TDD e BDD**. Precisamos definir: o que conta como
 "domínio crítico", como medir, como rodar testes de integração com banco e se faremos BDD.
 
-## Decisões propostas (pacote)
+## Pacote decidido
 
-| Tema | Proposta |
+| Tema | Decisão |
 |---|---|
-| Domínios críticos | Módulos `service-orders` (OS/orçamento/status) e `catalog` (estoque) — camadas `domain` + `application` |
+| Domínios críticos | Módulos `service-orders` (OS/orçamento/status) e `catalog` (estoque) — pastas `domain/` + `services/` (camadas clássicas, ADR-003) |
 | Meta | ≥ 80 % de linhas **e** de branches nos módulos críticos; ≥ 60 % global (informativo) |
-| Gate | CI falha abaixo da meta (JaCoCo rule / Jest `coverageThreshold` / coverlet threshold / `--cov-fail-under` / `go test -cover` + script) |
-| Pirâmide | ~70 % unitários (domínio puro, sem framework), ~25 % integração (casos de uso + repositório real + HTTP), ~5 % ponta a ponta (fluxo completo via API no compose) |
-| Banco nos testes de integração | **Opção A:** Testcontainers (banco real, isolado, mesmo motor da produção) · **Opção B:** banco em memória (H2/SQLite — rápido, mas diverge do motor real) |
-| BDD | **Sim/Não:** cenários Gherkin dos PRDs executados por Cucumber/SpecFlow/behave/godog para os 3 fluxos principais (criar OS + orçamento; aprovação + execução; estoque). Vale pontos na disciplina e vira roteiro do vídeo |
+| Gate | CI falha abaixo da meta — Jest `coverageThreshold` por pasta |
+| Pirâmide | ~70 % unitários (domínio puro e services com repositórios fake em memória), ~25 % integração (services + repositórios reais + HTTP), ~5 % ponta a ponta (fluxo completo via API) |
+| Banco nos testes de integração | **Testcontainers** (PostgreSQL 16 real) — E-12a |
+| BDD | **Sim**: cenários Gherkin em português executados por **Cucumber-js** nos 3 fluxos principais — E-12b |
 | TDD | Recomendado no domínio (máquina de estados, cálculo de orçamento, VOs) — não obrigatório |
 | Dados de teste | Builders/fixtures com CPF/CNPJ/placas gerados válidos e fictícios; sem dados reais |
 | Testes de contrato/API | Cada endpoint tem ao menos: caso feliz + 1 validação (422) + 1 autorização (401/403) |
-| Convenções | Nome `deve_<comportamento>_quando_<condição>`; um assert lógico por teste; testes de transição parametrizados cobrindo a tabela completa da PRD-004 |
+| Convenções | `it('should <resultado> when <condição>')` em inglês (ADR-013); um assert lógico por teste; testes de transição parametrizados cobrindo a tabela completa da PRD-004 |
 
-## Opções em votação
+## Opções votadas
 
 1. Banco de teste: 🐳 **Testcontainers / serviço do compose** (recomendado — o que roda em produção é o que testamos) × 💾 em memória.
 2. BDD: 👍 **sim** (recomendado, 3 fluxos) × 👎 não.
@@ -41,12 +41,27 @@ Testcontainers + BDD para os 3 fluxos. O custo é baixo com IA gerando o esquele
 
 ## Decisão
 
-> Preencher após a enquete E-12.
+Pacote acima aceito, com as duas escolhas em votação fechadas:
+
+1. **Banco nos testes de integração: Testcontainers** (`@testcontainers/postgresql`) — sobe um PostgreSQL 16 real por
+   execução, aplica as migrações do Prisma (`prisma migrate deploy`, E-17) e roda os testes contra o mesmo motor da
+   produção. Localmente exige Docker; no GitHub Actions (`ubuntu-latest`) funciona sem configuração extra.
+2. **BDD: sim, Cucumber-js nos 3 fluxos principais** — features em português (`# language: pt`) executadas contra a API
+   real (supertest) sobre o banco de teste: `service-order-creation.feature` (criar OS + orçamento),
+   `quote-and-approval.feature` (aprovação + execução) e `stock-management.feature` (estoque).
+   `execution-and-delivery.feature` e `authentication.feature` são Should.
+
+Ferramentas concretas (ADR-001): Jest + `supertest` + Testcontainers + Cucumber-js (`@cucumber/cucumber`); cobertura via
+Istanbul com `coverageThreshold` ≥ 80 % (linhas e branches) em `src/modules/service-orders/{domain,services}` e
+`src/modules/catalog/{domain,services}`; scripts `npm test` (unitários), `npm run test:e2e` (integração + BDD) e
+`npm run test:cov` (cobertura com gate).
 
 ## Consequências
 
-- CI executa: unit → integração (sobe banco) → BDD → relatório de cobertura publicado como artefato (e badge no README).
-- `docs/05-qualidade-e-seguranca/estrategia-de-testes.md` detalha ferramentas por linguagem após ADR-001.
+- CI executa: lint → unitários → integração (Testcontainers) → BDD → cobertura com gate → relatório publicado como
+  artefato (badge no README é Could).
+- Shirley (F2) escreve as features Gherkin a partir dos critérios de aceite dos PRDs; Hermando (F4) automatiza os steps.
+- `docs/05-qualidade-e-seguranca/estrategia-de-testes.md` detalha o que testar por módulo e as convenções.
 
 ## Enquete (texto para o Discord)
 

@@ -19,11 +19,11 @@ Fora do escopo: infraestrutura de nuvem (não há nesta fase), front-end (inexis
 
 | Camada | Ferramenta | Versão | Configuração |
 |---|---|---|---|
-| SAST | Semgrep | `<x.y>` | `p/owasp-top-ten`, `p/<linguagem>`, `p/secrets` |
-| SCA | `<npm audit / pip-audit / Dependency-Check / Trivy fs>` | `<x.y>` | lockfile do projeto |
+| SAST | Semgrep | `<x.y>` | `p/owasp-top-ten`, `p/typescript`, `p/nodejs`, `p/secrets` |
+| SCA | `npm audit` + Trivy fs | `<x.y>` | `package-lock.json` |
 | Imagem | Trivy image + hadolint | `<x.y>` | `HIGH,CRITICAL` |
 | Segredos | gitleaks | `<x.y>` | histórico completo |
-| DAST | OWASP ZAP baseline + API scan | `<x.y>` | alvo `http://localhost:8080/api/v1`, `openapi.json` |
+| DAST | OWASP ZAP baseline + API scan | `<x.y>` | alvo `http://localhost:8080/api/v1`, `/docs/openapi.json` |
 | IaC | Trivy config | `<x.y>` | `Dockerfile`, `docker-compose.yml` |
 
 Execução: local (scripts em `scripts/security/`) e no CI (`.github/workflows/security.yml`). Relatórios brutos em

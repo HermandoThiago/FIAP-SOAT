@@ -4,7 +4,7 @@ name: Claude Code
 # Exemplos de uso pelo grupo:
 #   @claude explique o que este PR muda em relação ao PRD-003
 #   @claude gere os testes unitários da máquina de estados conforme docs/01-requisitos/PRD-004.md
-#   @claude abra um PR implementando a issue (branch claude/<numero>)
+#   @claude abra um PR implementando a issue (branch claude/<numero>, a partir de develop — GitFlow, ADR-008)
 #
 # Pré-requisitos (ver docs/README.md, seção "Claude no GitHub"):
 #   1) GitHub App "Claude" instalado no repositório (https://github.com/apps/claude)
@@ -51,6 +51,7 @@ jobs:
           use_sticky_comment: true       # uma única resposta editável por thread, em vez de vários comentários
           track_progress: true           # mostra o andamento no comentário
           branch_prefix: "claude/"       # branches que o Claude criar: claude/issue-123-...
+          base_branch: "develop"         # GitFlow (ADR-008): branches e PRs do Claude saem de / vão para develop
           # Modelo e esforço (ver docs/README.md): Fable 5.1 com effort máximo; se indisponível, Opus 4.8.
           # O effort é da sessão, então vale também para o fallback. Valores: low | medium | high | xhigh | max.
           claude_args: |

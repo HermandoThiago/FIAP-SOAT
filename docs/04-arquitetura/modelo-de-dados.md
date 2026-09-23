@@ -1,4 +1,4 @@
-# Modelo de dados (PostgreSQL 16 — ADR-002 Aceita)
+# Modelo de dados (PostgreSQL 16 — ADR-002 Aceita · Prisma — E-17)
 
 > Um *schema* por módulo. **Sem chaves estrangeiras entre módulos** (apenas colunas de referência com índice) — o que
 > permite separar os bancos na Fase 4 sem migração de esquema. Dentro do módulo, FKs normais. Nomes em inglês,
@@ -124,7 +124,8 @@ erDiagram
         varchar name
         varchar email UK
         varchar password_hash
-        varchar roles "ATTENDANT,MECHANIC,MANAGER"
+        varchar roles "ATTENDANT,MECHANIC,MANAGER | CUSTOMER"
+        uuid customer_id "ref. customers (sem FK); so para CUSTOMER"
         boolean active
         timestamptz created_at
         timestamptz updated_at
@@ -139,10 +140,12 @@ erDiagram
     VEHICLES }o..o{ SERVICE_ORDERS : "referencia por id"
     SERVICES }o..o{ SERVICE_ORDER_SERVICE_ITEMS : "snapshot"
     PARTS }o..o{ SERVICE_ORDER_PART_ITEMS : "snapshot"
+    CUSTOMERS |o..o| USERS : "login do cliente (referencia por id)"
 ```
 
-`TRACKING_TOKENS` só existe se a ADR-011 escolher tokens **opacos** persistidos; com JWT assinado (recomendado)
-a tabela é opcional (útil para revogação — Could).
+`TRACKING_TOKENS` é **opcional**: a ADR-011 (Aceita) usa JWT assinado (`aud=tracking`), então a tabela só entra se
+quisermos revogação de token (Could). `users.customer_id` liga o login do cliente (papel `CUSTOMER`) ao cadastro, sem FK
+entre schemas (ADR-011).
 
 ## 2. Schemas por módulo
 
@@ -152,6 +155,10 @@ a tabela é opcional (útil para revogação — Could).
 | `catalog` | `services`, `parts`, `stock_movements` |
 | `service_orders` | `service_orders`, `service_order_service_items`, `service_order_part_items`, `service_order_status_history`, `tracking_tokens`, `service_order_number_seq` (sequência anual) |
 | `identity` | `users` |
+
+Os quatro schemas são declarados no Prisma com `multiSchema` (`schemas = [...]` no `datasource` e `@@schema("...")` em
+cada model — E-17). A sequência `service_order_number_seq`, os `CHECK`s e os índices parciais da §3 entram em SQL escrito
+à mão na migração gerada pelo Prisma Migrate.
 
 ## 3. Constraints que protegem invariantes (defesa em profundidade)
 
@@ -164,7 +171,7 @@ a tabela é opcional (útil para revogação — Could).
 | `service_orders` | `CHECK (status IN (...))` · `CHECK (quote_total_amount >= 0)` · `UNIQUE (number)` · índice parcial "1 OS aberta por veículo" (Should): `UNIQUE (vehicle_id) WHERE status NOT IN ('DELIVERED','CANCELLED')` |
 | `service_order_*_items` | `CHECK (quantity > 0)` |
 | `service_order_status_history` | índice `(service_order_id, occurred_at)` |
-| `users` | `UNIQUE (email)` |
+| `users` | `UNIQUE (email)` · `CHECK ((roles = 'CUSTOMER') = (customer_id IS NOT NULL))` · `UNIQUE (customer_id) WHERE customer_id IS NOT NULL` |
 
 ## 4. Consultas de leitura relevantes
 
@@ -196,7 +203,8 @@ GROUP BY i.service_id, i.name_snapshot;
 
 ## 5. Dados de demonstração (seed)
 
-- 1 usuário por papel (`manager@oficina.local`, `mechanic@…`, `attendant@…`) com senhas via env.
+- 1 usuário por papel de equipe (`manager@oficina.local`, `mechanic@…`, `attendant@…`) com senhas via env, e 1 usuário
+  `CUSTOMER` (`customer@oficina.local`) ligado ao cliente da OS que fica aguardando aprovação (ADR-011).
 - 3 clientes (2 PF, 1 PJ) com documentos fictícios válidos; 4 veículos (2 placas antigas, 2 Mercosul).
 - 6 serviços (troca de óleo, alinhamento, balanceamento, troca de pastilhas, revisão, diagnóstico eletrônico).
 - 8 peças/insumos com estoque e mínimo; 2 com estoque baixo para demonstrar alerta.
@@ -205,6 +213,7 @@ GROUP BY i.service_id, i.name_snapshot;
 
 ## 6. Migrações
 
-Versionadas na ferramenta escolhida para o NestJS (decisão leve pendente de F1/F3: **TypeORM migrations** ou **Prisma
-Migrate** — ver ADR-001, seção *Consequências*). Convenção de nomes: `001_schemas`, `002_customers`, `003_catalog`,
-`004_service_orders`, `005_identity`, `900_seed_dev` (somente em `APP_ENV=dev`).
+**Prisma Migrate** (E-17): `prisma/migrations/<timestamp>_<nome>/migration.sql`, geradas a partir do `schema.prisma` e
+editadas à mão quando preciso (schemas, sequência anual `service_order_number_seq`, `CHECK`s e índices parciais da §3).
+Ordem sugerida: `init_schemas`, `customers`, `catalog`, `service_orders`, `identity`. `prisma migrate deploy` roda na
+subida do compose; o seed (§5) é `prisma db seed`, somente em `APP_ENV=dev`.

@@ -10,9 +10,12 @@ Como registrar: uma linha por decisão, mais recente **em cima**; data em `AAAA-
 
 | Data | Decisão | Quem (frente) | Onde | Substituída por |
 |---|---|---|---|---|
+| 2026-09-22 | Com a ADR-008 aceita (GitFlow): F1 cria a branch `develop` a partir de `master` e aplica a ela a mesma proteção (PR + 1 aprovação + CI verde); a branch padrão do GitHub continua `master`; PRs de trabalho apontam para `develop` | Vi (F1) | ADR-008 | |
+| 2026-09-22 | Swagger UI em `/docs` e documento OpenAPI em `/docs/openapi.json` (só em `APP_ENV=dev`); `openapi.json` é publicado como artefato do CI, **não** versionado no repositório (ADR-005, code-first) | Vi (F1) | ADR-005 | |
+| 2026-09-22 | **ORM/migrações: Prisma** (schema declarativo, Prisma Migrate) — enquete **E-17**, aberta ao grupo por definir o esqueleto; fecha a decisão leve de 2026-09-16 | Grupo (E-17) | Discord | |
 | 2026-09-16 | Daniel saiu da faculdade; carga redistribuída: **Vi** assume a F5 Infra & Entrega (Docker, compose, CI, README, Swagger) e **Hermando** assume os módulos `customers` e `catalog` da F3, além da F4. Regra de vitória das enquetes passa a ser 3 votos **de 4** | Vi (líder) | Discord | |
 | 2026-09-16 | Com a ADR-013 aceita (tudo em inglês), nomes de módulo/pasta e **escopos de commit** ficam em inglês: `customers`, `catalog`, `service-orders`, `identity`, `shared` (+ `infra`, `ci`) | Vi (F1) | ADR-013 | substitui a parte de escopos das linhas de 2026-09-14 |
-| 2026-09-16 | ORM/migrações do NestJS (TypeORM × Prisma) é decisão leve de F1 + F3, a registrar aqui antes do esqueleto (prompt 02) | Vi (F1) | ADR-001 | |
+| 2026-09-16 | ORM/migrações do NestJS (TypeORM × Prisma) é decisão leve de F1 + F3, a registrar aqui antes do esqueleto (prompt 02) | Vi (F1) | ADR-001 | linha de 2026-09-22 (E-17: Prisma) |
 | 2026-09-14 | Não manter `README.md` dentro de `.github/` (o GitHub o exibe **no lugar** do README da raiz); o guia *Claude no GitHub* mora em `docs/README.md` | Vi (F1) | [#2](https://github.com/katomaro/FIAP-SOAT/pull/2) | |
 | 2026-09-14 | Escopos transversais de commit passam a ser só `infra` e `ci`: `docs` é **tipo** de commit (`docs(<pasta>)`), não escopo | Vi (F1) | [#2](https://github.com/katomaro/FIAP-SOAT/pull/2) | |
 | 2026-09-14 | PR #2 mesclado sem aprovação humana e sem CI: **exceção única de setup** do repositório; a partir dele vale a regra de 1 aprovação + CI verde (`como-trabalhamos.md` §4) | Vi (F1) | [#2](https://github.com/katomaro/FIAP-SOAT/pull/2) | |

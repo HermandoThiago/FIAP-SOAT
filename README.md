@@ -7,9 +7,12 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 **Domain-Driven Design**, **qualidade de software** (testes ≥ 80% nos domínios críticos) e **desenvolvimento seguro**
 (JWT nas APIs administrativas, validação de dados sensíveis, análise de vulnerabilidades).
 
-> **Status atual:** planejamento concluindo → esqueleto do código. Decisões estruturais **aceitas** (Lote 1): TypeScript +
-> NestJS (ADR-001), PostgreSQL (ADR-002), Clean Architecture modular por contexto (ADR-003), código em inglês com glossário
-> (ADR-013). Lotes 2–3 em votação: `docs/02-adr/README.md`.
+> **Status atual:** decisões fechadas → esqueleto do código. **Todas as 13 ADRs estão aceitas** (Lotes 1–3 de enquetes
+> encerrados em 22/09/2026 — índice em `docs/02-adr/README.md`): TypeScript + NestJS + Prisma (ADR-001, E-17), PostgreSQL
+> (ADR-002), **camadas clássicas** em módulos por contexto (ADR-003, revotada em 22/09), JWT próprio (ADR-004), Swagger
+> code-first (ADR-005), Testcontainers + BDD (ADR-006), scans Semgrep/Trivy/gitleaks/ZAP (ADR-007), GitFlow + Conventional
+> Commits (ADR-008), UUID v4 (ADR-009), status *Cancelada* (ADR-010), token de acompanhamento + login de cliente (ADR-011),
+> reserva de estoque na aprovação e baixa na finalização (ADR-012), código em inglês com glossário (ADR-013).
 > A Fase 1 exige monólito; as fases seguintes do curso (Kubernetes/EKS, API Gateway, serverless, microsserviços com SAGA)
 > vão **refatorar este mesmo projeto**, então as decisões daqui já consideram essa evolução (`docs/04-arquitetura/evolucao-fases.md`).
 
@@ -30,9 +33,9 @@ Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário Git
 
 | Pasta | O que tem | Quando usar |
 |---|---|---|
-| `docs/00-guia-do-grupo/` | Como trabalhamos (assíncrono), frentes e responsabilidades, cronograma, **enquetes prontas para o Discord** | Todo dia |
+| `docs/00-guia-do-grupo/` | Como trabalhamos (assíncrono, GitFlow), frentes e responsabilidades, cronograma, **enquetes e seus resultados** | Todo dia |
 | `docs/01-requisitos/` | PRDs (requisitos de produto por módulo, com regras de negócio e critérios de aceite) | Antes de codar uma feature |
-| `docs/02-adr/` | ADRs — decisões de arquitetura **com opções para votação** | Semana 1–2 (votações) |
+| `docs/02-adr/` | ADRs — decisões de arquitetura, **todas aceitas** (opções e enquetes ficam como registro); decisões leves | Ao codar; ao revisar PR |
 | `docs/03-ddd/` | Linguagem ubíqua, domain storytelling, event storming, contextos delimitados, agregados | Documentação DDD (Miro) e vídeo |
 | `docs/04-arquitetura/` | Visão geral (C4), camadas do monólito, modelo de dados, contrato da API, fluxos, evolução para as próximas fases | Codar e gravar o vídeo |
 | `docs/05-qualidade-e-seguranca/` | Estratégia de testes, checklist OWASP, plano da análise de vulnerabilidades | Frente de qualidade/segurança |
@@ -48,27 +51,29 @@ Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.
 ## Como executar
 
 > Alvo (esqueleto em construção — `prompts/02-esqueleto-do-projeto.md`): `docker compose up` sobe API (NestJS) + PostgreSQL +
-> migrações/seed em um comando. Esta seção vira o passo a passo real assim que o esqueleto for mesclado.
+> migrações do Prisma + seed em um comando. Esta seção vira o passo a passo real assim que o esqueleto for mesclado.
 
 ```bash
 cp .env.example .env
 docker compose up --build
 # API:      http://localhost:8080/api/v1
-# Swagger:  http://localhost:8080/docs
+# Swagger:  http://localhost:8080/docs   (documento OpenAPI: /docs/openapi.json)
 # Health:   http://localhost:8080/health
 # Login:    POST /api/v1/auth/login  { "email": "<ADMIN_EMAIL>", "password": "<ADMIN_PASSWORD>" }
 
-# desenvolvimento local (sem Docker para a API)
-npm ci && npm run start:dev
+# desenvolvimento local (só o banco no Docker)
+docker compose up -d postgres
+npm ci && npx prisma migrate dev && npm run start:dev
 npm test            # unitários
-npm run test:e2e    # integração (Testcontainers) + BDD
-npm run test:cov    # cobertura com gate
+npm run test:e2e    # integração (Testcontainers) + BDD (Cucumber-js)
+npm run test:cov    # cobertura com gate (≥ 80 % em service-orders e catalog)
 ```
 
 **Banco de dados — justificativa (ADR-002):** o domínio é relacional e transacional (aprovar o orçamento muda o status da
-OS e baixa o estoque na mesma transação), `NUMERIC` evita erro de arredondamento em dinheiro, constraints garantem
-invariantes (estoque ≥ 0, documento único) e o tempo médio de execução é SQL simples. PostgreSQL é gratuito, roda em um
-contêiner no compose, tem Testcontainers para testes de integração e caminho direto para RDS/Aurora nas próximas fases.
+OS e reserva o estoque na mesma transação; finalizar baixa as peças reservadas), `NUMERIC` evita erro de arredondamento
+em dinheiro, constraints garantem invariantes (estoque ≥ 0, reservado ≤ estoque, documento único) e o tempo médio de
+execução é SQL simples. PostgreSQL é gratuito, roda em um contêiner no compose, tem Testcontainers para testes de
+integração e caminho direto para RDS/Aurora nas próximas fases.
 
 ## Entregáveis da Fase 1 (resumo do enunciado)
 

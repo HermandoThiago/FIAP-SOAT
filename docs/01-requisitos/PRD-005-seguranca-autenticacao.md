@@ -19,22 +19,23 @@ validados e protegidos (entrada, armazenamento, logs, respostas).
 | RF-060 | `POST /auth/login` com e-mail + senha → `accessToken` (JWT) com expiração curta (ex.: 60 min) | Must |
 | RF-061 | Todas as rotas administrativas (`/customers`, `/vehicles`, `/services`, `/parts`, `/service-orders`, `/metrics`, `/users`) exigem `Authorization: Bearer <jwt>` | Must |
 | RF-062 | Usuário administrativo seed criado na subida do ambiente (credenciais via variáveis de ambiente, documentadas no README) | Must |
-| RF-063 | Papéis `ATTENDANT`, `MECHANIC`, `MANAGER` como claim `roles`; autorização por rota conforme PRDs | Should (fallback: papel único `ADMIN`) |
-| RF-064 | CRUD de usuários administrativos (`/users`) restrito a `MANAGER` | Should |
+| RF-063 | Papéis `ATTENDANT`, `MECHANIC`, `MANAGER` (equipe) e `CUSTOMER` (cliente) como claim `roles`; autorização por rota conforme PRDs (ADR-004) | Should (fallback: papel único `ADMIN` + `CUSTOMER`) |
+| RF-064 | CRUD de usuários (`/users`): equipe restrito a `MANAGER`; usuário `CUSTOMER` (com `customerId`) criável por `ATTENDANT`/`MANAGER` (ADR-011) | Should |
 | RF-065 | Refresh token / logout (revogação) | Could |
-| RF-066 | Rotas do cliente (`/tracking/**`) protegidas pelo mecanismo da ADR-011, **não** por JWT administrativo | Must |
-| RF-067 | Rotas públicas: `POST /auth/login`, `GET /health`, Swagger (em dev) | Must |
+| RF-066 | Rotas do cliente (`/tracking/**`) aceitam o token de acompanhamento (`aud=tracking`, uma OS) **ou** o JWT de login com papel `CUSTOMER`; JWT de equipe é rejeitado (ADR-011) | Must |
+| RF-067 | Rotas públicas: `POST /auth/login`, `GET /health`, `GET /ready`, Swagger (em dev) | Must |
+| RF-068 | Login de cliente: usuário com papel `CUSTOMER` vinculado a um `customerId`, pelo mesmo `POST /auth/login`; lista/consulta/aprova as próprias OS em `/tracking/**`; recuperação de senha e cadastro autônomo fora do MVP (ADR-011) | Should |
 
 ## 3. Regras e controles de segurança
 
 | ID | Regra / controle | OWASP Top 10 |
 |---|---|---|
-| RN-060 | Senhas com **bcrypt/argon2** (custo adequado); nunca em texto claro ou em logs | A02 Cryptographic Failures |
-| RN-061 | JWT assinado (HS256 com segredo ≥ 256 bits via env, ou RS256 — ADR-004); claims `sub`, `roles`, `iat`, `exp`, `iss`; validar assinatura, expiração e issuer | A07 Identification & Auth Failures |
+| RN-060 | Senhas com **bcrypt** (custo 12 — ADR-004); nunca em texto claro ou em logs | A02 Cryptographic Failures |
+| RN-061 | JWT assinado **HS256** com segredo ≥ 256 bits via env (ADR-004, Aceita); claims `sub`, `roles`, `iat`, `exp`, `iss`, `aud` (+ `customerId` para `CUSTOMER`); validar assinatura, expiração, issuer e audiência (`api` × `tracking`) | A07 Identification & Auth Failures |
 | RN-062 | Segredos só por variáveis de ambiente / `.env` **fora** do Git (`.env.example` versionado) | A05 Security Misconfiguration |
 | RN-063 | Validação de entrada em **toda** API: CPF/CNPJ (dígitos verificadores), placa (padrões), e-mail, quantidades/valores (≥ 0), tamanhos máximos; erros 422 padronizados | A03 Injection (defesa em profundidade) |
 | RN-064 | Acesso a dados via ORM/consultas parametrizadas; nunca concatenar SQL | A03 Injection |
-| RN-065 | Autorização verificada no servidor por rota e por **propriedade** (cliente só acessa a própria OS) | A01 Broken Access Control |
+| RN-065 | Autorização verificada no servidor por rota e por **propriedade** (cliente só acessa a própria OS: token daquela OS ou `customerId` igual; senão 404) | A01 Broken Access Control |
 | RN-066 | PII mascarada em logs; respostas ao cliente mascaram documento; ids não sequenciais expostos (ADR-009) | A01 / A02 |
 | RN-067 | Cabeçalhos de segurança básicos; CORS restritivo; sem stack trace em respostas de erro em produção | A05 |
 | RN-068 | Dependências auditadas (SCA) e imagem escaneada (Trivy) no CI; sem vulnerabilidades críticas/altas conhecidas na entrega | A06 Vulnerable Components |
@@ -83,20 +84,20 @@ Funcionalidade: Validação de dados sensíveis
 |---|---|---|---|
 | POST | `/auth/login` | público | `{email, password}` → `{accessToken, expiresIn, tokenType}` |
 | POST | `/auth/refresh` | portador de refresh | (Could) |
-| GET/POST/PUT/DELETE | `/users` | MANAGER | (Should) |
+| GET/POST/PUT/DELETE | `/users` | MANAGER (POST de usuário `CUSTOMER`: ATTENDANT+) | (Should) |
 | GET | `/health` | público | liveness/readiness |
 
 ## 6. Modelo
 
-**User**: `id`, `name`, `email` (único), `passwordHash`, `roles[]`, `active`, timestamps.
+**User**: `id`, `name`, `email` (único), `passwordHash`, `roles[]`, `customerId` (obrigatório se, e só se, `CUSTOMER`), `active`, timestamps.
 
 ## 7. Questões abertas
 
 | # | Questão | Enquete |
 |---|---|---|
-| Q1 | JWT próprio vs. Keycloak vs. provedor | E-08 / ADR-004 |
+| Q1 | JWT próprio vs. Keycloak vs. provedor | ✅ E-08 / ADR-004 — JWT próprio (HS256, bcrypt) |
 | Q2 | 3 papéis ou papel único | Revisão deste PRD (proposta: 3 papéis, custo baixo, valoriza o vídeo) |
-| Q3 | Credencial do cliente | E-15 / ADR-011 |
+| Q3 | Credencial do cliente | ✅ E-15 / ADR-011 — token de acompanhamento + login `CUSTOMER` |
 
 ## 8. Evidências
 

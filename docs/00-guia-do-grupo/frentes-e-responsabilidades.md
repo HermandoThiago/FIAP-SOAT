@@ -44,9 +44,9 @@ flowchart TB
 
 | Frente | Entregas | Documentos base | Dono (sugestão) | Apoio |
 |---|---|---|---|---|
-| **F1 Arquitetura & Repositório** | ADRs aceitas; esqueleto do monólito (módulos, camadas da Clean); `master` protegida; revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Vi** — Tech Lead & Arquiteta | **Diego** (co-revisão; substitui a líder se ela sumir) |
+| **F1 Arquitetura & Repositório** | ADRs aceitas; esqueleto do monólito (módulos, camadas clássicas, Prisma); `develop` e `master` protegidas (GitFlow); revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Vi** — Tech Lead & Arquiteta | **Diego** (co-revisão; substitui a líder se ela sumir) |
 | **F2 DDD & Documentação + Produto** | Miro com event storming (2 fluxos), context map, agregados, linguagem ubíqua; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes) | `docs/03-ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | Vi |
-| **F3 Domínio & API** | Módulos `service-orders` (core, Diego), `customers` e `catalog` (Hermando); casos de uso; controllers/presenters; OpenAPI; seeds | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md` | **Diego** — core `service-orders` | **Hermando** — `customers` + `catalog` |
+| **F3 Domínio & API** | Módulos `service-orders` (core, Diego), `customers` e `catalog` (Hermando); agregados e services; controllers/DTOs; OpenAPI; seeds | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md` | **Diego** — core `service-orders` | **Hermando** — `customers` + `catalog` |
 | **F4 Qualidade & Segurança** | Testes unitários/integração/BDD; gate de cobertura; validações CPF/CNPJ/placa; SAST/SCA/DAST; relatório de vulnerabilidades; métrica de tempo médio | `docs/05-qualidade-e-seguranca/` | **Hermando** — Qualidade | **Vi** — segurança (JWT/papéis, dados sensíveis, revisão do relatório); **Diego** — testes do core |
 | **F5 Infra & Entrega** | `Dockerfile`, `docker-compose.yml`, workflows de CI/segurança, README de execução, Swagger publicado, edição do vídeo | `docs/06-entrega/` | **Vi** — Infra (Docker, compose, CI, README) | **Shirley** — roteiro e edição do vídeo |
 
@@ -67,7 +67,7 @@ ainda é a linguagem que a oficina fala.
 |---|---|---|---|---|---|
 | Event storming completo (2 fluxos) | C | **R/A** | C | I | I |
 | Diagramas DDD + linguagem ubíqua | C | **R/A** | C | I | I |
-| Monólito em Clean Architecture (esqueleto) | **R/A** | I | R | C | C |
+| Monólito em camadas clássicas por contexto (esqueleto) | **R/A** | I | R | C | C |
 | APIs: OS, orçamento, status, CRUDs | C | C | **R/A** | C | I |
 | Consulta do cliente via API | C | C | **R/A** | C | I |
 | Tempo médio de execução | C | I | **R/A** | C | I |

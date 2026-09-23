@@ -15,7 +15,7 @@ entrega de forma desorganizada (anotações manuais e planilhas). Consequências
 | Dor | Como o MVP ataca |
 |---|---|
 | Erros na priorização dos atendimentos | OS com status e histórico com data/hora; listagem por status |
-| Falhas no controle de peças e insumos | Cadastro de peças com estoque; baixa/reserva vinculada à OS; movimentações registradas |
+| Falhas no controle de peças e insumos | Cadastro de peças com estoque; reserva na aprovação e baixa na finalização da OS; movimentações registradas |
 | Dificuldade em acompanhar o status dos serviços | Máquina de estados da OS; consulta do cliente via API |
 | Perda de histórico de clientes e veículos | Cadastro de clientes (CPF/CNPJ) e veículos (placa) com vínculo às OS |
 | Ineficiência no fluxo de orçamentos e autorizações | Orçamento gerado automaticamente; aprovação do cliente via API; execução inicia automaticamente |
@@ -38,8 +38,8 @@ multi-oficina, relatórios financeiros, integração com fornecedores.
 | **Atendente** | Recebe o cliente, identifica cliente/veículo, abre a OS, registra a entrega | Admin (JWT) — papel `ATTENDANT` |
 | **Mecânico** | Faz o diagnóstico, inclui serviços/peças, envia orçamento, executa e finaliza | Admin (JWT) — papel `MECHANIC` |
 | **Gerente** | Mantém cadastros (serviços, peças, usuários), acompanha métricas | Admin (JWT) — papel `MANAGER` |
-| **Cliente** | Pessoa física (CPF) ou jurídica (CNPJ); acompanha a OS e aprova/recusa o orçamento | Acesso do cliente (ADR-011), sem JWT administrativo |
-| **Sistema** | Políticas automáticas: recalcular orçamento, mudar status, baixar estoque, registrar histórico | — |
+| **Cliente** | Pessoa física (CPF) ou jurídica (CNPJ); acompanha a OS e aprova/recusa o orçamento | Token de acompanhamento (uma OS) ou login com papel `CUSTOMER` (ADR-011); sem JWT de equipe |
+| **Sistema** | Políticas automáticas: recalcular orçamento, mudar status, reservar/baixar estoque, registrar histórico | — |
 
 > Papéis são um *Should*: o obrigatório é "autenticação JWT para APIs administrativas". Se o tempo apertar, um único papel
 > `ADMIN` atende ao enunciado (ver PRD-005).
@@ -83,7 +83,7 @@ flowchart LR
 
 | ID | Requisito | Meta / verificação |
 |---|---|---|
-| NFR-01 | Back-end **monolítico** em Clean Architecture, modular por contexto delimitado (ADR-003, Aceita) | Estrutura do repo; vídeo |
+| NFR-01 | Back-end **monolítico** em camadas clássicas (controller → service → repository) dentro de módulos por contexto delimitado, com domínio rico (ADR-003, Aceita — revotada em 22/09) | Estrutura do repo; vídeo |
 | NFR-02 | APIs RESTful documentadas via **Swagger/OpenAPI** | Swagger UI acessível no compose |
 | NFR-03 | **Dockerfile** para build da aplicação | `docker build` funciona do zero |
 | NFR-04 | **docker-compose.yml** orquestra ambiente completo (API + banco + seeds) | `docker compose up` em máquina limpa |
@@ -114,7 +114,7 @@ flowchart LR
 | # | Questão | Enquete |
 |---|---|---|
 | Q1 | Nome do sistema/grupo | E-01 |
-| Q2 | O que acontece quando o cliente recusa o orçamento | E-14 / ADR-010 |
-| Q3 | Como o cliente acessa a consulta/aprovação | E-15 / ADR-011 |
-| Q4 | Momento da baixa de estoque e comportamento sem estoque | E-16 / ADR-012 |
+| Q2 | O que acontece quando o cliente recusa o orçamento | ✅ E-14 / ADR-010 — OS vai para Cancelada |
+| Q3 | Como o cliente acessa a consulta/aprovação | ✅ E-15 / ADR-011 — token de acompanhamento ou login `CUSTOMER` |
+| Q4 | Momento da baixa de estoque e comportamento sem estoque | ✅ E-16 / ADR-012 — reserva na aprovação, baixa na finalização; sem estoque → 422 |
 | Q5 | Papéis (3) ou papel único ADMIN | decidir em PRD-005 na revisão |

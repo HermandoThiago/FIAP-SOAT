@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ✅ **Aceita** — enquete E-06 encerrada em 16/09/2026 (Opção C, diferente da recomendação) |
+| Status | ✅ **Aceita** — **Opção A (camadas clássicas)**, revotação da enquete E-06 encerrada em 22/09/2026. Substitui a decisão de 16/09/2026 (Opção C, Clean Architecture completa) — ver *Histórico* |
 | Tipo | Tipo 1 |
-| Decisores | Grupo — enquete **E-06** |
-| Data | 2026-09-14 |
-| Relacionadas | ADR-001, ADR-013, `docs/04-arquitetura/visao-geral.md`, `docs/03-ddd/contextos-delimitados.md` |
+| Decisores | Grupo — enquete **E-06** (16/09) e **revotação da E-06** (22/09) |
+| Data | 2026-09-14 (proposta) · 2026-09-16 (1ª decisão) · 2026-09-22 (revotação) |
+| Relacionadas | ADR-001, ADR-013, `docs/04-arquitetura/estrutura-do-repositorio.md`, `docs/04-arquitetura/visao-geral.md`, `docs/03-ddd/contextos-delimitados.md` |
 
 ## Contexto e problema
 
@@ -87,32 +87,64 @@ flowchart LR
 
 ## Decisão
 
-**Clean Architecture completa** (Opção C), resultado da enquete E-06 — o grupo preferiu adiantar o conteúdo da Fase 2 e
-ter uma única organização de código nas cinco fases. Mantém-se a **modularidade por contexto delimitado** (Opção B): cada
-módulo (`customers`, `catalog`, `service-orders`, `identity`) tem as quatro camadas.
+**Camadas clássicas** (Opção A), resultado da **revotação da enquete E-06** encerrada em 22/09/2026 — substitui a decisão
+de 16/09/2026 (Opção C, Clean Architecture completa). O grupo optou pela organização mais simples, explicitamente
+permitida pelo enunciado ("arquitetura em camadas"), e deixa a Clean Architecture para a Fase 2, quando ela é conteúdo
+da disciplina.
 
-Como fica (detalhes e árvore em `docs/04-arquitetura/estrutura-do-repositorio.md`):
+A Opção A "pura" (pastas por tipo técnico: `controllers/`, `services/`, `repositories/` na raiz) **não** foi adotada:
+as camadas clássicas ficam **dentro de cada módulo por contexto delimitado**, porque a modularidade vem do DDD e do
+enunciado (event storming por fluxo, contextos em `contextos-delimitados.md`), não do estilo de camadas.
 
-| Camada | Pasta | Conteúdo |
-|---|---|---|
-| Entities | `domain/` | agregados, VOs, eventos, `StatusTransitionPolicy`, interfaces de repositório |
-| Use Cases | `application/` | um caso de uso por comando/consulta; **input/output boundaries** e request/response models; portas de saída |
-| Interface Adapters | `adapters/` | controllers, **presenters**, gateways (repositórios/portas mapeando ORM ↔ domínio), DTOs |
-| Frameworks & Drivers | `infrastructure/` | módulo Nest/DI, ORM, migrações, config |
+Como fica (árvore e regras em `docs/04-arquitetura/estrutura-do-repositorio.md`):
 
-Regra de dependência de fora para dentro, verificada por `dependency-cruiser` no CI. Para conter o custo de boilerplate
-(o contra da Opção C): request/response models são tipos simples, presenters só existem onde o formato de saída difere do
-modelo, e o walking skeleton vem antes de qualquer abstração extra.
+| Camada | Pasta (por módulo) | Conteúdo | Depende de |
+|---|---|---|---|
+| Apresentação | `controllers/` + `dto/` | Controllers REST, DTOs de entrada (class-validator) e de saída (`fromDomain()`), decorators do OpenAPI | `services/` |
+| Aplicação | `services/` | Serviços de aplicação (`ServiceOrdersService`, `PartsService`…): orquestram cada caso de uso, transações e chamadas a outros módulos | `domain/`, `repositories/` |
+| Domínio | `domain/` | Agregados, entidades, value objects, eventos, `StatusTransitionPolicy` — TypeScript puro | nada |
+| Persistência | `repositories/` | Repositórios sobre o Prisma, mapeando registros ↔ agregados | `domain/` |
+| Composição | `<modulo>.module.ts` | Módulo Nest: providers, `imports`, `exports` | tudo |
+
+O que **não** muda com a revotação:
+
+- **Modularidade por contexto delimitado**: um módulo Nest por contexto (`customers`, `catalog`, `service-orders`,
+  `identity`) + `shared`; um schema PostgreSQL por módulo; sem JOIN entre schemas (`contextos-delimitados.md` §3).
+- **Domínio rico**: invariantes, transições de status, cálculo do orçamento e movimentações de estoque ficam nos
+  agregados (`agregados.md`), não nos services — é o que o vídeo mostra como "elementos de DDD" e o que a cobertura de
+  80 % mede.
+- **`domain/` sem framework**: não importa `@nestjs/*` nem Prisma; testável sem banco e sem HTTP.
+- **Fronteira entre módulos = serviço exportado**: um módulo só usa outro pelo serviço de aplicação que ele exporta
+  (`exports: [CustomersService]`), nunca por repositórios ou entidades do outro.
+- Regras verificadas por `dependency-cruiser` no CI e na revisão de PR.
+
+Nomenclatura: serviços de aplicação com sufixo `Service` (convenção do Nest). A entidade `Service` do catálogo mantém o
+nome do glossário; o serviço de aplicação que a mantém chama-se `CatalogService` — nunca `ServicesService`
+(`linguagem-ubiqua.md` §4 e §9).
 
 ## Consequências
 
-- Estrutura de pastas em `docs/04-arquitetura/estrutura-do-repositorio.md`; regra de dependência verificada por
-  `dependency-cruiser` no CI e na revisão de PR.
-- Cobertura ≥ 80 % medida sobre `domain` + `application` dos módulos críticos.
-- Vídeo: bloco "organização do monólito e suas camadas" mostra as quatro camadas da Clean, a árvore do repositório e o
-  caminho controller → use case → presenter de um caso real (`visao-geral.md` §5).
-- A disciplina da Fase 1 ensina hexagonal: no vídeo, explicar que a Clean é uma evolução da hexagonal (mesma inversão de
-  dependência, mais boundaries e presenters explícitos) — não uma contradição.
+- **Positivas:** menos arquivos por caso de uso (sem boundaries/presenters); curva zero para quem já usa Nest; mais
+  tempo para funcionalidade, testes e segurança — o que a nota da Fase 1 mede.
+- **Negativas / riscos aceitos:** a Fase 2 (Clean Architecture) exige refatorar `services/` em casos de uso + portas; o
+  custo fica contido porque o domínio rico, os módulos por contexto e a regra "sem framework no domínio" já isolam o que
+  importa. Risco de regra de negócio escorrer para o service: mitigado pela revisão de PR (`prompts/09-revisao-de-pr.md`,
+  item 3) e pela cobertura medida em `domain/` + `services/`.
+- **O que muda nos docs/código:** `estrutura-do-repositorio.md`, `visao-geral.md`, `fluxos.md`, `agregados.md` §5,
+  `linguagem-ubiqua.md` §4/§9, `contextos-delimitados.md` §3, `evolucao-fases.md`, PRD-000 (NFR-01), prompts 00/02–05/09,
+  `CLAUDE.md` e o roteiro do vídeo atualizados em 22/09/2026 para camadas clássicas.
+- Cobertura ≥ 80 % medida sobre `domain/` + `services/` dos módulos críticos (ADR-006).
+- Vídeo: bloco "organização do monólito e suas camadas" mostra a árvore por módulo, o caminho controller → service →
+  repository de um caso real e o domínio rico; explicar que a disciplina ensina hexagonal e que a Fase 2 leva **este
+  mesmo** monólito para Clean Architecture (`evolucao-fases.md`).
+
+## Histórico
+
+| Data | Evento |
+|---|---|
+| 2026-09-14 | Proposta (recomendação: Opção B) |
+| 2026-09-16 | E-06 encerrada: **Opção C** (Clean Architecture completa) — Aceita |
+| 2026-09-22 | E-06 revotada: **Opção A** (camadas clássicas) — Aceita; substitui a decisão de 16/09 |
 
 ## Enquete (texto para o Discord)
 

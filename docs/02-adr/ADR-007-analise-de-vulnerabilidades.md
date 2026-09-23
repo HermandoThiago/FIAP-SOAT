@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 3) |
+| Status | ✅ **Aceita** — enquete E-13 encerrada em 22/09/2026 (conjunto mínimo aprovado sem alterações) |
 | Tipo | Tipo 2 (enquete para alinhar; F4 decide detalhes) |
 | Decisores | F4 + grupo — enquete **E-13** |
-| Data | 2026-09-14 |
-| Relacionadas | PRD-005, `docs/05-qualidade-e-seguranca/plano-analise-vulnerabilidades.md`, `docs/06-entrega/relatorio-de-vulnerabilidades-template.md` |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
+| Relacionadas | PRD-005, ADR-005 (OpenAPI gerado alimenta o ZAP), ADR-008 (gatilhos do CI), `docs/05-qualidade-e-seguranca/plano-analise-vulnerabilidades.md`, `docs/06-entrega/relatorio-de-vulnerabilidades-template.md` |
 
 ## Contexto e problema
 
@@ -33,7 +33,7 @@ executável no CI e localmente, que gere evidências (relatórios) para o PDF.
 | **DAST** (app rodando) | **OWASP ZAP baseline scan** (`zaproxy/zap-stable` via Docker) contra o `docker compose up` usando o `openapi.json` | Testa headers, auth, injeção básica na API real | HTML |
 | **Config Docker/IaC** | Trivy config / hadolint (Dockerfile) | Boas práticas de imagem | texto |
 
-## Opções em votação
+## Opções votadas
 
 - 👍 Aceitar o conjunto mínimo acima (F4 ajusta detalhes por linguagem após ADR-001).
 - 🔧 Trocar algo (ex.: SonarCloud no lugar do Semgrep; Snyk no lugar do Dependency-Check) — comentar.
@@ -45,13 +45,28 @@ correções) — o relatório mostra o antes/depois, o que valoriza muito a entr
 
 ## Decisão
 
-> Preencher após a enquete E-13.
+**Conjunto mínimo aprovado sem alterações**, concretizado para a stack (ADR-001, Node/NestJS):
+
+| Camada | Ferramenta | Configuração |
+|---|---|---|
+| SAST | Semgrep | `p/owasp-top-ten`, `p/typescript`, `p/nodejs`, `p/secrets`; saída SARIF |
+| SCA | `npm audit --audit-level=high` + Trivy `fs` (sobre o `package-lock.json`) | CRITICAL falha o PR; HIGH alerta (bloqueia a partir da semana 6) |
+| Imagem | Trivy `image` + hadolint | `HIGH,CRITICAL`; Dockerfile multi-stage, usuário não-root, tag de base fixa |
+| Segredos | gitleaks | histórico completo; allowlist só para os valores fictícios do `.env.example` |
+| DAST | OWASP ZAP baseline + API scan | contra a API do `docker compose up`, usando `/docs/openapi.json` (ADR-005) |
+| IaC | Trivy `config` | `Dockerfile`, `docker-compose.yml` |
+
+Dois scans, cada um citando o commit/tag analisado: **scan 1** (baseline, logo após o walking skeleton — cronograma em
+`plano-analise-vulnerabilidades.md` §4) e **scan 2** sobre `v1.0.0-rc.1` (M6) — o relatório mostra o antes × depois.
 
 ## Consequências
 
-- Workflow `security.yml` no CI (Semgrep + SCA + Trivy + gitleaks em todo PR; ZAP em `master`/manual).
-- Relatórios versionados em `docs/06-entrega/evidencias/` (HTML/JSON) e consolidados no template do relatório.
-- Política: **0 críticas/altas abertas** na entrega; médias/baixas justificadas no relatório.
+- Workflow `security.yml`: em todo PR (Semgrep + SCA + gitleaks + hadolint + build da imagem + Trivy) e no push em
+  `develop`/`master` ou manual (tudo + ZAP) — gatilhos conforme o GitFlow da ADR-008.
+- Relatórios brutos versionados em `docs/06-entrega/evidencias/scan-1/` e `scan-2/` e consolidados no template do
+  relatório; comandos locais em `scripts/security/` (`plano-analise-vulnerabilidades.md` §2).
+- Política: **0 críticas/altas abertas** na entrega; médias/baixas justificadas no relatório (riscos aceitos).
+- Nunca desabilitar regra só para limpar o relatório: falso positivo é marcado com justificativa escrita.
 
 ## Enquete (texto para o Discord)
 

@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 2) |
+| Status | ✅ **Aceita** — enquete E-11 encerrada em 22/09/2026 (Opção A, diferente da recomendação) |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-11** |
-| Data | 2026-09-14 |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
 | Relacionadas | PRD-001, PRD-005, ADR-011, `docs/03-ddd/agregados.md` |
 
 ## Contexto e problema
@@ -51,13 +51,26 @@ testes unitários exaustivos; validação também nos DTOs de entrada (422 padro
 
 ## Decisão
 
-> Preencher após a enquete E-11.
+**UUID v4 como chave primária + número legível da OS** (Opção A), com a tabela de validação/proteção da Parte 2 sem
+alterações.
+
+- Ids gerados **na aplicação** (`IdGenerator` → `crypto.randomUUID()` do Node, sem dependência extra), nunca pelo banco:
+  colunas `uuid` no PostgreSQL; no Prisma (E-17), `@id @db.Uuid` **sem** `@default` — o id nasce no domínio, o que mantém
+  os testes determinísticos (`FixedIdGenerator`) e prepara a Fase 4.
+- Número da OS `OS-AAAA-NNNNNN` (VO `ServiceOrderNumber`): sequência anual `service_orders.service_order_number_seq`
+  (migração SQL escrita à mão no Prisma Migrate), único. É o identificador que a oficina fala em voz alta e que aparece
+  para o cliente; as rotas da API continuam usando o UUID.
+- Value objects `Document` (`Cpf` \| `Cnpj`), `LicensePlate`, `Email`, `Phone` em `shared/domain` com testes exaustivos;
+  os DTOs repetem a validação sintática e devolvem 422 apontando o campo.
+- Sem UUID v7: a fragmentação de índice é irrelevante no volume do MVP; se aparecer necessidade, trocar o gerador é uma
+  linha.
 
 ## Consequências
 
-- Todos os agregados geram id na aplicação (porta `IdGenerator`), testável e independente de banco.
-- Número da OS: sequência por ano (`OS-AAAA-NNNNNN`) — sequência no banco ou tabela de contadores com lock; único.
-- Logs estruturados com máscara centralizada (função `mask(...)`).
+- Todos os agregados recebem o id no construtor/fábrica, vindo do `IdGenerator` do serviço de aplicação — independente do
+  banco.
+- Logs estruturados com máscara centralizada (função `mask(...)` em `shared/`); respostas ao cliente usam `masked()` dos VOs.
+- Exemplos nos docs e seeds com UUIDs v4 fictícios e documentos/placas gerados válidos.
 
 ## Enquete (texto para o Discord)
 

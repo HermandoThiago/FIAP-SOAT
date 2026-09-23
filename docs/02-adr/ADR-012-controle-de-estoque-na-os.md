@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 3) |
+| Status | ✅ **Aceita** — enquete E-16 encerrada em 22/09/2026: Opção B (reserva na aprovação + baixa na finalização, diferente da recomendação) + bloquear inclusão sem estoque (422) |
 | Tipo | Tipo 1 (regra de domínio) |
-| Decisores | Grupo — enquete **E-16** |
-| Data | 2026-09-14 |
+| Decisores | Grupo — enquete **E-16** (duas perguntas: momento e comportamento sem estoque) |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
 | Relacionadas | PRD-002, PRD-003, ADR-010, `docs/03-ddd/event-storming.md` |
 
 ## Contexto e problema
@@ -51,13 +51,32 @@ na inclusão **e** novamente na aprovação (o estoque pode ter mudado). Se sobr
 
 ## Decisão
 
-> Preencher após a enquete E-16.
+**Reserva na aprovação + baixa na finalização** (Opção B) e **bloqueio** da inclusão de peça sem estoque disponível
+(`422 estoque insuficiente`).
+
+| Momento | Comando | Movimentação | Efeito em `Part` |
+|---|---|---|---|
+| Incluir peça na OS (`RECEIVED`/`IN_DIAGNOSIS`) | `addPartItem` | nenhuma — só verifica `availableQuantity ≥ quantity` | — (`422 estoque insuficiente` se não houver disponibilidade; peça inativa também é 422) |
+| Cliente aprova o orçamento | `approveQuote` → `PartsService.reserveForServiceOrder(items)` | `RESERVATION` por item, **tudo ou nada**, na mesma transação da transição para `IN_PROGRESS` | `reservedQuantity += qty`. Se a disponibilidade mudou desde o orçamento: `422 estoque insuficiente` e a OS continua `AWAITING_APPROVAL` |
+| Mecânico finaliza | `complete` → `PartsService.withdrawReservedForServiceOrder(items)` | `OUTBOUND` por item, na mesma transação da transição para `COMPLETED` | `stockQuantity −= qty` e `reservedQuantity −= qty` |
+| Recusa / cancelamento | `rejectQuote` / `cancel` | nenhuma — só acontecem antes da aprovação (ADR-010) | — |
+| Liberação sem consumo | — | `RELEASE` existe no modelo e no agregado (`release()`), **sem gatilho no MVP** (Could: cancelamento administrativo após a aprovação) | `reservedQuantity −= qty` |
+
+Definições: `availableQuantity = stockQuantity − reservedQuantity`; invariantes `stockQuantity ≥ 0` e
+`0 ≤ reservedQuantity ≤ stockQuantity` no agregado **e** como `CHECK` no banco (`modelo-de-dados.md` §3). Estoque só muda
+por método do agregado que gera `StockMovement` (`INBOUND`, `OUTBOUND`, `RESERVATION`, `RELEASE`, `ADJUSTMENT`); `PUT /parts`
+nunca altera quantidades. O alerta de estoque abaixo do mínimo (Could) considera `stockQuantity` após a baixa.
 
 ## Consequências
 
-- `ApproveQuote` é um caso de uso transacional que toca dois módulos (atendimento + estoque) via porta de aplicação —
-  documentar como o ponto que virará SAGA na Fase 4 (`docs/04-arquitetura/evolucao-fases.md`).
-- Invariante `stockQuantity ≥ 0` também como constraint no banco.
+- Dois pontos transacionais entre módulos, ambos em `ServiceOrdersService` com transação interativa do Prisma:
+  `approveQuote` (reserva) e `complete` (baixa) — são os candidatos a SAGA na Fase 4 (`evolucao-fases.md`).
+- Eventos: `StockReserved` (novo) e `StockWithdrawn`; `ReservationReleased` fica sem gatilho no MVP.
+- `GET /parts/{id}` expõe `stockQuantity`, `reservedQuantity` e `availableQuantity`; o vídeo mostra a reserva após aprovar
+  (bloco 8) e a baixa após finalizar (bloco 9).
+- PRD-002 (RF-024/RF-025, RN-023, cenários), PRD-003 (RN-035/RN-036, cenários), PRD-004 (efeitos da tabela de
+  transições), `fluxos.md` §3/§4, `event-storming.md`, `domain-storytelling.md` e `estrategia-de-testes.md` atualizados em
+  22/09/2026.
 
 ## Enquete (texto para o Discord)
 

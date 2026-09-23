@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 2) |
+| Status | ✅ **Aceita** — enquete E-08 encerrada em 22/09/2026 (Opção A, conforme recomendação) |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-08** |
-| Data | 2026-09-14 |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
 | Relacionadas | PRD-005, ADR-011 (acesso do cliente), `docs/04-arquitetura/evolucao-fases.md` |
 
 ## Contexto e problema
@@ -25,14 +25,14 @@ deve ser trocável.
 
 ### Opção A — JWT emitido pela própria aplicação (módulo `identity`)
 
-Tabela `usuarios` (e-mail, hash bcrypt/argon2, papéis), `POST /auth/login` emite JWT **HS256** (segredo ≥ 32 bytes por env)
+Tabela `users` (e-mail, hash bcrypt/argon2, papéis), `POST /auth/login` emite JWT **HS256** (segredo ≥ 32 bytes por env)
 com `sub`, `roles`, `iss`, `iat`, `exp` (60 min). Middleware/filter valida o token e injeta o usuário; autorização por papel
 nas rotas. Refresh token = Could.
 
 - **Prós:** zero dependência externa; 1 dia de trabalho na maioria dos frameworks; fácil de testar e explicar;
   demonstra na prática o conteúdo de Desenvolvimento Seguro.
 - **Contras:** implementação própria exige cuidado (rotação de segredo, brute force); sem SSO.
-- **Fases futuras:** porta `JwtTokenService`/`ValidateAccessToken` → trocar por validação de JWT do Cognito (RS256 via JWKS) sem mexer no domínio.
+- **Fases futuras:** um único ponto de validação do token → trocar por validação de JWT do Cognito (RS256 via JWKS) sem mexer nos módulos de negócio.
 
 ### Opção B — Keycloak no docker-compose (OIDC)
 
@@ -47,7 +47,7 @@ Realm com usuários/roles; a API só **valida** tokens RS256 via JWKS.
 - **Prós:** alinhado à Fase 3.
 - **Contras:** `docker compose up` deixa de ser autossuficiente (dependência de nuvem/credenciais); avaliador precisa de conta; fere "execução local simples".
 
-## Sub-decisões (dentro da opção A)
+## Sub-decisões propostas (dentro da opção A)
 
 | Item | Proposta |
 |---|---|
@@ -65,12 +65,34 @@ Fase 3. Keycloak pode ser mencionado no vídeo como evolução.
 
 ## Decisão
 
-> Preencher após a enquete E-08.
+**JWT próprio** (Opção A): usuários no banco (schema `identity`), senha com **bcrypt**, tokens **HS256** assinados pela
+própria aplicação, papéis na claim `roles`. As sub-decisões propostas ficam confirmadas, com os ajustes vindos da ADR-011
+(Aceita na mesma rodada — o cliente também faz login):
+
+| Item | Decisão |
+|---|---|
+| Emissão | `POST /auth/login` (e-mail + senha) → `accessToken` HS256; segredo `JWT_SECRET` ≥ 32 bytes por env; claims `sub` (id do usuário), `roles`, `iss`, `aud=api`, `iat`, `exp` (60 min) e `customerId` quando o papel é `CUSTOMER` |
+| Papéis | `ATTENDANT`, `MECHANIC`, `MANAGER` (equipe) **+ `CUSTOMER`** (cliente, ADR-011). `MANAGER` inclui tudo da equipe; `CUSTOMER` só acessa `/tracking/**` |
+| Hash de senha | bcrypt, custo 12 (`bcrypt` npm); senha mínima 8 caracteres |
+| Validação | um guard global em `shared/` valida assinatura, `exp`, `iss`, `aud` e injeta o usuário na requisição; autorização por papel com o decorator `@Roles()`; rotas públicas em allowlist explícita |
+| Token de acompanhamento | mesmo emissor/validador, com `aud=tracking` e `sub=serviceOrderId`, 7 dias (ADR-011) |
+| Rotas públicas | `POST /auth/login`, `GET /health`, `GET /ready`, `/docs` (só em `APP_ENV=dev`) |
+| Erros | 401 sem token / inválido / expirado (mensagem genérica, sem dizer se o e-mail existe); 403 papel insuficiente; Problem Details (`contrato-api.md` §5) |
+| Seed | usuário `MANAGER` criado na subida a partir de `ADMIN_EMAIL`/`ADMIN_PASSWORD` (env, documentados no README) |
+| Força bruta | rate limit no login (`@nestjs/throttler`) — Should |
+| Refresh / logout | Could (fora do MVP) |
 
 ## Consequências
 
-- Módulo `identity` com casos de uso `AuthenticateUser` e `ValidateAccessToken`; usuários seed por env (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
-- Testes de integração: 401/403/200; teste unitário do emissor/validador; segredo de teste distinto do `.env.example`.
+- Módulo `identity` (camadas clássicas, ADR-003): `AuthService` (autenticar + emitir/validar token), `UsersService`
+  (CRUD de usuários — Should; criação de usuário `CUSTOMER` — ADR-011), `TrackingTokenService` (ADR-011); guard JWT e
+  `@Roles()` em `shared/`.
+- Bibliotecas: `@nestjs/jwt` (HS256) + `bcrypt`; segredo de teste distinto do `.env.example`; nunca segredos no
+  repositório (gitleaks no CI, ADR-007).
+- Fase 3: trocar o validador por RS256/JWKS do Cognito sem mexer nos módulos de negócio — o guard é o único ponto que
+  conhece o formato do token (`evolucao-fases.md`).
+- Testes: unitários do emissor/validador (assinatura inválida, expirado, `aud` errado); integração 200 login / 401 sem
+  token e expirado / 403 papel insuficiente (`estrategia-de-testes.md`).
 
 ## Enquete (texto para o Discord)
 

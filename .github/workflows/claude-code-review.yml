@@ -1,7 +1,7 @@
 name: Claude Code Review
 
 # Revisão automática de todo PR (exceto rascunhos), com o checklist do grupo (CLAUDE.md + prompts/09-revisao-de-pr.md).
-# É apoio: não substitui a aprovação humana exigida pela proteção da master (ADR-008).
+# É apoio: não substitui a aprovação humana exigida pela proteção de develop/master (ADR-008, GitFlow).
 
 on:
   pull_request:
@@ -42,7 +42,7 @@ jobs:
             prompts/09-revisao-de-pr.md. Use `gh pr diff` e `gh pr view` para ler o PR.
 
             Verifique nesta ordem: (1) rastreabilidade a PRD/ADR — aponte scope creep; (2) regras de arquitetura
-            (domínio sem framework, módulos só por portas, sem JOIN entre schemas); (3) regras de domínio e linguagem
+            (camadas clássicas por módulo, domínio sem framework, módulos só pelos serviços exportados, sem JOIN entre schemas); (3) regras de domínio e linguagem
             ubíqua; (4) contrato da API e Swagger; (5) segurança (rota protegida, validação, PII mascarada, segredos);
             (6) testes e cobertura dos módulos críticos; (7) docs que precisam de atualização.
 

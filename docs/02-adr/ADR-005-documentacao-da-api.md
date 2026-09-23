@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 2) |
+| Status | ✅ **Aceita** — enquete E-09 encerrada em 22/09/2026 (Opção A, diferente da recomendação) |
 | Tipo | Tipo 2 (enquete opcional — abrimos porque afeta como o time paraleliza) |
 | Decisores | Grupo — enquete **E-09** |
-| Data | 2026-09-14 |
-| Relacionadas | ADR-001, `docs/04-arquitetura/contrato-api.md` |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
+| Relacionadas | ADR-001, ADR-007 (ZAP usa o OpenAPI gerado), `docs/04-arquitetura/contrato-api.md` |
 
 ## Contexto e problema
 
@@ -39,13 +39,25 @@ springdoc-openapi · `@nestjs/swagger` · Swashbuckle · FastAPI (nativo) · swa
 
 ## Decisão
 
-> Preencher após a enquete E-09.
+**Code-first** (Opção A): os decorators do `@nestjs/swagger` nos controllers e DTOs são a **única fonte** da documentação
+da API. Swagger UI em `/docs` e documento OpenAPI em `/docs/openapi.json` (ambos só em `APP_ENV=dev`). Não existe
+`openapi.yaml` escrito à mão nem validação de contrato no CI.
+
+O que acontece com `docs/04-arquitetura/contrato-api.md`: continua sendo o **acordo antes de codar** (rotas, payloads e
+códigos combinados entre F1 e F3 para paralelizar) e a referência citada pelos PRDs. Depois que um endpoint existe, o
+Swagger gerado é a versão oficial; divergência é corrigida no código (ou, se a intenção mudou, no contrato) — a revisão de
+PR checa "OpenAPI atualizado com exemplos", não "contrato idêntico ao gerado".
+
+`openapi.json`: exportado por script (`scripts/export-openapi.ts`, sem subir o servidor) e publicado como **artefato do
+CI** em todo PR — é o insumo do ZAP API scan (ADR-007) e do bloco 12 do vídeo. Não é versionado no repositório.
 
 ## Consequências
 
-- Convenções obrigatórias no Swagger: título, versão, descrição por endpoint, exemplos de request/response, esquema de
-  segurança `bearerAuth`, códigos de erro documentados (400/401/403/404/409/422).
-- Rota do Swagger no README e no vídeo.
+- Convenções obrigatórias no Swagger: título e versão da API, **tags por módulo**, descrição por endpoint, exemplos de
+  request/response, esquema de segurança `bearerAuth`, códigos de erro documentados (400/401/403/404/409/422) com o
+  esquema Problem Details.
+- PR que muda a API sem atualizar os decorators é `[bloqueia]` na revisão (`prompts/09-revisao-de-pr.md`, item 4).
+- Rota do Swagger no README e no vídeo (bloco 12); `/docs/openapi.json` referenciado no `security.yml` (ZAP).
 
 ## Enquete (texto para o Discord)
 

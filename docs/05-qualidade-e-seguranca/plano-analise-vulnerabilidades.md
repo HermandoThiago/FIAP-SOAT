@@ -7,18 +7,21 @@
 
 | Alvo | Ferramenta | Camada |
 |---|---|---|
-| Código-fonte (`src/`) | Semgrep (`p/owasp-top-ten`, `p/<linguagem>`, `p/secrets`) | SAST |
-| Dependências (lockfile) | Auditoria nativa da linguagem + OWASP Dependency-Check **ou** Trivy `fs` | SCA |
+| Código-fonte (`src/`) | Semgrep (`p/owasp-top-ten`, `p/typescript`, `p/nodejs`, `p/secrets`) | SAST |
+| Dependências (`package-lock.json`) | `npm audit --audit-level=high` + Trivy `fs` (ADR-007) | SCA |
 | Imagem Docker (`Dockerfile` → imagem) | Trivy `image` + hadolint | Contêiner |
 | Histórico Git | gitleaks | Segredos |
-| API em execução (`docker compose up`) | OWASP ZAP baseline scan (+ API scan com `openapi.json`) | DAST |
+| API em execução (`docker compose up`) | OWASP ZAP baseline scan (+ API scan com `/docs/openapi.json`, ADR-005) | DAST |
 | Configuração (`docker-compose.yml`, `Dockerfile`) | Trivy `config` | IaC |
 
 ## 2. Execução local (scripts em `scripts/security/`)
 
 ```bash
 # SAST
-docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config p/owasp-top-ten --config p/secrets --sarif -o reports/semgrep.sarif /src
+docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config p/owasp-top-ten --config p/typescript --config p/nodejs --config p/secrets --sarif -o reports/semgrep.sarif /src
+
+# SCA — auditoria nativa (ADR-007)
+npm audit --audit-level=high
 
 # SCA + IaC + segredos no filesystem
 docker run --rm -v "$PWD:/src" aquasec/trivy fs --scanners vuln,misconfig,secret --format table -o reports/trivy-fs.txt /src
@@ -32,18 +35,18 @@ docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect -s /repo --re
 
 # DAST (com a API no ar em http://localhost:8080)
 docker run --rm --network host -v "$PWD/reports:/zap/wrk" zaproxy/zap-stable zap-baseline.py -t http://localhost:8080/api/v1 -r zap-baseline.html
-docker run --rm --network host -v "$PWD/reports:/zap/wrk" zaproxy/zap-stable zap-api-scan.py -t http://localhost:8080/api/v1/openapi.json -f openapi -r zap-api.html
+docker run --rm --network host -v "$PWD/reports:/zap/wrk" zaproxy/zap-stable zap-api-scan.py -t http://localhost:8080/docs/openapi.json -f openapi -r zap-api.html
 ```
 
-> Ajustar comandos após ADR-001 (ex.: `npm audit --audit-level=high`, `pip-audit`, `dotnet list package --vulnerable`,
-> `mvn org.owasp:dependency-check-maven:check`, `govulncheck ./...`).
+> Comandos já ajustados para a stack (ADR-001/ADR-007). A API precisa subir com `APP_ENV=dev` para o ZAP alcançar o
+> `/docs/openapi.json` (fora de dev o Swagger fica desligado — risco aceito e documentado no relatório).
 
 ## 3. Execução no CI (`.github/workflows/security.yml`)
 
 | Gatilho | Passos | Bloqueia merge? |
 |---|---|---|
 | Todo PR | Semgrep · SCA · gitleaks · hadolint · build da imagem + Trivy (HIGH/CRITICAL) | **Sim** para CRITICAL; HIGH gera alerta (bloqueia a partir da semana 6) |
-| `master` / manual | Tudo acima + ZAP baseline/API contra o compose | Não (gera relatório) |
+| Push em `develop` ou `master` / manual | Tudo acima + ZAP baseline/API contra o compose (GitFlow, ADR-008) | Não (gera relatório) |
 
 ## 4. Cronograma de scans
 

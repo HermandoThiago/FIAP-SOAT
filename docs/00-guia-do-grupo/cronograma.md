@@ -13,7 +13,7 @@
 | Marco | Data alvo | Critério de "atingido" |
 |---|---|---|
 | **M0 — Kickoff assíncrono** | 14/09 ✅ | Repo criado (privado, `soat-architecture` convidado), docs base publicadas, Lote 1 de enquetes aberto |
-| **M1 — Decisões fechadas** | 25/09 | ADRs do Lote 1 ✅ (16/09); Lotes 2–3 aceitas; PRDs revisados; contrato da API v1; linguagem ubíqua v1 (glossário EN) |
+| **M1 — Decisões fechadas** | 25/09 | ADRs do Lote 1 ✅ (16/09); Lotes 2–3 ✅ (22/09, incl. E-17 ORM = Prisma e revotação da E-06 = camadas clássicas); PRDs revisados; contrato da API v1; linguagem ubíqua v1 (glossário EN) |
 | **M2 — Walking skeleton** | 04/10 | `docker compose up` sobe API + banco; login JWT; criar cliente/veículo/OS; Swagger; CI com gate de cobertura |
 | **M3 — Fluxo completo da OS** | 18/10 | Diagnóstico → itens → orçamento → aprovação do cliente → execução → finalizada → entregue; estoque; histórico |
 | **M4 — Qualidade & segurança** | 25/10 | Cobertura ≥ 80 % nos módulos críticos; validações; scans rodando; relatório v1; tempo médio de execução |
@@ -61,7 +61,7 @@ gantt
 | Semana | Foco | Saídas |
 |---|---|---|
 | **S1** 14–20/09 | Kickoff; enquetes Lote 1 e 2; revisão de PRDs; linguagem ubíqua v1 | ADR-001/002/003/013 aceitas; PRDs comentados |
-| **S2** 21–27/09 | Lote 3; contrato da API v1; começar Miro; esqueleto do repo na linguagem escolhida | Contrato v1; repo com CI verde e compose |
+| **S2** 21–27/09 | Lotes 2–3 encerrados (22/09); `develop` criada e protegida (GitFlow); contrato da API v1; começar Miro; esqueleto do repo (NestJS + Prisma) | Contrato v1; repo com CI verde e compose |
 | **S3** 28/09–04/10 | Walking skeleton (auth, cadastro, criar OS); gate de cobertura | M2 |
 | **S4** 05–11/10 | Diagnóstico, itens, orçamento automático, envio para aprovação; JWT/papéis | Fluxo até "Aguardando aprovação" |
 | **S5** 12–18/10 | Aprovação/recusa pelo cliente, execução, finalização, entrega; estoque; histórico; métricas | M3 |

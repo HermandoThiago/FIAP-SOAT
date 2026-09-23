@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Status | ⏳ Proposta (Lote 3) |
+| Status | ✅ **Aceita** — enquete E-15 encerrada em 22/09/2026: Opção A **combinada com** Opção C |
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-15** |
-| Data | 2026-09-14 |
-| Relacionadas | PRD-003, PRD-004, PRD-005, ADR-004, ADR-009 |
+| Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
+| Relacionadas | PRD-003, PRD-004, PRD-005, ADR-004, ADR-009, ADR-010 |
 
 ## Contexto e problema
 
@@ -47,13 +47,36 @@ em `APP_ENV=dev` a resposta de `POST /service-orders/{id}/quote/send` inclui `tr
 
 ## Decisão
 
-> Preencher após a enquete E-15.
+**Token de acompanhamento (Opção A) + login de cliente (Opção C), combinados.** Os dois caminhos levam às mesmas rotas
+`/tracking/**` e às mesmas regras de propriedade; o que muda é a credencial:
+
+| Caminho | Credencial | Como o cliente obtém | Alcance | Prioridade |
+|---|---|---|---|---|
+| **Token de acompanhamento** | JWT `aud=tracking`, `sub=serviceOrderId`, `exp` 7 dias, emitido pelo mesmo emissor da ADR-004 (`TrackingTokenService`) | Gerado em `POST /service-orders/{id}/quote/send` e "enviado" pela porta de notificação (`LogCustomerNotifier`: log; em `APP_ENV=dev` também na resposta, em `tracking.url`) | **Uma OS**: consultar, aprovar, recusar | **Must** — cobre "envio do orçamento ao cliente" e "consulta do cliente" do enunciado |
+| **Login de cliente** | JWT de `POST /auth/login` com `roles=["CUSTOMER"]` e claim `customerId` (ADR-004) | Usuário com papel `CUSTOMER` vinculado a um `customerId`, criado por `ATTENDANT`/`MANAGER` em `POST /users` (ou pelo seed de demonstração) | **Todas as OS do cliente**: listar (`GET /tracking/service-orders`), consultar, aprovar, recusar | **Should** — extensão votada; só cai pelas regras de corte do cronograma §4 |
+
+Regras comuns:
+
+- O guard de `/tracking/**` aceita **qualquer** das duas credenciais e rejeita JWT de equipe (`ATTENDANT`/`MECHANIC`/
+  `MANAGER` usam as rotas administrativas, que por sua vez rejeitam `CUSTOMER` com 403).
+- Propriedade verificada no serviço de aplicação (`TrackingService`): token de acompanhamento → `sub` = `{id}` da rota;
+  login → `customerId` do token = `customerId` da OS. Caso contrário **404** (não revela existência).
+- Respostas ao cliente mascaram documento e placa e não expõem ids internos de usuários (`Tracking`, `contrato-api.md` §3.5).
+- Usuário `CUSTOMER` não acumula outros papéis; senha com bcrypt como qualquer usuário. Recuperação de senha e cadastro
+  autônomo (self-service) ficam **fora** do MVP (Won't).
+- Rate limit básico em `POST /auth/login` e em `/tracking/**` (Should).
 
 ## Consequências
 
-- Porta `CustomerNotifier` com adaptador `LogCustomerNotifier` (Fase 1) → e-mail/SNS/WhatsApp em fases futuras.
-- Rotas `/tracking/**` fora do filtro de JWT administrativo, com validação própria (`aud`, `serviceOrderId`).
-- Respostas ao cliente mascaram documento e não expõem ids de usuários internos.
+- `identity`: `Role.CUSTOMER`; `User.customerId` (obrigatório se, e só se, o papel é `CUSTOMER`); `TrackingTokenService`
+  (emite/valida `aud=tracking`); `UsersService.register` aceita `CUSTOMER` + `customerId` e valida a existência do cliente
+  pelo `CustomersService` exportado pelo módulo `customers`.
+- `service-orders`: `TrackingService` (`getTracking`, `listMine`, `approveQuote`, `rejectQuote`) e `TrackingController`;
+  `CustomerNotifier` com implementação `LogCustomerNotifier` (Fase 1) → e-mail/SNS/WhatsApp nas fases seguintes.
+- Seed: 1 usuário `CUSTOMER` ligado ao cliente da OS que fica "aguardando aprovação" na demo — o vídeo mostra os dois
+  caminhos (token no log e login do cliente).
+- Docs atualizados em 22/09: `contrato-api.md` §1/§3.1/§3.5, `modelo-de-dados.md` (`users.customer_id`),
+  `linguagem-ubiqua.md` §5, PRD-004 (RF-053, RN-054) e PRD-005 (RF-066, RF-068).
 
 ## Enquete (texto para o Discord)
 

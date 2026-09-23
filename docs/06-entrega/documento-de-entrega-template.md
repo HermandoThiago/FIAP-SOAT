@@ -35,9 +35,9 @@
 
 ### Resumo da solução (1 parágrafo)
 
-`<Sistema de gestão da oficina: back-end monolítico em NestJS/TypeScript, Clean Architecture modular por contexto
-(customers, catalog, service-orders, identity); APIs REST documentadas em Swagger; PostgreSQL; JWT; testes ≥ 80 % nos
-domínios críticos; docker-compose para execução local.>`
+`<Sistema de gestão da oficina: back-end monolítico em NestJS/TypeScript, em camadas clássicas dentro de módulos por
+contexto (customers, catalog, service-orders, identity) com domínio rico (DDD); APIs REST documentadas em Swagger;
+PostgreSQL + Prisma; JWT; testes ≥ 80 % nos domínios críticos (Testcontainers + BDD); docker-compose para execução local.>`
 
 ### Como executar (resumo — detalhes no README)
 

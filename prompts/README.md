@@ -7,27 +7,28 @@
 
 1. Abra uma sessão nova (Claude Code, Claude.ai com projeto, ou similar) **na pasta do repositório** para que a IA leia `docs/`.
 2. Cole primeiro o **`00-contexto-base.md`** (ou aponte a IA para ele) — ele resume domínio, decisões e convenções.
-3. Cole o prompt da frente (`01`–`09`), preenchendo os placeholders `{{...}}` com os resultados das ADRs.
+3. Cole o prompt da frente (`01`–`09`). Os placeholders `{{...}}` já foram substituídos pelos resultados das enquetes
+   (Lotes 1–3 encerrados em 22/09/2026); se encontrar algum, a fonte é a tabela abaixo.
 4. Peça sempre: *"antes de gerar, liste as suposições e o plano em 10 linhas; só então implemente"*.
-5. Revise o resultado contra o PRD/ADR; rode testes; abra PR com o template.
+5. Revise o resultado contra o PRD/ADR; rode testes; abra PR para `develop` com o template.
 
-## Placeholders (preencher após as enquetes)
+## Decisões que os prompts assumem (todas fechadas)
 
-| Placeholder | Fonte | Exemplo |
+| Tema | Fonte | Valor |
 |---|---|---|
-| `{{LINGUAGEM}}` / `{{FRAMEWORK}}` | ADR-001 ✅ | **TypeScript 5 / NestJS 11 (Node 22)** — já preenchido nos prompts |
-| `{{BANCO}}` / `{{ORM}}` / `{{MIGRACOES}}` | ADR-002 ✅ / decisão leve | **PostgreSQL 16** / `{{ORM}}` = TypeORM ou Prisma (pendente em `decisoes-leves.md`) |
-| `{{ARQUITETURA}}` | ADR-003 ✅ | **Clean Architecture completa, modular por contexto** — já preenchido |
-| `{{AUTH}}` | ADR-004 | `JWT próprio HS256, bcrypt, papéis ATTENDANT/MECHANIC/MANAGER` |
-| `{{OPENAPI}}` | ADR-005 | `code-first com @nestjs/swagger` |
-| `{{TESTES}}` | ADR-006 | `Jest + supertest + Testcontainers + Cucumber-js; coverageThreshold 80 %` |
-| `{{SCANS}}` | ADR-007 | `Semgrep + npm audit/Trivy fs + Trivy image + gitleaks + ZAP` |
-| `{{GIT}}` | ADR-008 | `trunk-based, conventional commits, squash` |
-| `{{IDS}}` | ADR-009 | `UUID v7 + número OS-AAAA-NNNNNN` |
-| `{{RECUSA}}` | ADR-010 | `volta para IN_DIAGNOSIS; CANCELLED existe` |
-| `{{ACESSO_CLIENTE}}` | ADR-011 | `token de acompanhamento JWT aud=cliente` |
-| `{{ESTOQUE}}` | ADR-012 | `baixa na aprovação; bloquear sem estoque` |
-| `{{IDIOMA}}` | ADR-013 ✅ | **tudo em inglês com glossário** (`docs/03-ddd/linguagem-ubiqua.md`) — já preenchido |
+| Linguagem / framework | ADR-001 ✅ | TypeScript 5 / NestJS 11 (Node 22) |
+| Banco / ORM / migrações | ADR-002 ✅ / E-17 ✅ | PostgreSQL 16 (um schema por módulo) / Prisma / Prisma Migrate |
+| Arquitetura | ADR-003 ✅ (revotada 22/09) | Camadas clássicas por módulo: `controllers/` + `dto/` → `services/` → `repositories/`, sobre `domain/` |
+| Autenticação | ADR-004 ✅ | JWT próprio HS256, bcrypt, papéis `ATTENDANT`/`MECHANIC`/`MANAGER` + `CUSTOMER` |
+| OpenAPI | ADR-005 ✅ | Code-first com `@nestjs/swagger` (`/docs`, `/docs/openapi.json`) |
+| Testes | ADR-006 ✅ | Jest + supertest + Testcontainers + Cucumber-js; `coverageThreshold` 80 % em `domain` + `services` |
+| Scans | ADR-007 ✅ | Semgrep + npm audit/Trivy fs + Trivy image + hadolint + gitleaks + ZAP |
+| Git | ADR-008 ✅ | GitFlow (`develop`/`release`/`hotfix`) + Conventional Commits obrigatórios |
+| Ids | ADR-009 ✅ | UUID v4 (`crypto.randomUUID`) + número `OS-AAAA-NNNNNN` |
+| Recusa / cancelamento | ADR-010 ✅ | → `CANCELLED` (terminal), só antes da aprovação; sem volta para diagnóstico |
+| Acesso do cliente | ADR-011 ✅ | Token de acompanhamento (`aud=tracking`) **ou** login `CUSTOMER` |
+| Estoque | ADR-012 ✅ | Reserva na aprovação + baixa na finalização; 422 sem estoque |
+| Idioma | ADR-013 ✅ | Tudo em inglês com glossário (`docs/03-ddd/linguagem-ubiqua.md`) |
 
 ## Índice
 
@@ -35,7 +36,7 @@
 |---|---|---|
 | `00-contexto-base.md` | todos | início de toda sessão |
 | `01-event-storming-miro.md` | F2 | semana 2 |
-| `02-esqueleto-do-projeto.md` | F1 + F5 (Vi) | agora (Lote 1 aceito) |
+| `02-esqueleto-do-projeto.md` | F1 + F5 (Vi) | agora (todas as ADRs aceitas) |
 | `03-modulo-atendimento.md` (módulo `service-orders`) | F3 — Diego | semanas 3–5 |
 | `04-modulo-catalogo-estoque.md` (módulo `catalog`) | F3 — Hermando | semanas 3–5 |
 | `05-modulos-cadastro-e-identidade.md` (módulos `customers` e `identity`) | F3 Hermando / F4 | semana 3 |

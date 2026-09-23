@@ -14,8 +14,8 @@ Atores: 👤 Cliente · 👤 Atendente · 👤 Mecânico · 🖥️ Sistema
 4. **Mecânico** inicia o **Diagnóstico** da OS → OS **Em diagnóstico**.
 5. **Mecânico** inclui o **Serviço** "Troca de pastilhas" e a **Peça** "Pastilha de freio × 2" na OS; o **Sistema** verifica o **Estoque** e recalcula o **Orçamento** (R$ 330,00).
 6. **Mecânico** envia o **Orçamento** ao **Cliente** → OS **Aguardando aprovação**; o **Sistema** gera o **Token de acompanhamento** e "notifica" o cliente.
-7. **Cliente** consulta o **Acompanhamento** da OS e **aprova o Orçamento** → o **Sistema** muda a OS para **Em execução** e dá **baixa no Estoque** (2 pastilhas).
-8. **Mecânico** executa e **finaliza** a OS → **Finalizada**; o Sistema registra o **tempo de execução**.
+7. **Cliente** consulta o **Acompanhamento** da OS (com o token de acompanhamento ou com seu login) e **aprova o Orçamento** → o **Sistema** muda a OS para **Em execução** e **reserva** no **Estoque** as 2 pastilhas.
+8. **Mecânico** executa e **finaliza** a OS → **Finalizada**; o Sistema dá **baixa no Estoque** (consome a reserva) e registra o **tempo de execução**.
 9. **Atendente** registra a **Entrega** do veículo → **Entregue**.
 10. **Gerente** consulta o **tempo médio de execução** do serviço "Troca de pastilhas".
 
@@ -31,14 +31,14 @@ Hotspot: o atalho "criar cliente/veículo junto com a OS" (PRD-001 RF-010) vale 
 
 1. Passos 1–6 da História 1.
 2. **Cliente** **recusa** o **Orçamento** informando o motivo ("muito caro").
-3. Conforme ADR-010: (a) OS volta para **Em diagnóstico** e o **Mecânico** revisa os itens e reenvia; ou (b) OS vai para **Cancelada**.
-4. O **Sistema** libera reservas de estoque, se houver.
+3. A OS vai para **Cancelada** (ADR-010), com o motivo no histórico; nada muda no **Estoque** (a reserva só aconteceria na aprovação — ADR-012).
+4. Se o cliente mudar de ideia, o **Atendente** abre uma **nova OS** para o mesmo veículo (não há reabertura).
 
 ## História 4 — "Peça em falta" (variação de estoque)
 
 1. Passos 1–4 da História 1.
 2. **Mecânico** tenta incluir a **Peça** "Amortecedor dianteiro × 2"; o **Sistema** verifica o **Estoque** (0 disponível).
-3. Conforme ADR-012: o Sistema **bloqueia** a inclusão (mecânico pede reposição ao Gerente) ou **permite com sinalização**.
+3. O Sistema **bloqueia** a inclusão com "estoque insuficiente" (422 — ADR-012); o mecânico pede reposição ao Gerente.
 4. **Gerente** registra **Entrada de estoque** (compra de 4 amortecedores) → o Mecânico inclui a peça e segue.
 
 ## História 5 — "Gerente mantém o catálogo e o estoque" (fluxo de gestão)

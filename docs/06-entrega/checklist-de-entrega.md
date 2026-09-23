@@ -15,16 +15,16 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | F4 | Inclusão de peças e insumos | `POST /service-orders/{id}/items/parts` (verifica estoque) | integração | ✔ | 7 | | ⬜ |
 | F5 | Orçamento gerado automaticamente | `ServiceOrder.recalculateQuote()` | unit | ✔ | 8 | | ⬜ |
 | F6 | Envio do orçamento ao cliente para aprovação | `POST …/quote/send` + notificador (log) + token | integração | ✔ | 8 | | ⬜ |
-| F7 | 6 status da OS | enum `ServiceOrderStatus` + `StatusTransitionPolicy` | unit parametrizado | — | 9 | | ⬜ |
+| F7 | 6 status da OS | enum `ServiceOrderStatus` (6 do enunciado + `CANCELLED`, ADR-010) + `StatusTransitionPolicy` | unit parametrizado | — | 9 | | ⬜ |
 | F8 | Alteração automática dos status conforme ações | transições dentro dos comandos; histórico | unit + integração | ✔ | 9 | | ⬜ |
-| F9 | Consulta do cliente via API | `GET /tracking/service-orders/{id}` | integração | ✔ | 6/8 | | ⬜ |
+| F9 | Consulta do cliente via API | `GET /tracking/service-orders/{id}` (token de acompanhamento ou login `CUSTOMER` — ADR-011) | integração | ✔ | 6/8 | | ⬜ |
 | F10 | CRUD de clientes | `/customers` | integração | ✔ | 6 | | ⬜ |
 | F11 | CRUD de veículos | `/vehicles` | integração | ✔ | 6 | | ⬜ |
 | F12 | CRUD de serviços | `/services` | integração | ✔ | 7 | | ⬜ |
-| F13 | CRUD de peças e insumos com controle de estoque | `/parts` + movimentações + baixa na aprovação | unit + integração | ✔ | 7 | | ⬜ |
+| F13 | CRUD de peças e insumos com controle de estoque | `/parts` + movimentações + reserva na aprovação e baixa na finalização (ADR-012) | unit + integração | ✔ | 7 | | ⬜ |
 | F14 | Listagem e detalhamento de OS | `GET /service-orders`, `GET /service-orders/{id}` | integração | ✔ | 9 | | ⬜ |
 | F15 | Monitoramento do tempo médio de execução | `GET /metrics/average-execution-time` | integração (seed) | ✔ | 9 | | ⬜ |
-| F16 | Autenticação JWT para APIs administrativas | filtro JWT + `/auth/login` | integração 401/403 | ✔ | 10 | | ⬜ |
+| F16 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login` (ADR-004) | integração 401/403 | ✔ | 10 | | ⬜ |
 | F17 | Validação de dados sensíveis (CPF/CNPJ, placa) | VOs + 422 | unit exaustivo | ✔ | 10 | | ⬜ |
 | F18 | Testes unitários e de integração dos principais fluxos | `tests/` | CI verde | — | 13 | | ⬜ |
 
@@ -33,9 +33,9 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | # | Requisito | Evidência | Dono | Status |
 |---|---|---|---|---|
 | T1 | Back-end monolítico | 1 processo de API no compose; `docs/04-arquitetura/visao-geral.md` | | ⬜ |
-| T2 | Arquitetura em camadas (Clean Architecture) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | | ⬜ |
+| T2 | Arquitetura em camadas (clássicas, por módulo — ADR-003) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | | ⬜ |
 | T3 | Banco de dados justificado | ADR-002 + README §banco + bloco 4 | | ⬜ |
-| T4 | APIs RESTful documentadas via Swagger | `/docs` no ar; `openapi.json` versionado | | ⬜ |
+| T4 | APIs RESTful documentadas via Swagger | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) | | ⬜ |
 | T5 | Dockerfile | build limpo; Trivy sem críticas | | ⬜ |
 | T6 | docker-compose.yml orquestra ambiente completo | `docker compose up` em máquina limpa (testado por outro membro) | | ⬜ |
 | T7 | Cobertura mínima 80 % nos domínios críticos | relatório de cobertura em `evidencias/` + gate no CI | | ⬜ |

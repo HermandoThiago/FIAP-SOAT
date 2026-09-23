@@ -12,6 +12,7 @@ stateDiagram-v2
     Proposta --> EmVotacao: enquete aberta (72 h)
     EmVotacao --> Aceita: 3 votos de 4 (regra em como-trabalhamos.md §3)
     EmVotacao --> Rejeitada: maioria contra / nova proposta
+    Aceita --> EmVotacao: revotação (registrada no histórico da ADR)
     Aceita --> Substituida: nova ADR a substitui
     Aceita --> Descontinuada: deixou de valer (ex.: fase seguinte)
     state "Em votação" as EmVotacao
@@ -20,25 +21,28 @@ stateDiagram-v2
 
 ## Índice
 
+**Todas as ADRs estão Aceitas** (Lotes 1–3 encerrados; E-06 revotada em 22/09). Vale o que está na seção *Decisão* de
+cada uma; as opções e recomendações ficam como registro.
+
 | ADR | Título | Tipo | Lote | Status | Enquete |
 |---|---|---|---|---|---|
 | [ADR-000](ADR-000-template.md) | Template | — | — | ✅ | — |
-| [ADR-001](ADR-001-linguagem-e-framework.md) | Linguagem e framework do back-end — **TypeScript + NestJS** | Tipo 1 | 1 | ✅ Aceita (16/09) | E-04 |
+| [ADR-001](ADR-001-linguagem-e-framework.md) | Linguagem e framework do back-end — **TypeScript + NestJS** (ORM: **Prisma**, E-17) | Tipo 1 | 1 | ✅ Aceita (16/09) | E-04 (+ E-17) |
 | [ADR-002](ADR-002-banco-de-dados.md) | Banco de dados — **PostgreSQL 16** (justificativa exigida no enunciado) | Tipo 1 | 1 | ✅ Aceita (16/09) | E-05 |
-| [ADR-003](ADR-003-arquitetura-do-monolito.md) | Estilo arquitetural do monólito — **Clean Architecture completa**, modular por contexto | Tipo 1 | 1 | ✅ Aceita (16/09) | E-06 |
-| [ADR-004](ADR-004-autenticacao-jwt.md) | Autenticação JWT das APIs administrativas | Tipo 1 | 2 | 🗳️ Em votação (Lote 2) | E-08 |
-| [ADR-005](ADR-005-documentacao-da-api.md) | Documentação da API (OpenAPI code-first × design-first) | Tipo 2 | 2 | 🗳️ Em votação (Lote 2) | E-09 |
-| [ADR-006](ADR-006-estrategia-de-testes-e-cobertura.md) | Estratégia de testes e cobertura ≥ 80 % | Tipo 1 | 3 | ⏳ Proposta | E-12 |
-| [ADR-007](ADR-007-analise-de-vulnerabilidades.md) | Ferramentas da análise de vulnerabilidades | Tipo 2 | 3 | ⏳ Proposta | E-13 |
-| [ADR-008](ADR-008-fluxo-git-e-ci.md) | Fluxo Git, revisão e CI | Tipo 1 | 2 | 🗳️ Em votação (Lote 2) | E-10 |
-| [ADR-009](ADR-009-identificadores-e-dados-sensiveis.md) | Identificadores, validação e proteção de dados sensíveis | Tipo 1 | 2 | 🗳️ Em votação (Lote 2) | E-11 |
-| [ADR-010](ADR-010-maquina-de-estados-da-os.md) | Máquina de estados da OS (recusa/cancelamento) | Tipo 1 | 3 | ⏳ Proposta | E-14 |
-| [ADR-011](ADR-011-acesso-do-cliente.md) | Acesso do cliente para consulta e aprovação | Tipo 1 | 3 | ⏳ Proposta | E-15 |
-| [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Momento da baixa de estoque e comportamento sem estoque | Tipo 1 | 3 | ⏳ Proposta | E-16 |
+| [ADR-003](ADR-003-arquitetura-do-monolito.md) | Estilo arquitetural do monólito — **camadas clássicas** dentro de módulos por contexto (16/09: Clean; **revotada em 22/09**) | Tipo 1 | 1 | ✅ Aceita (22/09, revotação) | E-06 |
+| [ADR-004](ADR-004-autenticacao-jwt.md) | Autenticação — **JWT próprio** (usuários no banco, bcrypt, HS256, papéis) | Tipo 1 | 2 | ✅ Aceita (22/09) | E-08 |
+| [ADR-005](ADR-005-documentacao-da-api.md) | Documentação da API — **code-first** (`@nestjs/swagger`) | Tipo 2 | 2 | ✅ Aceita (22/09) | E-09 |
+| [ADR-006](ADR-006-estrategia-de-testes-e-cobertura.md) | Testes e cobertura ≥ 80 % — **Testcontainers + BDD (Cucumber-js)** | Tipo 1 | 3 | ✅ Aceita (22/09) | E-12 |
+| [ADR-007](ADR-007-analise-de-vulnerabilidades.md) | Análise de vulnerabilidades — **Semgrep + npm audit/Trivy + gitleaks + ZAP** | Tipo 2 | 3 | ✅ Aceita (22/09) | E-13 |
+| [ADR-008](ADR-008-fluxo-git-e-ci.md) | Fluxo Git, revisão e CI — **GitFlow + Conventional Commits obrigatórios** | Tipo 1 | 2 | ✅ Aceita (22/09) | E-10 |
+| [ADR-009](ADR-009-identificadores-e-dados-sensiveis.md) | Identificadores e dados sensíveis — **UUID v4 + número da OS**; VOs validados | Tipo 1 | 2 | ✅ Aceita (22/09) | E-11 |
+| [ADR-010](ADR-010-maquina-de-estados-da-os.md) | Máquina de estados da OS — **status terminal `CANCELLED`** para recusa e cancelamento | Tipo 1 | 3 | ✅ Aceita (22/09) | E-14 |
+| [ADR-011](ADR-011-acesso-do-cliente.md) | Acesso do cliente — **token de acompanhamento + login `CUSTOMER`** | Tipo 1 | 3 | ✅ Aceita (22/09) | E-15 |
+| [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Estoque na OS — **reserva na aprovação + baixa na finalização; bloqueia sem estoque (422)** | Tipo 1 | 3 | ✅ Aceita (22/09) | E-16 |
 | [ADR-013](ADR-013-idioma-do-codigo-e-da-api.md) | Idioma do código e da API — **tudo em inglês + glossário** | Tipo 1 | 1 | ✅ Aceita (16/09) | E-07 |
 
 Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional) —
-decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md).
+decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md) (ex.: E-17, ORM = Prisma).
 
 ## Como criar uma nova ADR
 
@@ -46,7 +50,8 @@ decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-
 2. Preencha contexto, critérios, **pelo menos 2 opções** com prós/contras e impacto nas fases futuras.
 3. Abra PR `docs(adr): propor ADR-0NN …`; se Tipo 1, cole a enquete em `docs/00-guia-do-grupo/enquetes.md` e no Discord.
 4. Ao encerrar a enquete, preencha *Decisão* e *Consequências*, mude o status e atualize este índice.
-5. Nunca apague uma ADR: se mudar de ideia, crie outra que **substitui** a anterior.
+5. Nunca apague uma ADR: se mudar de ideia, crie outra que **substitui** a anterior — ou, se a mesma enquete for
+   **revotada**, registre as duas decisões na seção *Histórico* da ADR (como na ADR-003).
 
 ## Decisões já implícitas no enunciado (não votamos)
 

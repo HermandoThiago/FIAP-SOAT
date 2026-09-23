@@ -1,7 +1,7 @@
 # Fluxos principais — diagramas de sequência
 
-> Um por bloco do vídeo. Participantes = camadas/módulos do monólito (ADR-003, Clean Architecture); identificadores em
-> inglês (ADR-013), textos em português.
+> Um por bloco do vídeo. Participantes = camadas/módulos do monólito (ADR-003, camadas clássicas: controller → service →
+> repository, sobre o domínio); identificadores em inglês (ADR-013), textos em português.
 
 ## 1. Criação da OS (com identificação do cliente por documento)
 
@@ -9,24 +9,24 @@
 sequenceDiagram
     autonumber
     actor At as Atendente
-    participant API as ServiceOrdersController (adapter)
-    participant UC as CreateServiceOrderUseCase (application)
-    participant CAD as Porta CustomerLookup (módulo customers)
+    participant API as ServiceOrdersController
+    participant SOS as ServiceOrdersService
+    participant CUS as CustomersService / VehiclesService (módulo customers)
     participant OS as ServiceOrder (domain)
-    participant REP as ServiceOrderRepository (gateway)
+    participant REP as ServiceOrderRepository (Prisma)
     At->>API: POST /service-orders {customerDocument, licensePlate, problemDescription} + JWT
-    API->>API: valida JWT (papel ATTENDANT+) e DTO (422)
-    API->>UC: execute(CreateServiceOrderRequest)
-    UC->>CAD: findCustomerByDocument(document)
-    CAD-->>UC: customer (ou 404)
-    UC->>CAD: findVehicleByLicensePlate(licensePlate)
-    CAD-->>UC: vehicle (ou 404)
-    UC->>UC: veículo pertence ao cliente? (409 se não)
-    UC->>OS: create(customerId, vehicleId, problemDescription, number gerado)
-    OS-->>UC: ServiceOrder RECEIVED + evento ServiceOrderReceived + histórico
-    UC->>REP: save(serviceOrder)
-    REP-->>UC: ok
-    UC-->>API: CreateServiceOrderResponse → presenter
+    API->>API: guard valida JWT (papel ATTENDANT+) e DTO (422)
+    API->>SOS: create(dto, actor)
+    SOS->>CUS: findByDocument(document)
+    CUS-->>SOS: customer (ou 404)
+    SOS->>CUS: findVehicleByLicensePlate(licensePlate)
+    CUS-->>SOS: vehicle (ou 404)
+    SOS->>SOS: veículo pertence ao cliente? OS aberta para o veículo? (409)
+    SOS->>OS: create(id gerado, number gerado, customerId, vehicleId, problemDescription)
+    OS-->>SOS: ServiceOrder RECEIVED + evento ServiceOrderReceived + histórico
+    SOS->>REP: save(serviceOrder)
+    REP-->>SOS: ok
+    SOS-->>API: ServiceOrder → ServiceOrderResponseDto.fromDomain()
     API-->>At: 201 Location /service-orders/{id}
 ```
 
@@ -37,25 +37,27 @@ sequenceDiagram
     autonumber
     actor Me as Mecânico
     participant API as ServiceOrdersController
-    participant UC as AddPartItemUseCase
-    participant CAT as Porta CatalogLookup (módulo catalog)
-    participant OS as ServiceOrder
+    participant SOS as ServiceOrdersService
+    participant PRT as PartsService (módulo catalog)
+    participant OS as ServiceOrder (domain)
     Me->>API: POST /service-orders/{id}/diagnosis
-    API->>OS: startDiagnosis()
-    OS-->>API: IN_DIAGNOSIS
+    API->>SOS: startDiagnosis(id)
+    SOS->>OS: startDiagnosis()
+    OS-->>SOS: IN_DIAGNOSIS
+    API-->>Me: 200
     Me->>API: POST /service-orders/{id}/items/parts {partId, quantity: 2}
-    API->>UC: execute
-    UC->>CAT: getPart(partId)
-    CAT-->>UC: {name, unitPrice, availableQuantity, active}
-    UC->>UC: ativa? availableQuantity ≥ 2? (422 estoque insuficiente — ADR-012)
-    UC->>OS: addPartItem(snapshot{name, unitPrice}, 2)
+    API->>SOS: addPartItem(id, partId, 2)
+    SOS->>PRT: getPart(partId)
+    PRT-->>SOS: {name, unitPrice, availableQuantity, active}
+    SOS->>SOS: ativa? availableQuantity ≥ 2? (422 estoque insuficiente — ADR-012)
+    SOS->>OS: addPartItem(snapshot{name, unitPrice}, 2)
     OS->>OS: status permite? recalcula quote (Σ itens)
-    OS-->>UC: ServiceOrder com quote 330.00 + evento QuoteRecalculated
-    UC-->>API: response → presenter
+    OS-->>SOS: ServiceOrder com quote 330.00 + evento QuoteRecalculated
+    SOS-->>API: ServiceOrder → dto
     API-->>Me: 201 ServiceOrder (orçamento atualizado)
 ```
 
-## 3. Envio do orçamento e aprovação pelo cliente (2 módulos, 1 transação)
+## 3. Envio do orçamento e aprovação pelo cliente (2 módulos, 1 transação — reserva de estoque)
 
 ```mermaid
 sequenceDiagram
@@ -63,39 +65,45 @@ sequenceDiagram
     actor Me as Mecânico
     actor Cl as Cliente
     participant API as Controllers (ServiceOrders / Tracking)
-    participant ENV as SendQuoteUseCase
-    participant TOK as TrackingTokenIssuer (aud=customer)
+    participant SOS as ServiceOrdersService
+    participant TOK as TrackingTokenService (identity, aud=tracking)
     participant NOT as CustomerNotifier (log)
-    participant APR as ApproveQuoteUseCase (UnitOfWork)
-    participant OS as ServiceOrder
-    participant EST as Porta StockMovements (módulo catalog)
+    participant TRK as TrackingService
+    participant OS as ServiceOrder (domain)
+    participant PRT as PartsService (módulo catalog)
     Me->>API: POST /service-orders/{id}/quote/send
-    API->>ENV: execute
-    ENV->>OS: sendQuote()
-    OS-->>ENV: AWAITING_APPROVAL, itens congelados
-    ENV->>TOK: issue(serviceOrderId, exp 7d)
-    TOK-->>ENV: trackingToken
-    ENV->>NOT: notify(customer, trackingUrl)
-    NOT-->>ENV: (log) "orçamento enviado"
-    ENV-->>API: ServiceOrder + tracking{url, token(dev)}
+    API->>SOS: sendQuote(id)
+    SOS->>OS: sendQuote()
+    OS-->>SOS: AWAITING_APPROVAL, itens congelados
+    SOS->>TOK: issue(serviceOrderId, exp 7d)
+    TOK-->>SOS: trackingToken
+    SOS->>NOT: notify(customer, trackingUrl)
+    NOT-->>SOS: (log) "orçamento enviado"
+    SOS-->>API: ServiceOrder + tracking{url, token(dev)}
     API-->>Me: 200
-    Cl->>API: GET /tracking/service-orders/{id} (Bearer trackingToken)
-    API-->>Cl: 200 status + quote (dados mascarados, statusDescription em português)
+    Cl->>API: GET /tracking/service-orders/{id} (Bearer trackingToken ou JWT CUSTOMER)
+    API->>TRK: getTracking(id, credential)
+    TRK-->>API: propriedade ok → projeção mascarada (senão 404)
+    API-->>Cl: 200 status + quote (statusDescription em português)
     Cl->>API: POST /tracking/service-orders/{id}/quote/approve
-    API->>API: valida token (aud, serviceOrderId)
-    API->>APR: execute
-    activate APR
-    APR->>OS: approveQuote()
-    OS-->>APR: IN_PROGRESS + evento QuoteApproved
-    APR->>EST: withdraw(partItems, serviceOrderId)
-    EST-->>APR: movimentações OUTBOUND (ou falha → rollback)
-    APR->>APR: commit (ServiceOrder + estoque)
-    deactivate APR
-    APR-->>API: response → TrackingPresenter
+    API->>TRK: approveQuote(id, credential)
+    TRK->>SOS: approveQuote(id, actor CUSTOMER)
+    activate SOS
+    SOS->>OS: approveQuote()
+    OS-->>SOS: IN_PROGRESS + evento QuoteApproved
+    SOS->>PRT: reserveForServiceOrder(partItems, serviceOrderId, tx)
+    PRT-->>SOS: movimentações RESERVATION (ou 422 estoque insuficiente → rollback)
+    SOS->>SOS: commit (ServiceOrder + estoque)
+    deactivate SOS
+    SOS-->>TRK: ServiceOrder
+    TRK-->>API: TrackingResponseDto
     API-->>Cl: 200 IN_PROGRESS
 ```
 
-## 4. Execução, finalização, entrega e métrica
+Recusa (`POST …/quote/reject { reason }`) segue o mesmo caminho e leva a OS para `CANCELLED` sem efeito no estoque
+(ADR-010): a reserva só existe depois da aprovação.
+
+## 4. Execução, finalização (baixa de estoque), entrega e métrica
 
 ```mermaid
 sequenceDiagram
@@ -104,62 +112,73 @@ sequenceDiagram
     actor At as Atendente
     actor Ge as Gerente
     participant API as Controllers (ServiceOrders / Metrics)
-    participant OS as ServiceOrder
-    participant MET as CalculateAverageExecutionTimeUseCase (leitura)
+    participant SOS as ServiceOrdersService
+    participant OS as ServiceOrder (domain)
+    participant PRT as PartsService (módulo catalog)
+    participant MET as MetricsService (leitura)
     Me->>API: POST /service-orders/{id}/complete
-    API->>OS: complete()
-    OS-->>API: COMPLETED (completedAt) + evento ExecutionCompleted
+    API->>SOS: complete(id)
+    activate SOS
+    SOS->>OS: complete()
+    OS-->>SOS: COMPLETED (completedAt) + evento ExecutionCompleted
+    SOS->>PRT: withdrawReservedForServiceOrder(partItems, serviceOrderId, tx)
+    PRT-->>SOS: movimentações OUTBOUND (stockQuantity e reservedQuantity reduzidos)
+    SOS->>SOS: commit
+    deactivate SOS
+    API-->>Me: 200 COMPLETED
     At->>API: POST /service-orders/{id}/deliver
-    API->>OS: deliver()
-    OS-->>API: DELIVERED (deliveredAt), imutável
+    API->>SOS: deliver(id)
+    SOS->>OS: deliver()
+    OS-->>SOS: DELIVERED (deliveredAt), imutável
+    API-->>At: 200 DELIVERED
     Ge->>API: GET /metrics/average-execution-time?from=&to=
-    API->>MET: execute(period)
+    API->>MET: averageExecutionTime(period)
     MET-->>API: {averageMinutes: 90.0, serviceOrderCount: 2, byService: [...]}
     API-->>Ge: 200
 ```
 
-## 5. Autenticação administrativa
+## 5. Autenticação (equipe e cliente)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor U as Usuário admin
+    actor U as Usuário (equipe ou cliente)
     participant API as AuthController
-    participant AUT as AuthenticateUserUseCase
+    participant AUT as AuthService
     participant REP as UserRepository
-    participant H as PasswordHasher (bcrypt)
-    participant J as JwtTokenService
+    participant H as bcrypt
+    participant J as JwtService (HS256)
     U->>API: POST /auth/login {email, password}
-    API->>AUT: execute
+    API->>AUT: login(email, password)
     AUT->>REP: findByEmail
     REP-->>AUT: user (ou não)
-    AUT->>H: verify(password, passwordHash)
+    AUT->>H: compare(password, passwordHash)
     H-->>AUT: ok / falha (401 genérico)
-    AUT->>J: issue(sub, roles, exp 60min)
+    AUT->>J: sign({sub, roles, iss, aud: api, customerId?}, exp 60min)
     J-->>AUT: accessToken
     AUT-->>API: token
-    API-->>U: 200 {accessToken, expiresIn}
+    API-->>U: 200 {accessToken, expiresIn, roles}
     U->>API: GET /customers (Bearer)
-    API->>API: guard valida assinatura/exp/roles → 200 / 401 / 403
+    API->>API: JwtAuthGuard valida assinatura/exp/aud/roles → 200 / 401 / 403 (CUSTOMER em rota administrativa = 403)
 ```
 
-## 6. Gestão de estoque (entrada e baixa)
+## 6. Gestão de estoque (entrada; reserva e baixa vêm dos fluxos 3 e 4)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Ge as Gerente
     participant API as PartsController
-    participant UC as RecordStockInboundUseCase
+    participant PRT as PartsService
     participant P as Part (domain)
-    participant REP as PartRepository
+    participant REP as PartRepository (Prisma)
     Ge->>API: POST /parts/{id}/stock-movements {type: INBOUND, quantity: 10}
-    API->>UC: execute
-    UC->>P: recordInbound(10)
+    API->>PRT: recordInbound(id, 10, reason)
+    PRT->>P: recordInbound(10)
     P->>P: stockQuantity += 10 e novo StockMovement(INBOUND)
-    P-->>UC: ok (+ evento StockInboundRecorded)
-    UC->>REP: save
-    UC-->>API: movimentação → presenter
+    P-->>PRT: ok (+ evento StockInboundRecorded)
+    PRT->>REP: save
+    PRT-->>API: movimentação → dto
     API-->>Ge: 201
-    Note over P: Baixa: ver fluxo 3 — política "sempre que o orçamento é aprovado"
+    Note over P: Reserva (RESERVATION): fluxo 3, na aprovação · Baixa (OUTBOUND): fluxo 4, na finalização — ADR-012
 ```

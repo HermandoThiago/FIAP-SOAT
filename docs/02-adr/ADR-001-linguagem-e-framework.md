@@ -89,12 +89,12 @@ Se o grupo estiver dividido, **Java/Spring** ou **TypeScript/NestJS** são as ap
 É a stack do dia a dia da líder e o denominador comum do grupo (JavaScript/Node); Diego transita em Node, Hermando é generalista.
 
 Toolchain concreta (detalhes em `docs/04-arquitetura/estrutura-do-repositorio.md` §5): Node 22 LTS, TypeScript 5 `strict`,
-NestJS 11, `class-validator`, `@nestjs/swagger`, `@nestjs/jwt` + `bcrypt`, Jest + `supertest` + Testcontainers + Cucumber-js,
+NestJS 11, Prisma (E-17), `class-validator`, `@nestjs/swagger`, `@nestjs/jwt` + `bcrypt`, Jest + `supertest` + Testcontainers + Cucumber-js,
 ESLint/Prettier, `dependency-cruiser`, imagem `node:22-alpine`.
 
-**Decisão leve pendente (F1 + F3, registrar em `decisoes-leves.md`):** ORM/migrações — TypeORM (mapeamento explícito,
-migrations SQL, mais controle) ou Prisma (schema declarativo, Prisma Migrate, mais rápido). Em ambos, as entidades do ORM
-ficam em `infrastructure/orm` e o domínio não as conhece.
+**ORM/migrações — decidido na enquete E-17 (22/09/2026, registrado em `decisoes-leves.md`): Prisma** (schema declarativo,
+Prisma Migrate, `multiSchema` para um schema PostgreSQL por módulo). Os repositórios mapeiam os registros do Prisma para os
+agregados; o domínio não importa `@prisma/client`.
 
 ## Consequências
 
