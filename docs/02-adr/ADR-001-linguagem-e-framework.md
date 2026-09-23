@@ -86,7 +86,9 @@ Se o grupo estiver dividido, **Java/Spring** ou **TypeScript/NestJS** são as ap
 ## Decisão
 
 **TypeScript + NestJS** (Opção B), resultado da enquete E-04 registrado em `docs/00-guia-do-grupo/enquetes.md`.
-É a stack do dia a dia da líder e o denominador comum do grupo (JavaScript/Node); Diego transita em Node, Hermando é generalista.
+Foi escolhida por ser a stack do dia a dia da líder de então (Vi, que deixou o grupo em 22/09/2026) e o denominador comum
+(JavaScript/Node); Diego transita em Node, Hermando é generalista. A decisão continua válida: revotar a E-04 seria Tipo 1
+(ADR + enquete) e custaria o esqueleto já planejado.
 
 Toolchain concreta (detalhes em `docs/04-arquitetura/estrutura-do-repositorio.md` §5): Node 22 LTS, TypeScript 5 `strict`,
 NestJS 11, Prisma (E-17), `class-validator`, `@nestjs/swagger`, `@nestjs/jwt` + `bcrypt`, Jest + `supertest` + Testcontainers + Cucumber-js,
@@ -101,7 +103,7 @@ agregados; o domínio não importa `@prisma/client`.
 - Toolchain de testes/cobertura (ADR-006), Dockerfile e estrutura do repositório fixados para Node/Nest
   (`docs/04-arquitetura/estrutura-do-repositorio.md`).
 - Shirley (Python) contribui com features Gherkin, revisão de contrato/Swagger e validação ponta a ponta
-  (`docs/00-guia-do-grupo/frentes-e-responsabilidades.md`); Vi revisa o código Nest dos demais.
+  (`docs/00-guia-do-grupo/frentes-e-responsabilidades.md`); Diego (Node) e Hermando (F1) revisam o código Nest um do outro.
 - Fase 3 (serverless): Node tem cold start baixo em Lambda — sem função separada em outra linguagem.
 
 ## Enquete (texto para o Discord)

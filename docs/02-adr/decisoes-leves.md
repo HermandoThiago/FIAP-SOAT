@@ -10,6 +10,7 @@ Como registrar: uma linha por decisão, mais recente **em cima**; data em `AAAA-
 
 | Data | Decisão | Quem (frente) | Onde | Substituída por |
 |---|---|---|---|---|
+| 2026-09-22 | **Vi (Victor Hugo) saiu da pós-graduação**; grupo passa a 3 pessoas. Redistribuição decidida em reunião: **modelagem do banco de dados → Diego**; **estrutura do código (esqueleto, infra, CI) + ADRs → Hermando** (F1 + F5 infra); **documentação DDD → Shirley**, em conjunto com os dois. Regra de vitória das enquetes passa a ser **2 votos de 3**. Pendências de transição (transferir o repositório e o token dos workflows do Claude, Discord/Miro) em `frentes-e-responsabilidades.md` §7 | Grupo | Discord | |
 | 2026-09-22 | Com a ADR-008 aceita (GitFlow): F1 cria a branch `develop` a partir de `master` e aplica a ela a mesma proteção (PR + 1 aprovação + CI verde); a branch padrão do GitHub continua `master`; PRs de trabalho apontam para `develop` | Vi (F1) | ADR-008 | |
 | 2026-09-22 | Swagger UI em `/docs` e documento OpenAPI em `/docs/openapi.json` (só em `APP_ENV=dev`); `openapi.json` é publicado como artefato do CI, **não** versionado no repositório (ADR-005, code-first) | Vi (F1) | ADR-005 | |
 | 2026-09-22 | **ORM/migrações: Prisma** (schema declarativo, Prisma Migrate) — enquete **E-17**, aberta ao grupo por definir o esqueleto; fecha a decisão leve de 2026-09-16 | Grupo (E-17) | Discord | |

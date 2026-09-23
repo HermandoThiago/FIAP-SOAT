@@ -1,38 +1,46 @@
 # Frentes de trabalho e responsabilidades
 
-> Aprovado na enquete E-02 e **redistribuído em 16/09/2026** com a saída do Daniel (registro em `docs/02-adr/decisoes-leves.md`).
-> Com 4 pessoas, cada uma assume **1 frente principal + 1 apoio** (a líder, duas). Toda frente tem um **dono** (responde
-> pelo resultado) e todo mundo revisa PR de todo mundo.
+> Aprovado na enquete E-02, **redistribuído em 16/09/2026** (saída do Daniel) e **de novo em 22/09/2026** (saída da Vi),
+> em reunião do grupo — registro em `docs/02-adr/decisoes-leves.md`. Com 3 pessoas, toda frente tem um **dono** (responde
+> pelo resultado), os demais apoiam, e todo mundo revisa PR de todo mundo.
 
 ## 0. Perfil do grupo (das apresentações no Discord)
 
 | Pessoa | Experiência relevante | Stack | Disponibilidade / observações |
 |---|---|---|---|
-| **Vi** (líder) | Sistema em produção para prefeitura (LGPD, RBAC/ABAC), app próprio em escala, ERP Comercial com vertical de saúde (ICP-Brasil), auditorias de segurança | NestJS + Next, Docker por hábito, AWS | Tempo mais limitado (4 trabalhos) → coordena, decide, revisa; infra (Docker/compose/CI) é o único código que ela escreve |
 | **Shirley** | Technical Product Manager, 7 anos em times de plataforma (APIs, integrações, engines, arquitetura) | Python (na prática, só) | Todos os dias; mais às quartas, sextas e fins de semana |
-| **Diego** | 22 anos de área; atua como arquiteto de software; já passou por concepção, front, back, devops, sustentação | .NET, JavaScript/Node (Vue) | Sênior → segundo par de olhos da arquitetura; dono do core |
-| **Hermando** | Automações, qualidade e análise de dados; front e back; contabilidade/finanças | Generalista | Qualidade/testes; métricas |
+| **Diego** | 22 anos de área; atua como arquiteto de software; já passou por concepção, front, back, devops, sustentação | .NET, JavaScript/Node (Vue) | Sênior → segundo par de olhos da arquitetura; dono do core e da modelagem do banco |
+| **Hermando** | Automações, qualidade e análise de dados; front e back; contabilidade/finanças | Generalista | Estrutura do código e ADRs; qualidade/testes; métricas |
 
-Resultado da ADR-001 (E-04): **TypeScript + NestJS** — a stack do dia a dia da líder e o denominador comum do grupo
-(Diego transita em Node; Hermando é generalista). Vi revisa o código Nest dos demais; Shirley (Python) contribui como
-descrito abaixo.
+Saíram: Daniel (16/09) e Vi (22/09). A ADR-001 (E-04, **TypeScript + NestJS**) foi escolhida por ser a stack do dia a dia
+da Vi e o denominador comum do grupo (JavaScript/Node); ela continua válida — Diego (Node) e Hermando revisam o código
+Nest um do outro, e revotar a E-04 seria uma decisão Tipo 1 (ADR + enquete). Shirley (Python) contribui como descrito
+na §3.
 
-## 1. Organograma das frentes
+## 1. Redistribuição de 22/09 (decisão do grupo em reunião)
+
+| Tarefa combinada | Quem | O que entra |
+|---|---|---|
+| **Modelagem do banco de dados** | **Diego** | `docs/04-arquitetura/modelo-de-dados.md`, `prisma/schema.prisma` (multiSchema), migrações SQL (sequência da OS, `CHECK`s, índices parciais), seed de demonstração, justificativa do banco (ADR-002) no README e no vídeo (bloco 4) |
+| **Estrutura do código + ADRs** | **Hermando** | Esqueleto do monólito (`prompts/02`: módulos, camadas clássicas, Dockerfile, compose, workflows de CI/segurança, README de execução), `dependency-cruiser`, curadoria das ADRs e do índice, `develop`/`master` protegidas, releases/tags, revisão de PRs (arquitetura) — ou seja, a F1 inteira mais a parte de infra da F5 |
+| **Documentação DDD** | **Shirley** (majoritariamente), em conjunto com Diego e Hermando | Miro (event storming dos 2 fluxos, context map, agregados, glossário), PRDs e critérios de aceite, features Gherkin; Diego valida agregados/invariantes do core, Hermando garante glossário ↔ código |
+
+## 2. Organograma das frentes
 
 ```mermaid
 flowchart TB
-    L["👤 Líder do grupo<br/>coordenação · integração · conduz a discussão em empates"]
-    L --> F1
-    L --> F2
-    L --> F3
-    L --> F4
-    L --> F5
+    CO["👥 Coordenação<br/>facilitação do assíncrono: Shirley (F2) · coordenação técnica e releases: Hermando (F1)<br/>empates: regra de como-trabalhamos.md §3 — ninguém desempata sozinho"]
+    CO --> F1
+    CO --> F2
+    CO --> F3
+    CO --> F4
+    CO --> F5
     subgraph Frentes
-        F1["🧭 F1 Arquitetura & Repositório<br/>ADRs · C4 · esqueleto · CI · revisão"]
-        F2["📚 F2 DDD & Documentação<br/>linguagem ubíqua · event storming (Miro) · context map · PDF de entrega"]
-        F3["⚙️ F3 Domínio & API<br/>módulos · casos de uso · OpenAPI · endpoints"]
-        F4["🛡️ F4 Qualidade & Segurança<br/>testes · cobertura ≥ 80 % · JWT · scans · relatório de vulnerabilidades"]
-        F5["🚀 F5 Infra & Entrega<br/>Dockerfile · compose · CI · README · Swagger · vídeo (edição)"]
+        F1["🧭 F1 Arquitetura & Repositório — Hermando<br/>ADRs · C4 · esqueleto · CI · revisão"]
+        F2["📚 F2 DDD & Documentação + Produto — Shirley<br/>linguagem ubíqua · event storming (Miro) · context map · PRDs · PDF"]
+        F3["⚙️ F3 Domínio & API — Diego (core, banco) · Hermando (customers, catalog)<br/>agregados · services · OpenAPI · endpoints"]
+        F4["🛡️ F4 Qualidade & Segurança — Hermando<br/>testes · cobertura ≥ 80 % · JWT · scans · relatório"]
+        F5["🚀 F5 Infra & Entrega — infra: Hermando · entrega: Shirley<br/>Dockerfile · compose · CI · README · Swagger · vídeo · PDF"]
     end
     F1 -. "contrato" .-> F3
     F3 -. "testes" .-> F4
@@ -40,20 +48,20 @@ flowchart TB
     F2 -. "vídeo (blocos DDD)" .-> F5
 ```
 
-## 2. Descrição das frentes
+## 3. Descrição das frentes
 
-| Frente | Entregas | Documentos base | Dono (sugestão) | Apoio |
+| Frente | Entregas | Documentos base | Dono | Apoio |
 |---|---|---|---|---|
-| **F1 Arquitetura & Repositório** | ADRs aceitas; esqueleto do monólito (módulos, camadas clássicas, Prisma); `develop` e `master` protegidas (GitFlow); revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Vi** — Tech Lead & Arquiteta | **Diego** (co-revisão; substitui a líder se ela sumir) |
-| **F2 DDD & Documentação + Produto** | Miro com event storming (2 fluxos), context map, agregados, linguagem ubíqua; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes) | `docs/03-ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | Vi |
-| **F3 Domínio & API** | Módulos `service-orders` (core, Diego), `customers` e `catalog` (Hermando); agregados e services; controllers/DTOs; OpenAPI; seeds | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md` | **Diego** — core `service-orders` | **Hermando** — `customers` + `catalog` |
-| **F4 Qualidade & Segurança** | Testes unitários/integração/BDD; gate de cobertura; validações CPF/CNPJ/placa; SAST/SCA/DAST; relatório de vulnerabilidades; métrica de tempo médio | `docs/05-qualidade-e-seguranca/` | **Hermando** — Qualidade | **Vi** — segurança (JWT/papéis, dados sensíveis, revisão do relatório); **Diego** — testes do core |
-| **F5 Infra & Entrega** | `Dockerfile`, `docker-compose.yml`, workflows de CI/segurança, README de execução, Swagger publicado, edição do vídeo | `docs/06-entrega/` | **Vi** — Infra (Docker, compose, CI, README) | **Shirley** — roteiro e edição do vídeo |
+| **F1 Arquitetura & Repositório** | ADRs (curadoria, índice, novas propostas); esqueleto do monólito (módulos, camadas clássicas, Prisma); `develop` e `master` protegidas (GitFlow); releases/tags nos marcos; revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Hermando** — estrutura do código + ADRs | **Diego** (co-revisão de arquitetura; substitui o dono se ele sumir) |
+| **F2 DDD & Documentação + Produto** | Miro com event storming (2 fluxos), context map, agregados, linguagem ubíqua; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes, prazos) | `docs/03-ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | **Diego** e **Hermando** (DDD em conjunto: agregados/invariantes e glossário ↔ código) |
+| **F3 Domínio & API** | Módulos `service-orders` (core, Diego), `customers` e `catalog` (Hermando); agregados e services; controllers/DTOs; OpenAPI; **modelagem do banco** (`modelo-de-dados.md`, `schema.prisma`, migrações, seed, justificativa da ADR-002) | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md`, `docs/04-arquitetura/modelo-de-dados.md` | **Diego** — core `service-orders` + banco de dados | **Hermando** — `customers` + `catalog` |
+| **F4 Qualidade & Segurança** | Testes unitários/integração/BDD; gate de cobertura; validações CPF/CNPJ/placa; JWT/papéis; SAST/SCA/DAST; relatório de vulnerabilidades; métrica de tempo médio | `docs/05-qualidade-e-seguranca/` | **Hermando** — Qualidade & Segurança | **Diego** — testes do core e revisão de segurança (JWT/papéis, dados sensíveis, relatório) |
+| **F5 Infra & Entrega** | Infra: `Dockerfile`, `docker-compose.yml`, workflows de CI/segurança, README de execução, Swagger publicado (vem junto com o esqueleto). Entrega: roteiro, gravação e edição do vídeo, PDF, evidências no checklist | `docs/06-entrega/` | **Hermando** — infra · **Shirley** — entrega | **Diego** — validação do compose em máquina limpa e revisão cruzada final |
 
-Cargas resultantes (4 pessoas): **Vi** = F1 + F5 infra (decisão, revisão e o esqueleto/CI — Docker é hábito dela) + apoio
-F4 segurança; **Shirley** = F2 + vídeo; **Diego** = F3 core + apoio F1 e F4; **Hermando** = F3 módulos `customers`/`catalog`
-+ F4. Hermando é quem ficou com mais peso: se apertar, o primeiro ajuste é Diego assumir `catalog` (é o módulo mais
-acoplado ao core) e o segundo é Vi assumir os scans de segurança (ela já revisa o relatório).
+Cargas resultantes (3 pessoas): **Shirley** = F2 + entrega (vídeo/PDF) + facilitação; **Diego** = F3 core + banco de
+dados + apoio F1/F4/F5; **Hermando** = F1 + F5 infra + F3 (`customers`/`catalog`) + F4. Hermando concentra o maior peso:
+o **primeiro ajuste**, se apertar, é Diego assumir `catalog` (é o módulo mais acoplado ao core e ele já modela o banco);
+o **segundo** é Diego assumir os scans de segurança (ele já revisa o relatório). Decidir no check-in do marco M2, não depois.
 
 Como Shirley contribui com código sem dominar a linguagem escolhida: (1) escreve as **features Gherkin** dos PRDs — F4
 automatiza os steps; (2) revisa **contratos de API e Swagger** contra os PRDs (é o trabalho dela de TPM); (3) valida
@@ -61,40 +69,41 @@ o **fluxo ponta a ponta pelo Swagger** a cada marco e registra evidências no ch
 (`linguagem-ubiqua.md`) contra o código — com tudo em inglês (ADR-013), alguém precisa garantir que o nome do código
 ainda é a linguagem que a oficina fala.
 
-## 3. Matriz RACI (R = executa · A = responde · C = consultado · I = informado)
+## 4. Matriz RACI (R = executa · A = responde · C = consultado · I = informado)
 
-| Entregável do enunciado | F1 Arq. | F2 DDD | F3 Dom./API | F4 Qual./Seg. | F5 Infra/Entrega |
+| Entregável do enunciado | F1 Arq. (Hermando) | F2 DDD (Shirley) | F3 Dom./API (Diego · Hermando) | F4 Qual./Seg. (Hermando) | F5 Infra (Hermando) / Entrega (Shirley) |
 |---|---|---|---|---|---|
-| Event storming completo (2 fluxos) | C | **R/A** | C | I | I |
-| Diagramas DDD + linguagem ubíqua | C | **R/A** | C | I | I |
+| Event storming completo (2 fluxos) | C | **R/A** | R | I | I |
+| Diagramas DDD + linguagem ubíqua | C | **R/A** | R | I | I |
 | Monólito em camadas clássicas por contexto (esqueleto) | **R/A** | I | R | C | C |
+| Modelagem do banco (schema, migrações, seed) | C | I | **R/A** (Diego) | C | I |
+| Justificativa do banco de dados | C | C | **R/A** (Diego) | I | I |
 | APIs: OS, orçamento, status, CRUDs | C | C | **R/A** | C | I |
 | Consulta do cliente via API | C | C | **R/A** | C | I |
 | Tempo médio de execução | C | I | **R/A** | C | I |
 | Autenticação JWT (APIs admin) | C | I | R | **R/A** | I |
 | Validação CPF/CNPJ/placa | I | C | R | **R/A** | I |
 | Testes ≥ 80 % (domínios críticos) | C | I | R | **R/A** | I |
-| Dockerfile + docker-compose | C | I | C | I | **R/A** |
-| README de execução | C | C | C | C | **R/A** |
-| Swagger/OpenAPI | C | I | R | I | **R/A** |
+| Dockerfile + docker-compose | R | I | C | I | **R/A** (infra) |
+| README de execução | R | C | C | C | **R/A** (infra) |
+| Swagger/OpenAPI | C | I | R | I | **R/A** (infra) |
 | Análise de vulnerabilidades + relatório | C | I | C | **R/A** | R |
-| Vídeo (≤ 15 min) | R | R | R | R | **R/A** |
-| Documento de entrega (PDF) | C | **R/A** | I | C | R |
-| Justificativa do banco de dados | **R/A** | C | C | I | I |
+| Vídeo (≤ 15 min) | R | R | R | R | **R/A** (entrega) |
+| Documento de entrega (PDF) | C | **R/A** | I | C | R (entrega) |
 
-## 4. Como uma feature atravessa as frentes
+## 5. Como uma feature atravessa as frentes
 
 ```mermaid
 flowchart LR
     P[PRD aprovado<br/>RF + RN + critérios] --> C[Contrato de API<br/>F1 + F3]
-    C --> D[Modelo de domínio<br/>agregado · invariantes<br/>F2 + F3]
-    D --> I[Implementação<br/>caso de uso · adapters<br/>F3]
+    C --> D[Modelo de domínio e de dados<br/>agregado · invariantes · schema<br/>F2 + F3]
+    D --> I[Implementação<br/>service · controller · repository<br/>F3]
     I --> T[Testes + cobertura<br/>F4]
-    T --> S[Swagger + compose + README<br/>F5]
-    S --> V[Evidência no checklist<br/>e no roteiro do vídeo]
+    T --> S[Swagger + compose + README<br/>F5 infra]
+    S --> V[Evidência no checklist<br/>e no roteiro do vídeo<br/>F5 entrega]
 ```
 
-## 5. Primeira sprint sugerida (walking skeleton)
+## 6. Primeira sprint sugerida (walking skeleton)
 
 Objetivo: em ~2 semanas ter **um fluxo ponta a ponta fininho** rodando em `docker compose up`:
 
@@ -105,3 +114,18 @@ Objetivo: em ~2 semanas ter **um fluxo ponta a ponta fininho** rodando em `docke
 
 Depois disso, cada frente evolui em paralelo sem se bloquear (diagnóstico/itens/orçamento, aprovação do cliente, estoque,
 métricas, scans, vídeo).
+
+## 7. Transição após a saída da Vi (22/09) — pendências
+
+Itens que dependem de acesso ou de conta e que a documentação sozinha não resolve:
+
+- [ ] **Repositório**: `katomaro/FIAP-SOAT` está na conta da Vi. Transferir para a conta de um membro que continua (ou para
+  uma organização do grupo) — o GitHub mantém histórico, issues e PRs. Depois, **reconvidar `soat-architecture`** (requisito
+  do enunciado), reaplicar a proteção de `master`, criar e proteger `develop` (ADR-008) e rever quem tem *bypass*.
+- [ ] **Workflows do Claude** (`.github/workflows/claude*.yml`): o secret `CLAUDE_CODE_OAUTH_TOKEN` é da assinatura da Vi.
+  Trocar por token de outro membro (`claude setup-token`) ou por `ANTHROPIC_API_KEY`, e reinstalar o GitHub App na nova
+  conta/org — ou desativar os dois workflows até decidir (`docs/README.md`, seção *Claude no GitHub*).
+- [ ] **Discord e Miro**: se o servidor/canal ou o board forem de propriedade da Vi, transferir a administração.
+- [ ] **Regra de votação**: com 3 membros, vence a opção com **2 votos** (maioria absoluta — `como-trabalhamos.md` §3).
+- [ ] **Documento de entrega e README**: participantes já atualizados nesta reconsolidação (`docs/06-entrega/documento-de-entrega-template.md`, `README.md`).
+- [ ] **Carga**: aplicar o primeiro ajuste da §3 (Diego assume `catalog`) se Hermando estiver sobrecarregado em M2.

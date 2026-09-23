@@ -1,4 +1,4 @@
-# 02 — Esqueleto do projeto (F1 + F5) — NestJS em camadas clássicas + Prisma
+# 02 — Esqueleto do projeto (F1 + F5 infra — Hermando; Etapa 2 com Diego) — NestJS em camadas clássicas + Prisma
 
 ```text
 Gere o esqueleto executável do monólito em TypeScript + NestJS 11 (Node 22) seguindo

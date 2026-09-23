@@ -34,7 +34,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 |---|---|---|---|---|
 | T1 | Back-end monolítico | 1 processo de API no compose; `docs/04-arquitetura/visao-geral.md` | | ⬜ |
 | T2 | Arquitetura em camadas (clássicas, por módulo — ADR-003) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | | ⬜ |
-| T3 | Banco de dados justificado | ADR-002 + README §banco + bloco 4 | | ⬜ |
+| T3 | Banco de dados justificado | ADR-002 + README §banco + bloco 4 | Diego | ⬜ |
 | T4 | APIs RESTful documentadas via Swagger | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) | | ⬜ |
 | T5 | Dockerfile | build limpo; Trivy sem críticas | | ⬜ |
 | T6 | docker-compose.yml orquestra ambiente completo | `docker compose up` em máquina limpa (testado por outro membro) | | ⬜ |
@@ -77,7 +77,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 
 ## 5. Revisão cruzada final (D-2)
 
-- [ ] Clone limpo → `docker compose up` → Swagger → fluxo completo em < 5 min (pessoa ≠ dona da F5)
+- [ ] Clone limpo → `docker compose up` → Swagger → fluxo completo em < 5 min (pessoa ≠ dono da infra — Hermando)
 - [ ] Links do PDF abertos em janela anônima (Miro público/compartilhado com link; repo com `soat-architecture` convidado)
 - [ ] Vídeo assistido inteiro com cronômetro (≤ 15:00) e checklist §4 marcado
 - [ ] README lido do início ao fim; comandos copiados e executados

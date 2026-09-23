@@ -18,7 +18,6 @@
 
 | Nome completo | RM | Username no Discord | E-mail (opcional) |
 |---|---|---|---|
-| Victor Hugo Carvalho Dos Reis Santos | RM377398 | katomaro | |
 | Shirley Balbino | `<RM>` | shirleybalbino | |
 | Diego Marques | RM369305 | dmosantos | |
 | Hermando Thiago | RM378259 | hermandothiago | |

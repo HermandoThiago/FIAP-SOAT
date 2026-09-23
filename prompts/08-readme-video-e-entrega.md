@@ -1,4 +1,4 @@
-# 08 — README, vídeo e entrega (F5)
+# 08 — README, vídeo e entrega (F5 — Hermando: README/execução · Shirley: roteiro e PDF)
 
 ```text
 Com base em docs/06-entrega/*, docs/02-adr/README.md (decisões aceitas) e no estado atual do repositório:

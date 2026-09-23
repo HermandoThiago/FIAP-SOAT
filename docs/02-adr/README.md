@@ -10,7 +10,7 @@ stateDiagram-v2
     direction LR
     [*] --> Proposta: alguém escreve a ADR
     Proposta --> EmVotacao: enquete aberta (72 h)
-    EmVotacao --> Aceita: 3 votos de 4 (regra em como-trabalhamos.md §3)
+    EmVotacao --> Aceita: 2 votos de 3 (maioria absoluta, regra em como-trabalhamos.md §3)
     EmVotacao --> Rejeitada: maioria contra / nova proposta
     Aceita --> EmVotacao: revotação (registrada no histórico da ADR)
     Aceita --> Substituida: nova ADR a substitui

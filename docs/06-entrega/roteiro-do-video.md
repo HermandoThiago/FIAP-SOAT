@@ -17,10 +17,10 @@
 
 | # | Item do enunciado | Tempo | O que mostrar / dizer | Responsável |
 |---|---|---|---|---|
-| 1 | **Proposta da solução** | 0:00–0:50 | Nome do grupo e integrantes; problema da oficina (5 dores); MVP: OS, clientes, veículos, catálogo/estoque, orçamento com aprovação, DDD + qualidade + segurança | Líder |
+| 1 | **Proposta da solução** | 0:00–0:50 | Nome do grupo e integrantes; problema da oficina (5 dores); MVP: OS, clientes, veículos, catálogo/estoque, orçamento com aprovação, DDD + qualidade + segurança | F2 (Shirley) |
 | 2 | **Arquitetura do projeto** | 0:50–1:50 | C4 nível 1 e 2 (`visao-geral.md`): atores, API monolítica, banco, compose; frase sobre evolução para K8s/microsserviços | F1 |
 | 3 | **Organização do monólito e suas camadas** | 1:50–2:50 | Árvore do repo: módulos por contexto (`customers`, `catalog`, `service-orders`, `identity`) e as camadas clássicas de cada módulo (`controllers` → `services` → `repositories`, sobre um `domain` rico e sem framework); um módulo só fala com outro pelo serviço exportado; por que isso facilita a Clean (Fase 2) e os microsserviços (Fase 4) | F1 |
-| 4 | **Escolha e justificativa do banco** | 2:50–3:30 | ADR-002: relacional/transacional (aprovação + baixa de estoque atômica), `NUMERIC`, constraints, Testcontainers, RDS depois; schema por módulo | F1 |
+| 4 | **Escolha e justificativa do banco** | 2:50–3:30 | ADR-002: relacional/transacional (aprovação + baixa de estoque atômica), `NUMERIC`, constraints, Testcontainers, RDS depois; schema por módulo | F3 (Diego — modelagem do banco) |
 | 5 | **Event Storming + elementos de DDD** | 3:30–5:30 | Miro: legenda; big picture; fluxo 1 (ator → comando → agregado → evento → política) com os pivotais; fluxo 2 (estoque); hotspots resolvidos por ADRs; context map (core/supporting/generic); agregados e VOs (`Document`, `LicensePlate`, `Money`); linguagem ubíqua (glossário ↔ nomes no código/Swagger) | F2 |
 | 6 | **Fluxo de criação e acompanhamento da OS** | 5:30–7:00 | Swagger: criar cliente (CPF) e veículo (placa) → `POST /service-orders` (Recebida) → `GET /tracking/...` como cliente (token de acompanhamento; mostrar também o login `CUSTOMER`) | F3 |
 | 7 | **Inclusão de serviços, peças e insumos** | 7:00–7:50 | `POST …/diagnosis` → incluir serviço → incluir peça (mostrar estoque antes) → tentar peça sem estoque (422) | F3 |
@@ -31,7 +31,7 @@
 | 12 | **Documentação Swagger/OpenAPI** | 11:40–12:10 | Swagger UI: tags por módulo, exemplos, esquema `bearerAuth`, erros documentados; `/docs/openapi.json` gerado pelo código (code-first, ADR-005) | F5 |
 | 13 | **Testes automatizados** | 12:10–13:20 | Rodar testes (ou mostrar CI verde); relatório de cobertura ≥ 80 % em `service-orders` e `catalog`; cenários BDD em português passando; teste parametrizado da máquina de estados | F4 |
 | 14 | **Resultado da análise de vulnerabilidades** | 13:20–14:30 | Ferramentas (Semgrep, SCA, Trivy, gitleaks, ZAP); tabela antes × depois; 1 exemplo de achado corrigido; riscos aceitos; link do relatório | F4 |
-| 15 | Encerramento | 14:30–15:00 | Recap dos entregáveis (Miro, repo, relatório, PDF); próximos passos (Fase 2) | Líder |
+| 15 | Encerramento | 14:30–15:00 | Recap dos entregáveis (Miro, repo, relatório, PDF); próximos passos (Fase 2) | F2 (Shirley) |
 
 ## Dicas
 

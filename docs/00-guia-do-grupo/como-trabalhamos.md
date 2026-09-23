@@ -35,7 +35,7 @@ flowchart LR
     B -- "Sim (Tipo 2)" --> C[Dono da frente decide e registra<br/>em decisoes-leves.md + issue/PR]
     B -- "Não / afeta todos (Tipo 1)" --> D[Escreve ADR com opções<br/>status: Proposta]
     D --> E[Enquete no Discord<br/>prazo padrão 72 h]
-    E --> F{Alguma opção<br/>com 3 votos?}
+    E --> F{Alguma opção<br/>com 2 votos?}
     F -- Sim --> G[ADR: Aceita<br/>atualiza docs e issues]
     F -- "Não (empate / votos dispersos)" --> H[Discussão no canal +<br/>enquete rápida de 24 h<br/>entre as mais votadas]
     H --> G
@@ -49,8 +49,8 @@ Regras da enquete:
 - **Tipo 2** (reversível/local): nome de um endpoint, biblioteca auxiliar, formato de log. O dono da frente decide e
   registra em `docs/02-adr/decisoes-leves.md` (uma linha, com link da issue/PR).
 - Prazo padrão de enquete (opção *3 dias* do recurso de enquete do Discord): **72 h**. Quem não votou no prazo = abstenção.
-- Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **3 votos** (maioria
-  absoluta — 3 de 4 membros desde 16/09). Se nenhuma chega a 3 (empate ou votos dispersos): **discussão no canal** e, em seguida,
+- Regra de vitória (prática já adotada no Discord, registrada na issue #1): vence a opção com **2 votos** (maioria
+  absoluta — 2 de 3 membros desde 22/09; era 3 de 4 entre 16/09 e 22/09). Se nenhuma chega a 2 (votos dispersos): **discussão no canal** e, em seguida,
   **enquete rápida de 24 h** entre as opções mais votadas; o resultado da enquete rápida decide. Ninguém desempata
   sozinho. Esta é a única definição da regra — os demais documentos apontam para cá.
 - Toda enquete tem o texto pronto em `enquetes.md` com link para a ADR/PRD. Resultado é copiado para a ADR (seção *Decisão*).
@@ -108,7 +108,7 @@ Convenções:
 
 ### Tags e releases
 
-- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas pelo líder/F1 em `master` **no merge
+- Formato **SemVer** `vMAJOR.MINOR.PATCH`, tags **anotadas** (`git tag -a`), criadas por F1 (Hermando) em `master` **no merge
   da `release/*`**, com CI verde. Nunca mover ou apagar uma tag publicada; erro depois de um marco vira `hotfix/` + patch
   (`v0.2.1`).
 - Fase 1 é a série `v0.x`; a entrega vira **`v1.0.0`**. A Fase 2 começa em `v2.0.0` no mesmo repositório — assim o avaliador
@@ -192,7 +192,8 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 |---|---|---|
 | Prazo | Semana 3 sem `develop` executável | Escopo congelado no MoSCoW do PRD-000; "Could" cai primeiro |
 | Disponibilidade irregular | Check-in faltando 2× seguidas | Frente redistribuída; tarefas pequenas (≤ 2 dias) |
-| Scope creep | Tarefa sem RF/ADR de origem | DoR bloqueia; líder devolve para backlog |
+| Time de 3 pessoas | Alguém acumulando mais de duas frentes e atrasando | Ajustes de carga já combinados (`frentes-e-responsabilidades.md` §3); cortar Could/Should cedo; nenhum escopo novo |
+| Scope creep | Tarefa sem RF/ADR de origem | DoR bloqueia; a facilitação (F2) devolve para backlog |
 | Integração tardia | Módulos prontos, fluxo ponta a ponta não | Fluxo "criar OS → aprovar → entregar" é a **primeira** história ponta a ponta (walking skeleton) |
 | Cobertura abaixo de 80 % | CI sem gate | Gate de cobertura desde o primeiro PR de código |
 | `develop` longe de `master` | Marco sem release | Release branch em todo marco (M2–M7); nada fica "só em develop" por mais de 2 semanas |

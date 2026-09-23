@@ -36,13 +36,13 @@
 |---|---|---|
 | `00-contexto-base.md` | todos | início de toda sessão |
 | `01-event-storming-miro.md` | F2 | semana 2 |
-| `02-esqueleto-do-projeto.md` | F1 + F5 (Vi) | agora (todas as ADRs aceitas) |
+| `02-esqueleto-do-projeto.md` | F1 + F5 infra — Hermando; Etapa 2 (banco/Prisma) com Diego | agora (todas as ADRs aceitas) |
 | `03-modulo-atendimento.md` (módulo `service-orders`) | F3 — Diego | semanas 3–5 |
 | `04-modulo-catalogo-estoque.md` (módulo `catalog`) | F3 — Hermando | semanas 3–5 |
 | `05-modulos-cadastro-e-identidade.md` (módulos `customers` e `identity`) | F3 Hermando / F4 | semana 3 |
 | `06-testes-bdd-e-cobertura.md` | F4 | semanas 4–6 |
 | `07-seguranca-e-scans.md` | F4 | semanas 5–6 |
-| `08-readme-video-e-entrega.md` | F5 | semanas 7–8 |
+| `08-readme-video-e-entrega.md` | F5 — Hermando (README/execução) · Shirley (roteiro, PDF) | semanas 7–8 |
 | `09-revisao-de-pr.md` | todos | a cada PR |
 
 ## Regras de ouro ao usar IA neste projeto

@@ -5,8 +5,9 @@
 > semana antes da data oficial**, reservada para revisões; check-in 3×/semana; call opcional de 30 min por semana.
 > Se o prazo for menor, cortar na ordem: Could → Should → buffer, nunca os Must.
 >
-> **16/09:** grupo passou de 5 para 4 pessoas (saída do Daniel). O plano continua o mesmo; o que muda é a folga —
-> por isso as regras de corte abaixo importam mais.
+> **16/09:** grupo passou de 5 para 4 pessoas (saída do Daniel); **22/09:** de 4 para 3 (saída da Vi) — redistribuição em
+> `frentes-e-responsabilidades.md` §1. O plano continua o mesmo; o que muda é a folga — por isso as regras de corte
+> abaixo importam mais, e o primeiro ajuste de carga (Diego assumir `catalog`) deve ser decidido no check-in de M2.
 
 ## 1. Marcos
 

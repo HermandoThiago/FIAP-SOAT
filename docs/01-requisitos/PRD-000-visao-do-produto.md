@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Status | 📝 Rascunho para revisão do grupo |
-| Dono | Líder (F1) |
+| Dono | F2 (Shirley — produto) · apoio F1 (Hermando) |
 | Origem | Enunciado *SOAT — Fase 1 — Tech Challenge 1* (PDF) |
 | Última atualização | 14/09/2026 |
 

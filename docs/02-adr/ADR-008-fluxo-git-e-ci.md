@@ -47,7 +47,7 @@ Fase 2 aprofunda CI/CD com GitHub Actions e SonarQube — o que fizermos agora �
 
 ## Decisão
 
-**GitFlow** (Opção B) **com Conventional Commits obrigatórios**, checados no CI. Adaptado ao tamanho do grupo (4 pessoas,
+**GitFlow** (Opção B) **com Conventional Commits obrigatórios**, checados no CI. Adaptado ao tamanho do grupo (3 pessoas desde 22/09,
 1 entrega com 5 marcos):
 
 | Branch | Papel | Sai de | Volta para | Regras |

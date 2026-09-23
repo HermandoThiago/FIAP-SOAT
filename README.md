@@ -18,14 +18,15 @@ serviços, peças/insumos com estoque, orçamento com aprovação do cliente e a
 
 ## Grupo
 
-| Integrante | RM | Discord | Frente (E-02 aprovada; redistribuída em 16/09 — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
+| Integrante | RM | Discord | Frente (E-02 aprovada; redistribuída em 16/09 e 22/09 — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
 |---|---|---|---|
-| Victor Hugo Carvalho Dos Reis Santos (Vi) | RM377398 | katomaro | **F1** Arquitetura & Repositório (Tech Lead & Arquiteta) + **F5** Infra (Docker, compose, CI, README, Swagger); apoio em segurança (F4) |
-| Shirley Balbino | `preencher` | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro, BDD (Gherkin), checklist, roteiro e edição do vídeo, PDF |
-| Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `service-orders`; co-revisão de arquitetura (F1) e testes do core (F4) |
-| Hermando Thiago | RM378259 | hermandothiago | **F3** módulos `customers` e `catalog` + **F4** Qualidade & Segurança — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
+| Shirley Balbino | `preencher` | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro (com apoio dos dois), BDD (Gherkin), checklist, facilitação do assíncrono; **F5** entrega — roteiro e edição do vídeo, PDF |
+| Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `service-orders` + **modelagem do banco de dados** (modelo, Prisma, migrações, seed, justificativa da ADR-002); co-revisão de arquitetura (F1), testes do core e revisão de segurança (F4) |
+| Hermando Thiago | RM378259 | hermandothiago | **F1** Arquitetura & Repositório — **estrutura do código** (esqueleto, camadas, CI/compose) **+ ADRs**, revisão de PRs; **F3** módulos `customers` e `catalog`; **F4** Qualidade & Segurança — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
 
-Daniel Henrique (RM377497) deixou o curso em 16/09/2026; a redistribuição está registrada em `docs/02-adr/decisoes-leves.md`.
+Daniel Henrique (RM377497) deixou o curso em 16/09/2026 e Victor Hugo Carvalho Dos Reis Santos (Vi, RM377398) em 22/09/2026;
+as redistribuições estão registradas em `docs/02-adr/decisoes-leves.md` e as pendências de transição (transferência do
+repositório, token dos workflows do Claude) em `docs/00-guia-do-grupo/frentes-e-responsabilidades.md` §7.
 
 Nome do grupo: **a definir (enquete E-01)**. Acesso obrigatório ao usuário GitHub `soat-architecture` (repositório privado).
 

@@ -26,7 +26,9 @@ Resultado: `pendente`
 
 Resultado: topo assim. **Atualização 16/09:** Daniel saiu da faculdade; a carga dele foi dividida — Vi assume a F5 Infra
 (Docker, compose, CI, README, Swagger) e Hermando assume os módulos `customers` e `catalog` da F3, além da F4. Tabela
-atual em `frentes-e-responsabilidades.md`; registro em `docs/02-adr/decisoes-leves.md`.
+atual em `frentes-e-responsabilidades.md`; registro em `docs/02-adr/decisoes-leves.md`. **Atualização 22/09:** Vi saiu da
+pós-graduação; em reunião, o grupo redistribuiu: modelagem do banco → Diego; estrutura do código + ADRs → Hermando;
+documentação DDD → Shirley (majoritariamente), em conjunto com os dois.
 
 ### E-03 · Data oficial de entrega e cadência — ✅ (data oficial ainda a confirmar)
 > **E-03 — Prazo e cadência** (prazo 72 h)
@@ -144,7 +146,7 @@ Resultado: (a) reserva na aprovação + baixa na finalização; (b) bloqueia (HT
 | Enquete | Encerrada em | Resultado | Registrado em |
 | --- | --- | --- | --- |
 | E-01 | Indefinido | Indefinido | README.md |
-| E-02 | 16/09 | Aprovado; redistribuído em 16/09 com a saída do Daniel (Vi → F5 infra, Hermando → módulos da F3) | frentes-e-responsabilidades.md · decisoes-leves.md |
+| E-02 | 16/09 · 22/09 | Aprovado; redistribuído em 16/09 (saída do Daniel) e em 22/09 (saída da Vi: banco → Diego; estrutura + ADRs → Hermando; DDD → Shirley) | frentes-e-responsabilidades.md · decisoes-leves.md |
 | E-03 | Data da commit | Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3x semana, call opcional de 30m por semana a combinar. | cronograma.md / como-trabalhamos.md |
 | E-04 | 16/09 | TypeScript + NestJS | ADR-001 ✅ Aceita |
 | E-05 | 16/09 | PostgreSQL | ADR-002 ✅ Aceita |
