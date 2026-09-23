@@ -12,13 +12,15 @@ Responda **em português**; escreva código, nomes e mensagens de commit de cód
 
 ## Fonte da verdade (leia antes de propor qualquer coisa)
 
+- `docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf` — enunciado atualizado da FIAP (23/09/2026); requisitos,
+  entregáveis e itens do vídeo rastreados em `docs/06-entrega/checklist-de-entrega.md`.
 - `docs/01-requisitos/PRD-*.md` — o que o sistema faz (RF), regras (RN), critérios de aceite.
 - `docs/02-adr/` — decisões de arquitetura. **Todas as 13 ADRs estão Aceitas** (Lotes 1–3 encerrados em 22/09/2026); vale
   a seção *Decisão* de cada uma — opções e recomendações são só registro. Decisões leves (Tipo 2, ex.: ORM = Prisma)
   estão em `docs/02-adr/decisoes-leves.md`. Regra que dependa de algo não decidido: diga qual ADR/enquete resolve e pare.
-- `docs/03-ddd/linguagem-ubiqua.md` — **tradução oficial de cada termo para o código** (§1 módulos, §2–§6 identificadores,
+- `docs/ddd/linguagem-ubiqua.md` — **tradução oficial de cada termo para o código** (§1 módulos, §2–§6 identificadores,
   §7 status, §8 eventos, §9 serviços de aplicação). Termo sem tradução no glossário não entra no código: proponha a linha no glossário.
-- `docs/03-ddd/agregados.md` — agregados, invariantes e eventos de domínio.
+- `docs/ddd/agregados.md` — agregados, invariantes e eventos de domínio.
 - `docs/04-arquitetura/contrato-api.md` — rotas, payloads, códigos de erro (Problem Details); depois de implementado, o
   Swagger gerado pelo código é a versão oficial (ADR-005, code-first).
 - `docs/04-arquitetura/estrutura-do-repositorio.md` — camadas clássicas por módulo, árvore de pastas, toolchain, regras de dependência.
@@ -31,7 +33,7 @@ Se algo não está documentado, é **scope creep**: aponte, não implemente.
 Cada regra cita a fonte. Divergência de uma regra é `[bloqueia]` na revisão de PR.
 
 1. Monólito modular por contexto delimitado: módulos `customers`, `catalog`, `service-orders` (core), `identity` e
-   `shared` (monólito: enunciado; módulos e nomes: `docs/03-ddd/contextos-delimitados.md`, ADR-013).
+   `shared` (monólito: enunciado; módulos e nomes: `docs/ddd/contextos-delimitados.md`, ADR-013).
 2. ADR-003 (Aceita; revotada em 22/09) — **camadas clássicas dentro de cada módulo**: `controllers/` + `dto/` (HTTP,
    validação sintática, OpenAPI) → `services/` (serviços de aplicação: orquestram os casos de uso, as transações e as
    chamadas a outros módulos) → `repositories/` (Prisma ↔ agregados), todos sobre `domain/` (agregados, VOs, eventos,
@@ -60,6 +62,7 @@ Cada regra cita a fonte. Divergência de uma regra é `[bloqueia]` na revisão d
 ## Segurança e dados
 
 - Nunca inclua CPF/CNPJ/placas reais, e-mails reais ou segredos (use `.env.example`, geradores de dados válidos fictícios).
+  O repositório fica **público** na entrega (enunciado): nada sensível em nenhum arquivo nem no histórico.
 - PII mascarada em logs e nas respostas ao cliente. Validação de CPF/CNPJ (dígitos verificadores) e placa (antiga e Mercosul)
   nos VOs `Document` e `LicensePlate`.
 - ADR-004 (Aceita) — rotas administrativas exigem JWT próprio HS256 (`POST /auth/login`, usuários no banco, bcrypt,

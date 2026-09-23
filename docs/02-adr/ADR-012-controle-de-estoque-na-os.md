@@ -6,7 +6,7 @@
 | Tipo | Tipo 1 (regra de domínio) |
 | Decisores | Grupo — enquete **E-16** (duas perguntas: momento e comportamento sem estoque) |
 | Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
-| Relacionadas | PRD-002, PRD-003, ADR-010, `docs/03-ddd/event-storming.md` |
+| Relacionadas | PRD-002, PRD-003, ADR-010, `docs/ddd/event-storming.md` |
 
 ## Contexto e problema
 

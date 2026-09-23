@@ -81,6 +81,10 @@ Sub-decisões fechadas:
   a demo do vídeo e o PDF usam sempre uma tag em `master`.
 - Workflows `ci.yml` e `security.yml` (esqueleto, `prompts/02-esqueleto-do-projeto.md`) com gatilhos em PR e em push
   para `develop` e `master`.
+- **Enunciado atualizado (23/09):** o repositório deve ser **público** durante a correção e o PDF informa branch + hash da
+  entrega. O texto cita "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR" — a
+  `master` cumpre a regra. Renomear `master` → `main` é decisão leve de F1 (custo baixo antes do esqueleto; se fizer,
+  atualizar workflows, docs e a proteção).
 
 ## Enquete (texto para o Discord)
 

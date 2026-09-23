@@ -1,8 +1,8 @@
 # 04 — Módulo `catalog` (F3, Hermando)
 
 ```text
-Implemente o módulo catalog conforme docs/01-requisitos/PRD-002, docs/03-ddd/agregados.md (Service, Part,
-StockMovement), docs/03-ddd/linguagem-ubiqua.md §4 e docs/04-arquitetura/contrato-api.md §3.3, na estrutura de camadas
+Implemente o módulo catalog conforme docs/01-requisitos/PRD-002, docs/ddd/agregados.md (Service, Part,
+StockMovement), docs/ddd/linguagem-ubiqua.md §4 e docs/04-arquitetura/contrato-api.md §3.3, na estrutura de camadas
 clássicas de docs/04-arquitetura/estrutura-do-repositorio.md (controllers/ + dto/ → services/ → repositories/, sobre
 domain/). Decisão de estoque aceita (ADR-012, E-16): reserva na aprovação do orçamento, baixa na finalização, inclusão
 sem disponibilidade → 422. Nada está em votação.

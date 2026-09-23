@@ -1,9 +1,10 @@
 # Event Storming — fluxos obrigatórios
 
-> Entregável do enunciado: *"Event Storming completo dos fluxos: (1) criação e acompanhamento da OS; (2) gestão de peças
-> e insumos"*, em Miro ou equivalente. Este arquivo é a **versão versionada** (Mermaid) que a F2 transfere para o Miro,
-> post-it por post-it, e que o vídeo usa para explicar "o processo de Event Storming". Os hotspots foram resolvidos
-> pelas ADRs 010/011/012 em 22/09/2026 (§4) — os diagramas já refletem as decisões.
+> Entregável do enunciado (versão de 23/09/2026): event storming **da criação da OS**, **do acompanhamento da OS** e **da
+> gestão de peças e insumos**, no Miro (link acessível sem pedir permissão) e **exportado para `docs/ddd/event-storming.pdf`**.
+> Este arquivo é a **versão versionada** (Mermaid) que a F2 transfere para o Miro, post-it por post-it, e que o vídeo usa
+> para explicar "o processo de Event Storming". Os hotspots foram resolvidos pelas ADRs 010/011/012 em 22/09/2026 (§5) —
+> os diagramas já refletem as decisões.
 
 ## 0. Legenda (cores padrão do Event Storming)
 
@@ -30,7 +31,7 @@ flowchart LR
 Gramática usada: **Ator → Comando → Agregado → Evento**; **Evento → Política → Comando** (automação);
 **Modelo de leitura** alimenta a decisão do ator.
 
-## 1. Big picture — linha do tempo dos eventos (os dois fluxos juntos)
+## 1. Big picture — linha do tempo dos eventos (os três fluxos juntos)
 
 ```mermaid
 flowchart LR
@@ -38,10 +39,10 @@ flowchart LR
     subgraph Cadastro
         E0(Cliente cadastrado):::evento --> E0b(Veículo cadastrado):::evento
     end
-    subgraph Estoque["Gestão de peças e insumos"]
+    subgraph Estoque["Fluxo 3 — Gestão de peças e insumos"]
         P1(Peça cadastrada):::evento --> P2(Entrada de estoque registrada):::evento
     end
-    subgraph OS["Criação e acompanhamento da OS"]
+    subgraph OS["Fluxo 1 — Criação da OS (E1–E6) · Fluxo 2 — Acompanhamento (E7–E11)"]
         E1(OS recebida):::evento --> E2(Diagnóstico iniciado):::evento --> E3(Serviço incluído na OS):::evento --> E4(Peça incluída na OS):::evento
         E4 --> E5(Orçamento recalculado):::evento --> E6(Orçamento enviado ao cliente):::evento
         E6 --> E7(Orçamento aprovado):::evento --> E8(Execução iniciada):::evento --> E9(Execução finalizada):::evento --> E10(Veículo entregue):::evento
@@ -57,7 +58,7 @@ flowchart LR
 Eventos pivotais (marcos que separam fases do processo): **OS recebida** · **Orçamento enviado ao cliente** ·
 **Orçamento aprovado** · **Execução finalizada** · **Veículo entregue** (e o desvio terminal **OS cancelada**).
 
-## 2. Fluxo 1 — Criação e acompanhamento da OS (process modeling)
+## 2. Fluxo 1 — Criação da OS (process modeling)
 
 ### 2.1 Recepção e diagnóstico
 
@@ -113,7 +114,12 @@ flowchart LR
     A3([Gerente]):::ator --> C7[Cancelar OS<br/>antes da aprovação, com motivo]:::comando --> G1 --> E7
 ```
 
-### 2.3 Execução, finalização e entrega
+## 3. Fluxo 2 — Acompanhamento da OS: status, execução, finalização, entrega e consulta do cliente
+
+A máquina de estados oficial (7 status e tabela de transições) está em `docs/01-requisitos/PRD-004-acompanhamento-e-status.md`
+§2 e entra no frame deste fluxo no Miro, junto com a consulta do cliente (token de acompanhamento ou login).
+
+### 3.1 Execução, finalização e entrega
 
 ```mermaid
 flowchart LR
@@ -139,7 +145,9 @@ flowchart LR
     R1 --> A3([Gerente]):::ator
 ```
 
-### 2.4 Tabela consolidada do Fluxo 1 (para colar no Miro)
+### 3.2 Tabela consolidada dos Fluxos 1 e 2 (para colar no Miro)
+
+Linhas 1–8 = Fluxo 1 (criação da OS); linhas 9–12 = Fluxo 2 (acompanhamento: aprovação/recusa, execução, finalização, entrega).
 
 | # | Ator | Comando | Agregado | Evento | Política disparada | Modelo de leitura |
 |---|---|---|---|---|---|---|
@@ -158,7 +166,7 @@ flowchart LR
 | 11 | Mecânico | Finalizar execução | Ordem de Serviço | **Execução finalizada** | Baixar peças reservadas; registrar tempo de execução; notificar | Tempo médio |
 | 12 | Atendente | Registrar entrega | Ordem de Serviço | **Veículo entregue** | Tornar OS imutável | Histórico |
 
-## 3. Fluxo 2 — Gestão de peças e insumos
+## 4. Fluxo 3 — Gestão de peças e insumos
 
 ```mermaid
 flowchart LR
@@ -190,7 +198,7 @@ flowchart LR
 A movimentação de **liberação** (`RELEASE`, "Reserva liberada") existe no modelo e no agregado, mas não tem gatilho no
 MVP: recusa e cancelamento só acontecem antes da aprovação, logo antes de qualquer reserva (ADR-010 + ADR-012).
 
-### 3.1 Tabela consolidada do Fluxo 2
+### 4.1 Tabela consolidada do Fluxo 3
 
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
@@ -202,7 +210,7 @@ MVP: recusa e cancelamento só acontecem antes da aprovação, logo antes de qua
 | 6 | Sistema (política) | Baixar estoque (na finalização) | Peça | Baixa de estoque realizada | Alertar se abaixo do mínimo (Could) | Movimentações |
 | 7 | Gerente | Inativar peça | Peça | Peça inativada | — | Catálogo |
 
-## 4. Hotspots — resolvidos em 22/09/2026 (Lote 3 de enquetes)
+## 5. Hotspots — resolvidos em 22/09/2026 (Lote 3 de enquetes)
 
 | Hotspot | Resolução |
 |---|---|
@@ -213,7 +221,7 @@ MVP: recusa e cancelamento só acontecem antes da aprovação, logo antes de qua
 | Criar cliente/veículo junto com a OS | PRD-001 RF-010 (Should) — em aberto na revisão do PRD |
 | Quantidade decimal para insumos | PRD-002 Q3 (proposta: sim, `quantity` decimal(10,3)) — em aberto na revisão do PRD |
 
-## 5. Software design — agregados por evento
+## 6. Software design — agregados por evento
 
 Post-its em português (linguagem falada); a coluna *No código* traz o nome em inglês (ADR-013, glossário em
 `linguagem-ubiqua.md` §8).
@@ -227,12 +235,14 @@ Post-its em português (linguagem falada); a coluna *No código* traz o nome em 
 | Ordem de Serviço | OS recebida; Diagnóstico iniciado; Serviço/Peça incluído(a)/removido(a); Orçamento recalculado/enviado/aprovado/recusado; Execução iniciada/finalizada; Veículo entregue; OS cancelada | `ServiceOrder` — `ServiceOrderReceived`, `DiagnosisStarted`, `ItemAddedToServiceOrder`, `ItemRemovedFromServiceOrder`, `QuoteRecalculated`, `QuoteSent`, `QuoteApproved`, `QuoteRejected`, `ExecutionStarted`, `ExecutionCompleted`, `VehicleDelivered`, `ServiceOrderCancelled` | `service-orders` |
 | Usuário | Usuário criado (equipe ou cliente); Login realizado/falhou | `User` — `UserRegistered`, `UserAuthenticated` | `identity` |
 
-## 6. Como montar no Miro (F2)
+## 7. Como montar no Miro e exportar (F2)
 
 1. Frame "Legenda" com os 8 tipos de post-it.
 2. Frame "Big picture" só com eventos laranja em linha do tempo + pivotais marcados com linha vertical.
-3. Frame "Fluxo 1 — Criação e acompanhamento da OS" com as 3 raias (recepção/diagnóstico · orçamento/aprovação · execução/entrega) usando a gramática ator → comando → agregado → evento → política.
-4. Frame "Fluxo 2 — Gestão de peças e insumos".
-5. Frame "Hotspots" com os post-its vermelhos marcados como **resolvidos** e o link da ADR que resolveu cada um (§4) — mostra o processo no vídeo.
-6. Frame "Context map" e "Agregados" (`contextos-delimitados.md`, `agregados.md`) e "Glossário" (`linguagem-ubiqua.md`).
-7. Exportar o board como imagem para `docs/06-entrega/evidencias/` e colocar o link no PDF de entrega.
+3. Frame "Fluxo 1 — Criação da OS" (raias recepção/diagnóstico e orçamento/aprovação) usando a gramática ator → comando → agregado → evento → política.
+4. Frame "Fluxo 2 — Acompanhamento da OS" (máquina de estados, execução/finalização/entrega, consulta do cliente por token ou login).
+5. Frame "Fluxo 3 — Gestão de peças e insumos".
+6. Frame "Hotspots" com os post-its vermelhos marcados como **resolvidos** e o link da ADR que resolveu cada um (§5).
+7. Frames "Domain storytelling", "Context map", "Agregados / entidades / value objects" (`domain-storytelling.md`, `contextos-delimitados.md`, `agregados.md`) e "Glossário" (`linguagem-ubiqua.md`).
+8. Compartilhar o board como "qualquer pessoa com o link pode ver" — o enunciado exige acesso sem pedido de permissão.
+9. Exportar: frames 2–6 → `docs/ddd/event-storming.pdf`; frame 7 → `docs/ddd/diagramas.pdf`; o glossário já é `docs/ddd/linguagem-ubiqua.md`. Conferir contra o código entregue antes de exportar (M5): "documentação que não corresponda ao código não será considerada evidência completa".

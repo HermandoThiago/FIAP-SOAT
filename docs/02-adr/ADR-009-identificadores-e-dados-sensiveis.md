@@ -6,7 +6,7 @@
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-11** |
 | Data | 2026-09-14 (proposta) · 2026-09-22 (decisão) |
-| Relacionadas | PRD-001, PRD-005, ADR-011, `docs/03-ddd/agregados.md` |
+| Relacionadas | PRD-001, PRD-005, ADR-011, `docs/ddd/agregados.md` |
 
 ## Contexto e problema
 

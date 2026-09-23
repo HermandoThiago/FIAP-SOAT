@@ -2,7 +2,7 @@
 
 > Um *schema* por módulo. **Sem chaves estrangeiras entre módulos** (apenas colunas de referência com índice) — o que
 > permite separar os bancos na Fase 4 sem migração de esquema. Dentro do módulo, FKs normais. Nomes em inglês,
-> `snake_case` (ADR-013; glossário em `docs/03-ddd/linguagem-ubiqua.md`).
+> `snake_case` (ADR-013; glossário em `docs/ddd/linguagem-ubiqua.md`).
 
 ## 1. Diagrama ER
 

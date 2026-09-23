@@ -6,7 +6,7 @@
 | Tipo | Tipo 1 |
 | Decisores | Grupo — enquete **E-06** (16/09) e **revotação da E-06** (22/09) |
 | Data | 2026-09-14 (proposta) · 2026-09-16 (1ª decisão) · 2026-09-22 (revotação) |
-| Relacionadas | ADR-001, ADR-013, `docs/04-arquitetura/estrutura-do-repositorio.md`, `docs/04-arquitetura/visao-geral.md`, `docs/03-ddd/contextos-delimitados.md` |
+| Relacionadas | ADR-001, ADR-013, `docs/04-arquitetura/estrutura-do-repositorio.md`, `docs/04-arquitetura/visao-geral.md`, `docs/ddd/contextos-delimitados.md` |
 
 ## Contexto e problema
 

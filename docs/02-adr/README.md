@@ -62,5 +62,9 @@ decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-
 | **Dockerfile** + **docker-compose.yml** | Requisitos técnicos |
 | **JWT** para APIs administrativas | Segurança e qualidade |
 | Testes automatizados, **≥ 80 %** nos domínios críticos | Requisitos técnicos |
-| Repositório **privado** com acesso a `soat-architecture` | Requisitos técnicos |
+| Repositório **público** no GitHub durante a correção e a revisão de notas (enunciado de 23/09; o convite a `soat-architecture` deixou de existir) | Entregáveis §2 |
+| **Organização em camadas** (compatível com a ADR-003) | Requisitos técnicos §6 |
+| **Registro da aprovação ou rejeição** do orçamento (a ADR-010 define o efeito da rejeição) | Funcionalidades §5 |
+| **Tratamento adequado das transações** nos fluxos principais (aprovação + reserva; finalização + baixa) | Requisitos técnicos §6 |
+| Vídeo **público no YouTube**; documentação DDD exportada em `docs/ddd/`; PDF único com branch + hash | Entregáveis §1, §3, §4 |
 | Documentação DDD em Miro ou equivalente | Entregáveis |

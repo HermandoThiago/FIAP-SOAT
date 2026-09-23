@@ -13,7 +13,7 @@ curtos, classificando cada apontamento como [bloqueia] / [sugestão] / [dúvida]
    agregado, não no service; módulos se comunicam só pelos serviços exportados (CustomersService, VehiclesService,
    CatalogService, PartsService, AuthService, TrackingTokenService) ou eventos; sem JOIN entre schemas; sem abstrações
    sem uso; sufixo Service nos serviços de aplicação (CatalogService, nunca ServicesService).
-3. Domínio e linguagem ubíqua (ADR-013 + docs/03-ddd/linguagem-ubiqua.md): invariantes dentro do agregado; transições
+3. Domínio e linguagem ubíqua (ADR-013 + docs/ddd/linguagem-ubiqua.md): invariantes dentro do agregado; transições
    só por comandos (7 status, CANCELLED terminal — ADR-010); quote derivado; snapshot de preço; estoque só por
    StockMovement, reserva na aprovação e baixa na finalização (ADR-012); eventos nomeados conforme o glossário §8;
    identificadores em inglês com a tradução oficial (Quote, Part, ServiceOrder…) — nome fora do glossário ou tradução

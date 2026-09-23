@@ -23,7 +23,7 @@ na §3.
 |---|---|---|
 | **Modelagem do banco de dados** | **Diego** | `docs/04-arquitetura/modelo-de-dados.md`, `prisma/schema.prisma` (multiSchema), migrações SQL (sequência da OS, `CHECK`s, índices parciais), seed de demonstração, justificativa do banco (ADR-002) no README e no vídeo (bloco 4) |
 | **Estrutura do código + ADRs** | **Hermando** | Esqueleto do monólito (`prompts/02`: módulos, camadas clássicas, Dockerfile, compose, workflows de CI/segurança, README de execução), `dependency-cruiser`, curadoria das ADRs e do índice, `develop`/`master` protegidas, releases/tags, revisão de PRs (arquitetura) — ou seja, a F1 inteira mais a parte de infra da F5 |
-| **Documentação DDD** | **Shirley** (majoritariamente), em conjunto com Diego e Hermando | Miro (event storming dos 2 fluxos, context map, agregados, glossário), PRDs e critérios de aceite, features Gherkin; Diego valida agregados/invariantes do core, Hermando garante glossário ↔ código |
+| **Documentação DDD** | **Shirley** (majoritariamente), em conjunto com Diego e Hermando | Miro (event storming dos 3 fluxos — criação, acompanhamento, peças —, context map, agregados, glossário) e exportação em `docs/ddd/`, PRDs e critérios de aceite, features Gherkin; Diego valida agregados/invariantes do core, Hermando garante glossário ↔ código |
 
 ## 2. Organograma das frentes
 
@@ -53,7 +53,7 @@ flowchart TB
 | Frente | Entregas | Documentos base | Dono | Apoio |
 |---|---|---|---|---|
 | **F1 Arquitetura & Repositório** | ADRs (curadoria, índice, novas propostas); esqueleto do monólito (módulos, camadas clássicas, Prisma); `develop` e `master` protegidas (GitFlow); releases/tags nos marcos; revisão de PRs; `evolucao-fases.md` | `docs/02-adr/`, `docs/04-arquitetura/` | **Hermando** — estrutura do código + ADRs | **Diego** (co-revisão de arquitetura; substitui o dono se ele sumir) |
-| **F2 DDD & Documentação + Produto** | Miro com event storming (2 fluxos), context map, agregados, linguagem ubíqua; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes, prazos) | `docs/03-ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | **Diego** e **Hermando** (DDD em conjunto: agregados/invariantes e glossário ↔ código) |
+| **F2 DDD & Documentação + Produto** | Miro com event storming (3 fluxos), context map, agregados, linguagem ubíqua, exportados em `docs/ddd/`; PRDs e critérios de aceite; features BDD (Gherkin); checklist de entrega; roteiro do vídeo; documento de entrega (PDF); facilitação do assíncrono (check-ins, enquetes, prazos) | `docs/ddd/`, `docs/01-requisitos/`, `docs/06-entrega/` | **Shirley** — Product & DDD Lead | **Diego** e **Hermando** (DDD em conjunto: agregados/invariantes e glossário ↔ código) |
 | **F3 Domínio & API** | Módulos `service-orders` (core, Diego), `customers` e `catalog` (Hermando); agregados e services; controllers/DTOs; OpenAPI; **modelagem do banco** (`modelo-de-dados.md`, `schema.prisma`, migrações, seed, justificativa da ADR-002) | `docs/01-requisitos/`, `docs/04-arquitetura/contrato-api.md`, `docs/04-arquitetura/modelo-de-dados.md` | **Diego** — core `service-orders` + banco de dados | **Hermando** — `customers` + `catalog` |
 | **F4 Qualidade & Segurança** | Testes unitários/integração/BDD; gate de cobertura; validações CPF/CNPJ/placa; JWT/papéis; SAST/SCA/DAST; relatório de vulnerabilidades; métrica de tempo médio | `docs/05-qualidade-e-seguranca/` | **Hermando** — Qualidade & Segurança | **Diego** — testes do core e revisão de segurança (JWT/papéis, dados sensíveis, relatório) |
 | **F5 Infra & Entrega** | Infra: `Dockerfile`, `docker-compose.yml`, workflows de CI/segurança, README de execução, Swagger publicado (vem junto com o esqueleto). Entrega: roteiro, gravação e edição do vídeo, PDF, evidências no checklist | `docs/06-entrega/` | **Hermando** — infra · **Shirley** — entrega | **Diego** — validação do compose em máquina limpa e revisão cruzada final |
@@ -73,7 +73,7 @@ ainda é a linguagem que a oficina fala.
 
 | Entregável do enunciado | F1 Arq. (Hermando) | F2 DDD (Shirley) | F3 Dom./API (Diego · Hermando) | F4 Qual./Seg. (Hermando) | F5 Infra (Hermando) / Entrega (Shirley) |
 |---|---|---|---|---|---|
-| Event storming completo (2 fluxos) | C | **R/A** | R | I | I |
+| Event storming completo (3 fluxos) + exportação em `docs/ddd/` | C | **R/A** | R | I | I |
 | Diagramas DDD + linguagem ubíqua | C | **R/A** | R | I | I |
 | Monólito em camadas clássicas por contexto (esqueleto) | **R/A** | I | R | C | C |
 | Modelagem do banco (schema, migrações, seed) | C | I | **R/A** (Diego) | C | I |
@@ -119,13 +119,18 @@ métricas, scans, vídeo).
 
 Itens que dependem de acesso ou de conta e que a documentação sozinha não resolve:
 
-- [ ] **Repositório**: `katomaro/FIAP-SOAT` está na conta da Vi. Transferir para a conta de um membro que continua (ou para
-  uma organização do grupo) — o GitHub mantém histórico, issues e PRs. Depois, **reconvidar `soat-architecture`** (requisito
-  do enunciado), reaplicar a proteção de `master`, criar e proteger `develop` (ADR-008) e rever quem tem *bypass*.
-- [ ] **Workflows do Claude** (`.github/workflows/claude*.yml`): o secret `CLAUDE_CODE_OAUTH_TOKEN` é da assinatura da Vi.
-  Trocar por token de outro membro (`claude setup-token`) ou por `ANTHROPIC_API_KEY`, e reinstalar o GitHub App na nova
-  conta/org — ou desativar os dois workflows até decidir (`docs/README.md`, seção *Claude no GitHub*).
-- [ ] **Discord e Miro**: se o servidor/canal ou o board forem de propriedade da Vi, transferir a administração.
+- [ ] **Repositório**: `katomaro/FIAP-SOAT` está na conta da Vi, que transfere para um membro (ou organização do grupo)
+  **assim que o grupo pedir** — o GitHub mantém histórico, issues e PRs. Depois, reaplicar a proteção de `master`, criar e
+  proteger `develop` (ADR-008) e rever quem tem *bypass*. O enunciado atualizado (23/09) exige o repositório **público**
+  durante a correção; o convite a `soat-architecture` deixou de ser exigido.
+- [x] **Workflows do Claude** (`.github/workflows/claude*.yml`): a Vi mantém a assinatura e o secret `CLAUDE_CODE_OAUTH_TOKEN`
+  à disposição do grupo — nada a fazer enquanto funcionar. Se parar (ou na transferência do repositório), trocar por token
+  de outro membro (`claude setup-token`) ou `ANTHROPIC_API_KEY` e reinstalar o GitHub App (`docs/README.md`, *Claude no GitHub*).
+- [ ] **Discord**: a Vi transfere a administração do servidor/canal quando o grupo pedir. **Miro**: o board precisa ficar
+  acessível sem pedir permissão (link "qualquer pessoa pode ver") — enunciado de 23/09.
+- [ ] **Enunciado atualizado (23/09)**: repositório público na entrega, vídeo público no YouTube, exportação DDD em `docs/ddd/`,
+  rejeição do orçamento obrigatória, transações explícitas, PDF com grupo 49 e branch + hash — já refletido nos docs;
+  F1 decide se renomeia `master` → `main` (o enunciado cita "branch main protegida").
 - [ ] **Regra de votação**: com 3 membros, vence a opção com **2 votos** (maioria absoluta — `como-trabalhamos.md` §3).
 - [ ] **Documento de entrega e README**: participantes já atualizados nesta reconsolidação (`docs/06-entrega/documento-de-entrega-template.md`, `README.md`).
 - [ ] **Carga**: aplicar o primeiro ajuste da §3 (Diego assume `catalog`) se Hermando estiver sobrecarregado em M2.

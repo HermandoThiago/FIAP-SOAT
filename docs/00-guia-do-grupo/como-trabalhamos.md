@@ -58,7 +58,7 @@ Regras da enquete:
   vale a mais recente — foi o caso da E-06 (arquitetura), revotada em 22/09.
 - Lotes de votação para não travar: **Lote 1** (linguagem, banco, arquitetura, idioma do código) → **Lote 2** (auth, API
   docs, Git/CI, IDs/validação, ORM) → **Lote 3** (testes, scans, máquina de estados, acesso do cliente, estoque). **Todos
-  encerrados em 22/09/2026** — resultados em `enquetes.md`; só a E-01 (nome do grupo) continua aberta.
+  encerrados em 22/09/2026** — resultados em `enquetes.md`; só a E-01 (nome do sistema; o grupo é o 49) continua aberta.
 
 ## 4. Fluxo de trabalho (kanban + Git)
 
@@ -94,7 +94,7 @@ Convenções:
   do PR** (com squash, é ele que vira a mensagem do commit em `develop`); os commits individuais seguem o mesmo formato.
   Mensagens de commit de código em inglês (ADR-013); commits só de documentação podem ser em português.
 - Escopos: os módulos do monólito em inglês (`customers`, `catalog`, `service-orders`, `identity`, `shared`) ou os
-  transversais (`infra`, `ci`) — nomes conforme ADR-013 e `docs/03-ddd/linguagem-ubiqua.md` §1 (substituem os escopos em
+  transversais (`infra`, `ci`) — nomes conforme ADR-013 e `docs/ddd/linguagem-ubiqua.md` §1 (substituem os escopos em
   português da issue #1; `catalog` continua sendo **um** módulo para catálogo e estoque). `docs` é **tipo**, não escopo: mudança só de documentação usa
   `docs(<pasta>)`, com a pasta afetada como escopo (`guia`, `prd`, `adr`, `ddd`, `arquitetura`, `qualidade`, `entrega`,
   `github`, `prompts`), ou `docs:` sem escopo em mudanças na raiz (`README.md`, `CLAUDE.md`, `CONTRIBUTING.md`).
@@ -120,7 +120,7 @@ Convenções:
 | `v0.2.0` | M3 fluxo completo | 18/10 | Diagnóstico → orçamento → aprovação (reserva) → execução → finalização (baixa) → entrega; histórico |
 | `v0.3.0` | M4 qualidade & segurança | 25/10 | Cobertura ≥ 80 %; **scan 1** feito sobre esta tag (o relatório cita a tag) |
 | `v1.0.0-rc.1` | M6 code freeze | 01/11 | README final; **scan 2** sobre esta tag; ensaio do vídeo gravado a partir dela |
-| `v1.0.0` | M7 entrega | ~08/11 | Commit citado no PDF e mostrado no vídeo; release no GitHub com os anexos |
+| `v1.0.0` | M7 entrega | ~08/11 | Branch + hash citados no PDF e mostrados no vídeo; repositório público; release no GitHub com os anexos |
 
 - **Release no GitHub** só para `v1.0.0` ("Fase 1 — Entrega"): notas geradas automaticamente a partir dos títulos dos PRs
   (Conventional Commits + squash deixam isso legível de graça) e anexos: PDF de entrega, relatório de vulnerabilidades,
@@ -170,8 +170,8 @@ gh release create v1.0.0 --title "Fase 1 — Entrega" --generate-notes docs/06-e
 
 | Necessidade | Ferramenta | Observação |
 |---|---|---|
-| Código | GitHub (repo privado, acesso a `soat-architecture`) | Projects para kanban; Issues com templates em `.github/` |
-| Documentação DDD oficial | Miro (ou Excalidraw/Lucid) | Montar a partir de `docs/03-ddd/*.md` (Mermaid) |
+| Código | GitHub — privado durante o desenvolvimento (opcional), **público** da entrega até o fim da revisão de notas (enunciado de 23/09) | Projects para kanban; Issues com templates em `.github/`; nada sensível em nenhum commit |
+| Documentação DDD oficial | Miro (ou Excalidraw/Lucid) | Montar a partir de `docs/ddd/*.md` (Mermaid) |
 | Diagramas versionados | Mermaid nos `.md` | Renderiza no GitHub; base do Miro e do vídeo |
 | Sessões de IA | Claude (contas do grupo) | Prompts em `prompts/`; **tudo que a IA gerar passa por revisão humana e teste** |
 | Vídeo | OBS/Loom + edição simples | Roteiro em `docs/06-entrega/roteiro-do-video.md` |

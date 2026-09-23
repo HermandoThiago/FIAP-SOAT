@@ -6,7 +6,7 @@
 | Tipo | Tipo 1 (renomear depois é caro) |
 | Decisores | Grupo — enquete **E-07** |
 | Data | 2026-09-14 |
-| Relacionadas | ADR-003, `docs/03-ddd/linguagem-ubiqua.md`, `docs/04-arquitetura/contrato-api.md` |
+| Relacionadas | ADR-003, `docs/ddd/linguagem-ubiqua.md`, `docs/04-arquitetura/contrato-api.md` |
 
 ## Contexto e problema
 
@@ -54,7 +54,7 @@ métodos, campos, rotas, enums, tabelas/colunas, eventos, casos de uso, **nomes 
 mensagens de erro, `statusDescription` e cenários Gherkin (linguagem do negócio). O número da OS mantém o prefixo
 `OS-`.
 
-O glossário `docs/03-ddd/linguagem-ubiqua.md` é a **única** fonte das traduções (ex.: Orçamento = `Quote`, nunca
+O glossário `docs/ddd/linguagem-ubiqua.md` é a **única** fonte das traduções (ex.: Orçamento = `Quote`, nunca
 `Budget`/`Estimate`; Peça/Insumo = `Part` com `type`; Cadastro = módulo `customers`). Termo sem tradução no glossário
 não entra no código.
 

@@ -1,6 +1,7 @@
 # Linguagem ubíqua — glossário do domínio da oficina
 
-> Fonte da verdade para nomes no código, na API, nos testes, no Miro e no vídeo.
+> Fonte da verdade para nomes no código, na API, nos testes, no Miro e no vídeo — e o arquivo `docs/ddd/linguagem-ubiqua.md`
+> que o enunciado (23/09) pede como glossário entregue, com a relação documentação ↔ código na coluna *Identificador (EN)*.
 > **ADR-013 (Aceita, E-07): código e API em inglês; este glossário mapeia cada termo da linguagem ubíqua (português,
 > como a oficina fala) para o identificador em inglês.** Regra: **um termo, um significado, uma tradução, em todo lugar**.
 > Sinônimos listados são para *evitar* — em português e em inglês.
@@ -140,7 +141,7 @@ No vídeo, ao mostrar a máquina de estados, use esta tabela: o avaliador procur
 `UserAuthenticated`
 
 No Miro (event storming), os post-its continuam em **português** (é a linguagem da oficina); a tabela
-`docs/03-ddd/event-storming.md` §5 traz a coluna com o nome em código.
+`docs/ddd/event-storming.md` §6 traz a coluna com o nome em código.
 
 ## 9. Serviços de aplicação (classe) e operações (método) — nomes canônicos
 

@@ -4,7 +4,7 @@
 |---|---|
 | Status | 📝 Rascunho para revisão (regras de estoque consolidadas pela ADR-012 em 22/09/2026) |
 | Dono | F3 (Domínio & API) |
-| Origem no enunciado | "CRUD de serviços"; "CRUD de peças e insumos, com controle de estoque"; "Possibilidade de incluir peças e insumos necessários"; Event storming obrigatório do fluxo **gestão de peças e insumos** |
+| Origem no enunciado | "CRUD de serviços"; "CRUD de peças e insumos, com controle de estoque"; "Possibilidade de incluir peças e insumos necessários"; Event storming obrigatório do fluxo **gestão de peças e insumos**; §5 do enunciado de 23/09 lista "Controle de estoque" como item próprio |
 | Contexto DDD | `catalog` (supporting) |
 
 ## 1. Objetivo
@@ -48,7 +48,7 @@ consumido pelas OS.
 | RN-025 | Tempo estimado do serviço alimenta a comparação com o tempo médio real de execução (PRD-006) |
 | RN-026 | A baixa na finalização consome a reserva da própria OS: reduz `stockQuantity` **e** `reservedQuantity` na mesma quantidade |
 
-## 5. Fluxo (referência para o event storming — detalhado em `docs/03-ddd/event-storming.md`)
+## 5. Fluxo (referência para o event storming — detalhado em `docs/ddd/event-storming.md`)
 
 ```mermaid
 flowchart LR

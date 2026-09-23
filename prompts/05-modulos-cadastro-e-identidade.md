@@ -1,7 +1,7 @@
 # 05 — Módulos `customers` e `identity` (F3 Hermando / F4)
 
 ```text
-Implemente os módulos customers e identity conforme docs/01-requisitos/PRD-001 e PRD-005, docs/03-ddd/linguagem-ubiqua.md
+Implemente os módulos customers e identity conforme docs/01-requisitos/PRD-001 e PRD-005, docs/ddd/linguagem-ubiqua.md
 §3 e §5, docs/04-arquitetura/contrato-api.md §3.1–3.2 e docs/05-qualidade-e-seguranca/seguranca.md, na estrutura de
 camadas clássicas de docs/04-arquitetura/estrutura-do-repositorio.md. Decisões aceitas: ADR-004 (JWT próprio HS256,
 bcrypt), ADR-009 (UUID v4), ADR-011 (login de cliente com papel CUSTOMER). Nada está em votação.

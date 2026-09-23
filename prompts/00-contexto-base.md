@@ -23,7 +23,7 @@ RESUMO DO DOMÍNIO
   Módulos só se comunicam pelos serviços de aplicação exportados (CustomersService, VehiclesService, CatalogService,
   PartsService, AuthService, TrackingTokenService) ou eventos; sem import de domain/repositories de outro módulo; sem
   JOIN entre schemas.
-- Glossário PT → EN: docs/03-ddd/linguagem-ubiqua.md — única fonte de traduções (Orçamento = Quote, nunca Budget).
+- Glossário PT → EN: docs/ddd/linguagem-ubiqua.md — única fonte de traduções (Orçamento = Quote, nunca Budget).
 
 DECISÕES ACEITAS (todas as 13 ADRs — índice em docs/02-adr/README.md; nada está em votação)
 - Linguagem/framework: TypeScript 5 + NestJS 11, Node 22 (ADR-001); ORM/migrações: Prisma + Prisma Migrate (E-17)

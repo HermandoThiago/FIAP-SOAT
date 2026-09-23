@@ -22,7 +22,7 @@
 - [ ] Base do PR = `develop` (ou `master` só para `release/*` / `hotfix/*`) e título em Conventional Commits
 - [ ] Testes unitários/integrados cobrindo o fluxo (cobertura dos módulos críticos ≥ 80%)
 - [ ] Swagger/OpenAPI (decorators) atualizado (se mudou API)
-- [ ] Linguagem ubíqua respeitada (nomes do domínio conforme `docs/03-ddd/linguagem-ubiqua.md`)
+- [ ] Linguagem ubíqua respeitada (nomes do domínio conforme `docs/ddd/linguagem-ubiqua.md`)
 - [ ] Camadas respeitadas: controller → service → repository; domínio sem Nest/Prisma; outro módulo só pelo serviço exportado
 - [ ] Validação de dados sensíveis (CPF/CNPJ/placa) onde aplicável
 - [ ] Sem segredos, senhas ou dados pessoais reais no código/commits

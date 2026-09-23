@@ -4,7 +4,7 @@
 |---|---|
 | Status | 📝 Rascunho para revisão (máquina de estados e acesso do cliente consolidados pelas ADRs 010/011 em 22/09/2026) |
 | Dono | F3 · apoio F4 (acesso do cliente) |
-| Origem no enunciado | Bloco "Acompanhamento da OS": 6 status; "Alteração automática dos status conforme ações no sistema"; "Permitir consulta por parte do cliente via API para acompanhar o progresso"; vídeo: "A alteração dos status da Ordem de Serviço" |
+| Origem no enunciado | Bloco "Acompanhamento da OS": 6 status; "Alteração automática dos status conforme ações no sistema"; "Permitir consulta por parte do cliente via API para acompanhar o progresso"; vídeo: "A alteração dos status da Ordem de Serviço"; §5 do enunciado de 23/09: "Controlar as alterações de status; Aplicar as regras de transição" |
 | Contexto DDD | `service-orders` (core) + read model de acompanhamento |
 
 ## 1. Objetivo
@@ -39,7 +39,7 @@ stateDiagram-v2
 ```
 
 Nomes do enunciado (português) e enums do código (inglês, ADR-013) lado a lado — mapeamento oficial em
-`docs/03-ddd/linguagem-ubiqua.md` §7.
+`docs/ddd/linguagem-ubiqua.md` §7.
 
 > Extensão decidida (ADR-010, E-14): status terminal **Cancelada**, alcançável de Recebida/Em diagnóstico/Aguardando
 > aprovação por recusa do cliente ou cancelamento do gerente. Não há volta para Em diagnóstico: renegociar = nova OS.

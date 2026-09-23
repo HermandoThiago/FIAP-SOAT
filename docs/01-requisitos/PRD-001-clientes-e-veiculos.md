@@ -5,7 +5,7 @@
 | Status | 📝 Rascunho para revisão |
 | Dono | F3 (Domínio & API) · apoio F4 (validações) |
 | Origem no enunciado | "Identificação do cliente por CPF/CNPJ"; "Cadastro de veículo (placa, marca, modelo, ano)"; "CRUD de clientes"; "CRUD de veículos"; "Validação dos dados sensíveis (CPF/CNPJ, placa de veículo)" |
-| Contexto DDD | `customers` (supporting) — ver `docs/03-ddd/contextos-delimitados.md` |
+| Contexto DDD | `customers` (supporting) — ver `docs/ddd/contextos-delimitados.md` |
 
 ## 1. Objetivo
 

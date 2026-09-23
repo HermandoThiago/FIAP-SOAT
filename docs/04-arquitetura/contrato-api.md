@@ -3,7 +3,7 @@
 > Referência humana do contrato — o **acordo antes de codar** entre F1 e F3. Com a ADR-005 (code-first, Aceita), o Swagger
 > gerado pelo `@nestjs/swagger` (`/docs`, `/docs/openapi.json`) é a versão oficial depois que um endpoint existe;
 > divergência é corrigida no código. Base: `http://localhost:8080/api/v1`. Rotas, campos e enums em **inglês** (ADR-013,
-> glossário em `docs/03-ddd/linguagem-ubiqua.md`); mensagens de erro e `statusDescription` em português. JSON em
+> glossário em `docs/ddd/linguagem-ubiqua.md`); mensagens de erro e `statusDescription` em português. JSON em
 > `camelCase`, datas ISO-8601 UTC, dinheiro como número decimal com 2 casas (ex.: `330.00`).
 
 ## 1. Autenticação e autorização

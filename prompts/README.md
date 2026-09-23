@@ -28,7 +28,7 @@
 | Recusa / cancelamento | ADR-010 ✅ | → `CANCELLED` (terminal), só antes da aprovação; sem volta para diagnóstico |
 | Acesso do cliente | ADR-011 ✅ | Token de acompanhamento (`aud=tracking`) **ou** login `CUSTOMER` |
 | Estoque | ADR-012 ✅ | Reserva na aprovação + baixa na finalização; 422 sem estoque |
-| Idioma | ADR-013 ✅ | Tudo em inglês com glossário (`docs/03-ddd/linguagem-ubiqua.md`) |
+| Idioma | ADR-013 ✅ | Tudo em inglês com glossário (`docs/ddd/linguagem-ubiqua.md`) |
 
 ## Índice
 

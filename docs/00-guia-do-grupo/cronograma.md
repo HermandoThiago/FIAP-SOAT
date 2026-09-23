@@ -8,19 +8,23 @@
 > **16/09:** grupo passou de 5 para 4 pessoas (saída do Daniel); **22/09:** de 4 para 3 (saída da Vi) — redistribuição em
 > `frentes-e-responsabilidades.md` §1. O plano continua o mesmo; o que muda é a folga — por isso as regras de corte
 > abaixo importam mais, e o primeiro ajuste de carga (Diego assumir `catalog`) deve ser decidido no check-in de M2.
+>
+> **23/09:** enunciado atualizado da FIAP (`enunciado-fase-1-tech-challenge.pdf`, nesta pasta): repositório **público** na
+> correção, vídeo **público** no YouTube, exportação da documentação DDD em `docs/ddd/`, rejeição do orçamento obrigatória,
+> tratamento de transações explícito, PDF único com grupo 49 e branch + hash — já refletido nos PRDs e no checklist.
 
 ## 1. Marcos
 
 | Marco | Data alvo | Critério de "atingido" |
 |---|---|---|
-| **M0 — Kickoff assíncrono** | 14/09 ✅ | Repo criado (privado, `soat-architecture` convidado), docs base publicadas, Lote 1 de enquetes aberto |
+| **M0 — Kickoff assíncrono** | 14/09 ✅ | Repo criado, docs base publicadas, Lote 1 de enquetes aberto |
 | **M1 — Decisões fechadas** | 25/09 | ADRs do Lote 1 ✅ (16/09); Lotes 2–3 ✅ (22/09, incl. E-17 ORM = Prisma e revotação da E-06 = camadas clássicas); PRDs revisados; contrato da API v1; linguagem ubíqua v1 (glossário EN) |
 | **M2 — Walking skeleton** | 04/10 | `docker compose up` sobe API + banco; login JWT; criar cliente/veículo/OS; Swagger; CI com gate de cobertura |
 | **M3 — Fluxo completo da OS** | 18/10 | Diagnóstico → itens → orçamento → aprovação do cliente → execução → finalizada → entregue; estoque; histórico |
 | **M4 — Qualidade & segurança** | 25/10 | Cobertura ≥ 80 % nos módulos críticos; validações; scans rodando; relatório v1; tempo médio de execução |
-| **M5 — Documentação DDD final** | 30/10 | Miro completo (event storming 2 fluxos, context map, agregados, glossário) revisado pelo grupo |
+| **M5 — Documentação DDD final** | 30/10 | Miro completo (event storming dos 3 fluxos, context map, agregados, glossário) revisado pelo grupo, **exportado** em `docs/ddd/event-storming.pdf` e `diagramas.pdf`, link acessível sem pedir permissão |
 | **M6 — Congelamento** | 01/11 | Code freeze; README final; ensaio do vídeo cronometrado |
-| **M7 — Entrega** | ~08/11 | Vídeo ≤ 15 min; PDF de entrega; relatório de vulnerabilidades; links validados por outra pessoa |
+| **M7 — Entrega** | ~08/11 | Repositório **público**; vídeo **público** no YouTube ≤ 15 min; PDF único com grupo 49, integrantes, branch + hash (`v1.0.0`); relatório de vulnerabilidades no repo; links validados por outra pessoa |
 
 ## 2. Gantt
 
@@ -36,7 +40,7 @@ gantt
     Revisão dos PRDs e contrato da API                        :a4, 2026-09-15, 10d
     section DDD (F2)
     Linguagem ubíqua + domain storytelling                    :b1, 2026-09-15, 7d
-    Event storming no Miro (2 fluxos)                         :b2, 2026-09-22, 12d
+    Event storming no Miro (3 fluxos)                         :b2, 2026-09-22, 12d
     Context map + agregados                                   :b3, 2026-10-01, 7d
     Revisão final da documentação DDD                         :b4, 2026-10-24, 7d
     section Código (F1/F3)
@@ -67,12 +71,12 @@ gantt
 | **S4** 05–11/10 | Diagnóstico, itens, orçamento automático, envio para aprovação; JWT/papéis | Fluxo até "Aguardando aprovação" |
 | **S5** 12–18/10 | Aprovação/recusa pelo cliente, execução, finalização, entrega; estoque; histórico; métricas | M3 |
 | **S6** 19–25/10 | Testes de integração/BDD; scans; relatório v1; refino | M4 |
-| **S7** 26/10–01/11 | Miro final; README; ensaio do vídeo; code freeze | M5, M6 |
+| **S7** 26/10–01/11 | Miro final + exportação em `docs/ddd/`; README completo (13 itens); ensaio do vídeo; code freeze | M5, M6 |
 | **S8** 02–08/11 | Gravação/edição; PDF; revisão cruzada; entrega | M7 |
 
 ## 4. Regras de ajuste
 
 - Atrasou 1 semana em M2 → cortar **Could** do PRD-000 (alertas de estoque mínimo, filtros extras, dashboards).
 - Atrasou M3 → cortar **Should** que não estão no vídeo obrigatório (ex.: refresh token, paginação avançada).
-- **Nunca cortar:** os 6 status da OS, orçamento automático, aprovação do cliente, JWT, CRUDs, estoque, tempo médio,
+- **Nunca cortar:** os 6 status da OS, orçamento automático, aprovação **e rejeição** do cliente, transações dos fluxos principais, JWT, CRUDs, estoque, tempo médio,
   Swagger, Dockerfile/compose, testes ≥ 80 %, scan + relatório, README, Miro, vídeo, PDF.

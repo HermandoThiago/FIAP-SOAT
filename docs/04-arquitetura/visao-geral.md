@@ -4,7 +4,7 @@
 > Decisões aceitas: NestJS + TypeScript (ADR-001), PostgreSQL + Prisma (ADR-002, E-17), **camadas clássicas dentro de
 > módulos por contexto** (ADR-003, revotada em 22/09/2026), código em inglês (ADR-013), JWT próprio (ADR-004), token de
 > acompanhamento + login de cliente (ADR-011), reserva na aprovação + baixa na finalização (ADR-012). Identificadores
-> conforme `docs/03-ddd/linguagem-ubiqua.md`.
+> conforme `docs/ddd/linguagem-ubiqua.md`.
 
 ## 1. C4 — Nível 1: Contexto
 

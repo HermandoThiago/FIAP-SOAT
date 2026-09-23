@@ -4,8 +4,8 @@
 |---|---|
 | Status | 📝 Rascunho para revisão do grupo |
 | Dono | F2 (Shirley — produto) · apoio F1 (Hermando) |
-| Origem | Enunciado *SOAT — Fase 1 — Tech Challenge 1* (PDF) |
-| Última atualização | 14/09/2026 |
+| Origem | Enunciado *SOAT — Fase 1 — Tech Challenge* — PDF atualizado recebido em 23/09/2026 (`docs/00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf`) |
+| Última atualização | 23/09/2026 (revalidado contra o enunciado atualizado) |
 
 ## 1. Problema
 
@@ -57,7 +57,8 @@ multi-oficina, relatórios financeiros, integração com fornecedores.
 | **Must** | JWT nas APIs administrativas; validação de CPF/CNPJ e placa | PRD-005 |
 | **Must** | Testes unitários e de integração dos fluxos principais (≥ 80 % nos domínios críticos) | `docs/05` |
 | **Must** | Swagger/OpenAPI; Dockerfile; docker-compose; README; scan de vulnerabilidades + relatório | `docs/05`, `docs/06` |
-| **Should** | Papéis (`ATTENDANT`/`MECHANIC`/`MANAGER`); histórico de status com data/hora; movimentações de estoque; recusa de orçamento | PRD-004, PRD-005, PRD-002 |
+| **Must** | Registro da **aprovação ou rejeição** do orçamento pelo cliente (enunciado §5; rejeição → Cancelada, ADR-010) | PRD-003 |
+| **Should** | Papéis (`ATTENDANT`/`MECHANIC`/`MANAGER`); histórico de status com data/hora; movimentações de estoque | PRD-004, PRD-005, PRD-002 |
 | **Should** | Filtros nas listagens (status, cliente, período); paginação simples | PRD-006 |
 | **Could** | Alerta de estoque mínimo; tempo médio por serviço e por período; refresh token; soft delete | PRD-002, PRD-006, PRD-005 |
 | **Won't (Fase 1)** | Notificação real ao cliente; pagamento; front-end; agendamento; múltiplas oficinas | — |
@@ -87,14 +88,15 @@ flowchart LR
 | NFR-02 | APIs RESTful documentadas via **Swagger/OpenAPI** | Swagger UI acessível no compose |
 | NFR-03 | **Dockerfile** para build da aplicação | `docker build` funciona do zero |
 | NFR-04 | **docker-compose.yml** orquestra ambiente completo (API + banco + seeds) | `docker compose up` em máquina limpa |
-| NFR-05 | Testes automatizados com **cobertura mínima de 80 % nos domínios críticos** (`service-orders`, `catalog`) | Relatório de cobertura no CI; gate |
-| NFR-06 | **README** com execução local simples, objetivos e instruções | Outra pessoa do grupo executa seguindo só o README |
-| NFR-07 | Repositório **privado** com acesso a `soat-architecture` | Convite aceito |
+| NFR-05 | Testes automatizados com **cobertura mínima de 80 % nos domínios críticos** (`service-orders`, `catalog`) | Evidência versionada (`docs/06-entrega/evidencias/cobertura.md`) + gate no CI |
+| NFR-06 | **README** com os itens mínimos do enunciado: objetivo, solução, arquitetura, tecnologias, pré-requisitos, execução, testes, Swagger, banco, credenciais de demonstração, estrutura de diretórios, links da documentação DDD e do vídeo | Outra pessoa do grupo executa seguindo só o README |
+| NFR-07 | Repositório **público** no GitHub durante todo o período de correção e revisão de notas, só com arquivos necessários e sem credenciais; versão da entrega identificada por branch + hash (tag `v1.0.0`) | Visibilidade pública ligada na entrega; PDF com branch e hash |
 | NFR-08 | **Justificativa do banco** documentada | ADR-002 + README + vídeo |
 | NFR-09 | Segurança: JWT, validação de entrada, senhas com hash forte, sem segredos no repo, sem PII em logs | Checklist OWASP (`docs/05`) |
 | NFR-10 | Análise de vulnerabilidades (SAST/SCA/imagem/segredos/DAST) com relatório | Relatório em `docs/06` |
 | NFR-11 | Preparado para evolução (config por variáveis de ambiente, stateless, health check, migrações versionadas) | `docs/04-arquitetura/evolucao-fases.md` |
 | NFR-12 | Desempenho: respostas < 500 ms nas operações do MVP com dados de demonstração | Observação manual |
+| NFR-13 | **Tratamento adequado das transações** nos fluxos principais (enunciado §6): aprovação + reserva de estoque e finalização + baixa em transação única, com rollback em falha | `prisma.$transaction`; teste de integração de rollback |
 
 ## 7. Métricas de sucesso do MVP (para o vídeo e README)
 

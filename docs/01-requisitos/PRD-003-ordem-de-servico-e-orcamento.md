@@ -4,7 +4,7 @@
 |---|---|
 | Status | 📝 Rascunho para revisão (recusa/cancelamento, acesso do cliente e estoque consolidados pelas ADRs 010/011/012 em 22/09/2026) |
 | Dono | F3 (Domínio & API) · apoio F1 |
-| Origem no enunciado | Bloco "Criação da Ordem de Serviço (OS)" completo; "A geração e aprovação do orçamento"; "A inclusão de serviços, peças e insumos" (itens do vídeo) |
+| Origem no enunciado | Bloco "Criação da Ordem de Serviço (OS)" completo; "A geração e aprovação do orçamento"; "A inclusão de serviços, peças e insumos" (itens do vídeo); §5 do enunciado de 23/09: "Registro da aprovação ou rejeição do orçamento" |
 | Contexto DDD | `service-orders` (**core domain**) |
 
 ## 1. Objetivo
@@ -47,7 +47,7 @@ journey
 | RF-035 | **Orçamento gerado automaticamente**: total = Σ(serviços × qtd) + Σ(peças × qtd); recalculado a cada alteração de itens | Must |
 | RF-036 | **Enviar orçamento ao cliente** para aprovação (→ **Aguardando aprovação**); OS precisa ter ≥ 1 item; gera o token de acompanhamento (ADR-011); notificação simulada | Must |
 | RF-037 | Cliente **aprova** o orçamento (→ **Em execução**, automático; reserva as peças — ADR-012) | Must |
-| RF-038 | Cliente **recusa** o orçamento, com motivo (→ **Cancelada**, ADR-010) | Should |
+| RF-038 | Cliente **recusa** o orçamento, com motivo (→ **Cancelada**, ADR-010) — o registro da rejeição é obrigatório no enunciado de 23/09 | Must |
 | RF-039 | Mecânico **finaliza** a execução (→ **Finalizada**; baixa as peças reservadas — ADR-012) | Must |
 | RF-040 | Atendente registra a **entrega** do veículo (→ **Entregue**) | Must |
 | RF-041 | Detalhar OS: dados do cliente/veículo, itens, orçamento (valor, status, datas), status atual, histórico, motivo de cancelamento | Must |
@@ -148,7 +148,7 @@ priceSnapshot, quantity}`, `partItems[] {id, partId, nameSnapshot, unitPriceSnap
 (`receivedAt`, `diagnosisStartedAt`, `quoteSentAt`, `executionStartedAt`, `completedAt`, `deliveredAt`),
 `cancellationReason`, `statusHistory[]`, `version`, `createdBy`.
 
-Invariantes e detalhes em `docs/03-ddd/agregados.md`.
+Invariantes e detalhes em `docs/ddd/agregados.md`.
 
 ## 8. Fora de escopo
 

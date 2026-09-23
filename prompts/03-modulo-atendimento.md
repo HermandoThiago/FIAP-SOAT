@@ -2,7 +2,7 @@
 
 ```text
 Implemente o módulo service-orders conforme docs/01-requisitos/PRD-003 (OS e orçamento), PRD-004 (status e
-acompanhamento), PRD-006 (listagem e tempo médio), docs/03-ddd/agregados.md, docs/03-ddd/linguagem-ubiqua.md e
+acompanhamento), PRD-006 (listagem e tempo médio), docs/ddd/agregados.md, docs/ddd/linguagem-ubiqua.md e
 docs/04-arquitetura/contrato-api.md §3.4–3.6, na estrutura de docs/04-arquitetura/estrutura-do-repositorio.md
 (camadas clássicas: controllers/ + dto/ → services/ → repositories/, todos sobre domain/). Decisões aceitas que valem
 aqui: ADR-009 (UUID v4 + número OS-AAAA-NNNNNN), ADR-010 (recusa e cancelamento → CANCELLED, só antes da aprovação;

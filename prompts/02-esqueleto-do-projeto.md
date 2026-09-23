@@ -4,7 +4,7 @@
 Gere o esqueleto executável do monólito em TypeScript + NestJS 11 (Node 22) seguindo
 docs/04-arquitetura/estrutura-do-repositorio.md (camadas clássicas por módulo: controllers/ + dto/ → services/ →
 repositories/, todos sobre domain/) e docs/04-arquitetura/visao-geral.md. Nomes em inglês conforme
-docs/03-ddd/linguagem-ubiqua.md. Todas as ADRs estão aceitas (docs/02-adr/README.md) — não há decisão pendente.
+docs/ddd/linguagem-ubiqua.md. Todas as ADRs estão aceitas (docs/02-adr/README.md) — não há decisão pendente.
 Entregue nesta ordem e pare para revisão entre as etapas:
 
 ETAPA 1 — Base

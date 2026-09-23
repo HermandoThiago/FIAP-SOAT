@@ -5,6 +5,7 @@
 | 00 | [Como trabalhamos](00-guia-do-grupo/como-trabalhamos.md) | Regras do trabalho assíncrono, decisões por enquete, fluxo Git (GitFlow), Definition of Done | F2 (Shirley, facilitação) | ✅ v2 (§4 Git: ADR-008 aceita, 22/09; votação 2 de 3) |
 | 00 | [Frentes e responsabilidades](00-guia-do-grupo/frentes-e-responsabilidades.md) | Frentes de trabalho, RACI, diagramas organizacionais, pendências de transição | F2 (Shirley) | ✅ E-02 aprovada; redistribuída em 16/09 (saída do Daniel) e 22/09 (saída da Vi) |
 | 00 | [Cronograma](00-guia-do-grupo/cronograma.md) | Plano macro por semana, marcos, Gantt | F2 (Shirley) | 🟡 data oficial pendente (E-03: meta interna = 1 semana antes) |
+| 00 | [Enunciado da FIAP (PDF, 23/09)](00-guia-do-grupo/enunciado-fase-1-tech-challenge.pdf) | Versão atualizada do Tech Challenge — fonte dos requisitos, entregáveis e itens do vídeo | FIAP | ✅ referência |
 | 00 | [Enquetes](00-guia-do-grupo/enquetes.md) | Todas as enquetes com texto pronto para o Discord e os resultados | F2 (Shirley) | ✅ Lotes 1–3 encerrados (22/09); só a E-01 aberta |
 | 01 | [PRD-000 Visão do produto](01-requisitos/PRD-000-visao-do-produto.md) | Problema, objetivos, personas, escopo do MVP, NFRs | | 📝 revisar |
 | 01 | [PRD-001 Clientes e veículos](01-requisitos/PRD-001-clientes-e-veiculos.md) | CRUDs, CPF/CNPJ, placa | | 📝 revisar |
@@ -15,11 +16,12 @@
 | 01 | [PRD-006 Gestão administrativa e métricas](01-requisitos/PRD-006-gestao-administrativa-e-metricas.md) | Listagens, detalhamento, tempo médio de execução | | 📝 revisar |
 | 02 | [ADRs](02-adr/README.md) | 13 decisões com opções, recomendação e enquete | Grupo (curadoria: Hermando) | ✅ Todas aceitas (Lotes 1–3; E-06 revotada em 22/09) |
 | 02 | [Decisões leves](02-adr/decisoes-leves.md) | Log das decisões Tipo 2 (dono da frente decide), uma linha por decisão com link da issue/PR | Donos das frentes | 🟡 atualizar sempre |
-| 03 | [Linguagem ubíqua](03-ddd/linguagem-ubiqua.md) | Glossário do domínio com a tradução oficial de cada termo para o código (ADR-013) | | 📝 revisar |
-| 03 | [Domain storytelling](03-ddd/domain-storytelling.md) | Histórias do domínio (base para Egon.io/Miro) | | 📝 revisar |
-| 03 | [Event storming](03-ddd/event-storming.md) | Eventos, comandos, políticas, agregados, hotspots — 2 fluxos | | 📝 levar ao Miro |
-| 03 | [Contextos delimitados](03-ddd/contextos-delimitados.md) | Context map e relação com módulos/microsserviços futuros | | 📝 revisar |
-| 03 | [Agregados](03-ddd/agregados.md) | Agregados, entidades, value objects, invariantes | | 📝 revisar |
+| 03 | [Pasta de entrega DDD](ddd/README.md) | O que o enunciado exige em `docs/ddd/` (PDFs exportados do Miro + glossário) e onde cada elemento DDD está | F2 | 🟡 exportar em M5 |
+| 03 | [Linguagem ubíqua](ddd/linguagem-ubiqua.md) | Glossário do domínio com a tradução oficial de cada termo para o código (ADR-013) | | 📝 revisar |
+| 03 | [Domain storytelling](ddd/domain-storytelling.md) | Histórias do domínio (base para Egon.io/Miro) | | 📝 revisar |
+| 03 | [Event storming](ddd/event-storming.md) | Eventos, comandos, políticas, agregados, hotspots — 3 fluxos (criação, acompanhamento, peças) | | 📝 levar ao Miro |
+| 03 | [Contextos delimitados](ddd/contextos-delimitados.md) | Context map e relação com módulos/microsserviços futuros | | 📝 revisar |
+| 03 | [Agregados](ddd/agregados.md) | Agregados, entidades, value objects, invariantes | | 📝 revisar |
 | 04 | [Visão geral da arquitetura](04-arquitetura/visao-geral.md) | C4 (contexto, contêineres, componentes), camadas do monólito | | 📝 revisar |
 | 04 | [Modelo de dados](04-arquitetura/modelo-de-dados.md) | ER, snapshots de preço, histórico | Diego | 📝 revisar |
 | 04 | [Contrato da API](04-arquitetura/contrato-api.md) | Endpoints, payloads, erros, autenticação | | 📝 revisar |
@@ -37,7 +39,7 @@
 Legenda: ✅ pronto · 🗳️ em votação/confirmação · 🟡 vivo (atualizar sempre) · 📝 rascunho para revisão do grupo.
 
 Convenções: documentos em português; código, API e identificadores nos diagramas em **inglês**, sempre com a tradução
-do glossário (`03-ddd/linguagem-ubiqua.md`, ADR-013); diagramas em **Mermaid** (renderizam no GitHub) — o Miro é montado
+do glossário (`ddd/linguagem-ubiqua.md`, ADR-013); diagramas em **Mermaid** (renderizam no GitHub) — o Miro é montado
 a partir deles para a entrega oficial.
 
 ## Claude no GitHub
@@ -49,9 +51,9 @@ Pré-requisitos (uma vez, pelo dono do repositório): GitHub App **Claude** inst
 (<https://github.com/apps/claude>) e o secret `CLAUDE_CODE_OAUTH_TOKEN` (assinatura Pro/Max, gerado com `claude setup-token`)
 **ou** `ANTHROPIC_API_KEY` (API paga) — troque o input correspondente nos dois workflows.
 
-> ⚠️ **Transição (22/09/2026):** o repositório e o secret `CLAUDE_CODE_OAUTH_TOKEN` estão na conta da Vi (`katomaro`), que
-> saiu do grupo. Até transferir o repositório e trocar o token (ou a chave) por um de membro ativo, os dois workflows podem
-> parar de funcionar — checklist em `00-guia-do-grupo/frentes-e-responsabilidades.md` §7.
+> ℹ️ **Transição (22/09/2026):** o repositório e o secret `CLAUDE_CODE_OAUTH_TOKEN` estão na conta da Vi (`katomaro`), que
+> saiu do grupo mas mantém a assinatura à disposição; a transferência do repositório acontece quando o grupo pedir —
+> checklist em `00-guia-do-grupo/frentes-e-responsabilidades.md` §7.
 
 | Arquivo em `.github/` | Para quê |
 |---|---|
@@ -72,7 +74,7 @@ Como usar no dia a dia:
 
 Limites: `--max-turns` (em `claude_args`) e `timeout-minutes` de cada workflow — os valores vigentes são os dos arquivos
 em `.github/workflows/`; não os repita aqui. Eles existem para não estourar a assinatura nem os minutos do GitHub Actions
-(repositório privado: 2.000 min/mês no plano gratuito). Uma execução que estoura `--max-turns` termina com erro e sem
+(repositório público: minutos ilimitados nos runners padrão; enquanto privado, 2.000 min/mês no plano gratuito). Uma execução que estoura `--max-turns` termina com erro e sem
 push (aconteceu na implementação da issue #1): quebre tarefas grandes em issues menores ou aumente o limite no workflow —
 só uma pessoa pode editar `workflows/*`; o app do Claude não tem essa permissão. Rascunhos (*draft*) não são revisados
 automaticamente — marque *Ready for review* quando quiser a revisão.

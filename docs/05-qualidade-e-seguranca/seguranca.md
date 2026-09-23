@@ -28,6 +28,8 @@
 ## Segredos e configuração
 
 - `.env.example` com **todas** as chaves e valores de exemplo; `.env` no `.gitignore`; gitleaks no CI.
+- O repositório fica **público** na entrega (enunciado de 23/09): nenhum segredo, token, senha real ou dado pessoal em
+  commit algum — nem no histórico (gitleaks + revisão de PR); segredos só em GitHub Secrets.
 - Segredos de teste diferentes dos de dev; nada real em nenhum ambiente do Tech Challenge.
 - Usuário seed com senha vinda de env (`ADMIN_PASSWORD`), documentada no README para o avaliador.
 

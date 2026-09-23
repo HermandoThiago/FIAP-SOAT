@@ -7,12 +7,13 @@ Legenda de status: 🟢 aberta · ✅ encerrada · ⏳ aguardando lote anterior.
 
 ## Lote 0 — organização (abrir hoje, junto com o Lote 1)
 
-### E-01 · Nome do grupo e do sistema — 🟢
-> **Enquete E-01 — Nome do grupo / sistema** (prazo 72 h)
-> O PDF de entrega pede o nome do grupo. Sugestões (vote em uma ou proponha no chat):
+### E-01 · Nome do sistema — 🟢 (o número do grupo é 49)
+> **Enquete E-01 — Nome do sistema** (prazo 72 h)
+> O enunciado atualizado (23/09) pede o **número do grupo** (49), não o nome; o nome do sistema continua útil para README,
+> Swagger e imagem Docker (`<sistema>-api`). Sugestões (vote em uma ou proponha no chat):
 > 🔧 Oficina Ágil · ⚙️ SGO — Sistema de Gestão da Oficina · 🚗 AutoOS · 🛠️ Boxe Digital · ✍️ outra (comente)
 
-Resultado: `pendente`
+Resultado: `pendente` — provisório: SGO / `oficina-api`.
 
 ### E-02 · Frentes de trabalho — ✅ (redistribuída em 16/09)
 > **Enquete E-02 — Confirmação das frentes** (prazo 72 h) — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`
@@ -145,7 +146,7 @@ Resultado: (a) reserva na aprovação + baixa na finalização; (b) bloqueia (HT
 
 | Enquete | Encerrada em | Resultado | Registrado em |
 | --- | --- | --- | --- |
-| E-01 | Indefinido | Indefinido | README.md |
+| E-01 | aberta | Número do grupo = 49 (enunciado); nome do sistema pendente (provisório SGO / `oficina-api`) | README.md |
 | E-02 | 16/09 · 22/09 | Aprovado; redistribuído em 16/09 (saída do Daniel) e em 22/09 (saída da Vi: banco → Diego; estrutura + ADRs → Hermando; DDD → Shirley) | frentes-e-responsabilidades.md · decisoes-leves.md |
 | E-03 | Data da commit | Definir prazo de entrega da atividade 1 semana antes da oficial para revisões, check-in 3x semana, call opcional de 30m por semana a combinar. | cronograma.md / como-trabalhamos.md |
 | E-04 | 16/09 | TypeScript + NestJS | ADR-001 ✅ Aceita |

@@ -67,6 +67,8 @@ Dois scans, cada um citando o commit/tag analisado: **scan 1** (baseline, logo a
   relatório; comandos locais em `scripts/security/` (`plano-analise-vulnerabilidades.md` §2).
 - Política: **0 críticas/altas abertas** na entrega; médias/baixas justificadas no relatório (riscos aceitos).
 - Nunca desabilitar regra só para limpar o relatório: falso positivo é marcado com justificativa escrita.
+- Com o repositório **público** na entrega (enunciado de 23/09), CodeQL e SonarCloud ficam gratuitos — opcionais; não
+  substituem o conjunto decidido. O relatório fica **no repositório** (`docs/06-entrega/relatorio-de-vulnerabilidades.md`).
 
 ## Enquete (texto para o Discord)
 
