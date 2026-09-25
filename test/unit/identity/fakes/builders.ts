@@ -1,3 +1,5 @@
+import { type PinoLogger } from 'nestjs-pino';
+
 import { UserAuthenticated, UserRegistered } from '../../../../src/modules/identity/domain/events';
 import { PasswordHash } from '../../../../src/modules/identity/domain/password-hash';
 import { User, type UserProps } from '../../../../src/modules/identity/domain/user';
@@ -52,6 +54,18 @@ export function createPublisherStub(): PublisherStub {
     },
   } as unknown as DomainEventPublisher;
   return { publisher, published };
+}
+
+export interface LoggerStub {
+  logger: PinoLogger;
+  warn: jest.Mock<void, [object, string]>;
+}
+
+/** PinoLogger falso (nestjs-pino): só registra as chamadas a warn (evento de segurança do login — RN-070). */
+export function createLoggerStub(): LoggerStub {
+  const warn = jest.fn<void, [object, string]>();
+  const logger = { warn, setContext: jest.fn() } as unknown as PinoLogger;
+  return { logger, warn };
 }
 
 export function isUserRegistered(event: DomainEvent): event is UserRegistered {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { CustomerRepository, type CustomerSummary } from '../repositories/customer.repository';
+import { type CustomerSummary } from '../domain/customer-summary';
+import { CustomerRepository } from '../repositories/customer.repository';
 
 // Serviço de aplicação exportado pelo módulo customers (glossário §9; ADR-003): é por ele que identity e
 // service-orders enxergam um cliente. Mínimo para o walking skeleton — register/update/deactivate/findByDocument e o

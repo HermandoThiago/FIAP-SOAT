@@ -32,13 +32,3 @@ describe('PasswordHash.fromHash', () => {
     );
   });
 });
-
-describe('PasswordHash.equals', () => {
-  it('should be equal when both hold the same hash', () => {
-    expect(PasswordHash.fromHash(SAMPLE_HASH).equals(PasswordHash.fromHash(SAMPLE_HASH))).toBe(true);
-  });
-
-  it('should not be equal when the hashes differ', () => {
-    expect(PasswordHash.fromHash(SAMPLE_HASH).equals(PasswordHash.fromHash(HASH_2A))).toBe(false);
-  });
-});

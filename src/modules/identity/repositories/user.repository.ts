@@ -9,6 +9,8 @@ import { User } from '../domain/user';
 
 const KNOWN_ROLES = new Set<string>(Object.values(Role));
 const UNIQUE_VIOLATION = 'P2002';
+/** Coluna do índice parcial users_customer_id_key (migração 20260925000005_identity). */
+const CUSTOMER_ID_COLUMN = 'customer_id';
 
 // Repositório do agregado User sobre identity.users (modelo-de-dados.md §3): roles gravadas como CSV
 // ("ATTENDANT,MANAGER" | "CUSTOMER"), customer_id null ↔ undefined. O id nasce no domínio (ADR-009).
@@ -18,11 +20,6 @@ export class UserRepository {
 
   async findByEmail(email: Email): Promise<User | null> {
     const record = await this.prisma.user.findUnique({ where: { email: email.value } });
-    return record ? toDomain(record) : null;
-  }
-
-  async findById(id: string): Promise<User | null> {
-    const record = await this.prisma.user.findUnique({ where: { id } });
     return record ? toDomain(record) : null;
   }
 
@@ -38,7 +35,7 @@ export class UserRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === UNIQUE_VIOLATION) {
         throw new ConflictException(
-          uniqueTargetOf(error).includes('customer_id')
+          uniqueViolationTargets(error.meta).some((target) => target.includes(CUSTOMER_ID_COLUMN))
             ? 'Cliente já possui usuário de acesso'
             : 'E-mail já cadastrado',
         );
@@ -86,10 +83,31 @@ function parseRoles(csv: string): Role[] {
   });
 }
 
-function uniqueTargetOf(error: Prisma.PrismaClientKnownRequestError): string {
-  const target = (error.meta as { target?: unknown } | undefined)?.target;
-  if (Array.isArray(target)) {
-    return target.map(String).join(',');
+/**
+ * O P2002 chega em dois formatos: `meta.target` (colunas, no query engine clássico) ou, com o driver adapter do
+ * Prisma 7 (`@prisma/adapter-pg`), `meta.driverAdapterError.cause.constraint` com `{ index }` (nome do índice, ex.:
+ * users_customer_id_key / users_email_key) ou `{ fields }`. Lidos com type guards sobre `unknown`, sem `any`.
+ */
+function uniqueViolationTargets(meta: unknown): string[] {
+  if (!isRecord(meta)) {
+    return [];
   }
-  return typeof target === 'string' ? target : '';
+  const targets = stringList(meta.target);
+  const cause = isRecord(meta.driverAdapterError) ? meta.driverAdapterError.cause : undefined;
+  const constraint = isRecord(cause) ? cause.constraint : undefined;
+  if (isRecord(constraint)) {
+    targets.push(...stringList(constraint.index), ...stringList(constraint.fields));
+  }
+  return targets;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function stringList(value: unknown): string[] {
+  if (typeof value === 'string') {
+    return [value];
+  }
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }

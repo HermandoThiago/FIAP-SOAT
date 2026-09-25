@@ -105,6 +105,16 @@ describe('UsersService.register', () => {
     expect(repository.users).toEqual([]);
   });
 
+  it('should reject with 403 when an ATTENDANT mixes CUSTOMER with a team role', async () => {
+    const { service, repository, findById } = setup(activeCustomer);
+
+    await expect(
+      service.register(customerCommand({ roles: [Role.CUSTOMER, Role.MANAGER] }), anActor(Role.ATTENDANT)),
+    ).rejects.toThrow(new ForbiddenException('Apenas MANAGER pode criar usuários da equipe'));
+    expect(findById).not.toHaveBeenCalled();
+    expect(repository.users).toEqual([]);
+  });
+
   it.each([[teamCommand()], [customerCommand()]])(
     'should reject with 403 when a MECHANIC creates any user (%o)',
     async (command) => {
@@ -197,7 +207,7 @@ describe('UsersService.ensureAdminUser', () => {
     await service.ensureAdminUser(ADMIN_EMAIL, 'another-password');
 
     expect(repository.users).toEqual([original]);
-    expect(original.passwordHash.equals(repository.users[0].passwordHash)).toBe(true);
+    expect(repository.users[0].passwordHash.value).toBe(original.passwordHash.value);
     expect(published).toHaveLength(1);
   });
 

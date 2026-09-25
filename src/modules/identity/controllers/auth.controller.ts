@@ -29,7 +29,10 @@ export class AuthController {
       'E-mail + senha → JWT HS256 (`aud=api`, 60 min) com `sub`, `roles` e, para CUSTOMER, `customerId` (ADR-004/011). ' +
       'Credenciais erradas devolvem sempre o mesmo 401, sem indicar se o e-mail existe.',
   })
-  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiOkResponse({
+    description: 'Token de acesso emitido, com a validade em segundos e os papéis',
+    type: LoginResponseDto,
+  })
   @ApiUnauthorizedResponse({
     description: 'E-mail ou senha inválidos (mensagem genérica)',
     type: ProblemDetailsDto,
@@ -41,7 +44,18 @@ export class AuthController {
       instance: '/api/v1/auth/login',
     },
   })
-  @ApiUnprocessableEntityResponse({ description: 'Payload inválido (errors[].field)', type: ProblemDetailsDto })
+  @ApiUnprocessableEntityResponse({
+    description: 'Payload inválido (errors[].field)',
+    type: ProblemDetailsDto,
+    example: {
+      type: 'https://oficina.local/errors/validation',
+      title: 'Dados inválidos',
+      status: 422,
+      detail: 'Dados inválidos',
+      instance: '/api/v1/auth/login',
+      errors: [{ field: 'email', message: 'e-mail inválido' }],
+    },
+  })
   async login(@Body() body: LoginDto): Promise<LoginResponseDto> {
     const result = await this.authService.login(body.email, body.password);
     return { accessToken: result.accessToken, tokenType: 'Bearer', expiresIn: result.expiresIn, roles: result.roles };

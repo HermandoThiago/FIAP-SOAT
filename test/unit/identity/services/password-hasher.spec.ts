@@ -7,8 +7,12 @@ const TEST_COST = 4;
 describe('PasswordHasher', () => {
   const hasher = new PasswordHasher(TEST_COST);
 
-  it('should default to cost 12 when no cost is given', () => {
+  it('should hash with cost 12 when no cost is given', async () => {
+    // Único teste com o custo de produção (~250 ms): prova o padrão do construtor, não só a constante.
+    const hash = await new PasswordHasher().hash('correct-password');
+
     expect(BCRYPT_COST).toBe(12);
+    expect(hash.value).toMatch(/^\$2[ab]\$12\$/);
   });
 
   it('should produce a bcrypt hash different from the plain text when hashing', async () => {
@@ -23,7 +27,7 @@ describe('PasswordHasher', () => {
     const first = await hasher.hash('correct-password');
     const second = await hasher.hash('correct-password');
 
-    expect(first.equals(second)).toBe(false);
+    expect(first.value).not.toBe(second.value);
   });
 
   it('should verify the password when it matches the hash', async () => {

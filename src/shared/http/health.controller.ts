@@ -15,7 +15,7 @@ export class HealthController {
   @Public()
   @Get('health')
   @ApiOperation({ summary: 'Liveness: o processo responde' })
-  @ApiOkResponse({ schema: { example: { status: 'UP' } } })
+  @ApiOkResponse({ description: 'Aplicação viva', schema: { example: { status: 'UP' } } })
   health(): { status: 'UP' } {
     return { status: 'UP' };
   }
@@ -24,8 +24,11 @@ export class HealthController {
   @Get('ready')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Readiness: o banco de dados responde' })
-  @ApiOkResponse({ schema: { example: { status: 'UP' } } })
-  @ApiServiceUnavailableResponse({ schema: { example: { status: 'DOWN' } } })
+  @ApiOkResponse({ description: 'Banco de dados acessível', schema: { example: { status: 'UP' } } })
+  @ApiServiceUnavailableResponse({
+    description: 'Banco de dados indisponível',
+    schema: { example: { status: 'DOWN' } },
+  })
   async ready(@Res({ passthrough: true }) response: Response): Promise<{ status: 'UP' | 'DOWN' }> {
     const databaseUp = await this.prisma.isHealthy();
     if (!databaseUp) {

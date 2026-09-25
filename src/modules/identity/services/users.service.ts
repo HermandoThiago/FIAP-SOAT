@@ -38,12 +38,13 @@ export class UsersService {
    * com o cliente existente e ativo no módulo customers. As invariantes do usuário ficam no agregado (422).
    */
   async register(command: RegisterUserCommand, actor: AuthenticatedUser): Promise<User> {
-    this.authorize(command.roles, actor);
+    const customerOnly = isCustomerOnly(command.roles);
+    this.authorize(customerOnly, actor);
     const email = Email.parse(command.email);
     if (await this.users.existsByEmail(email)) {
       throw new ConflictException('E-mail já cadastrado');
     }
-    if (command.roles.includes(Role.CUSTOMER) && command.customerId) {
+    if (customerOnly && command.customerId) {
       await this.assertActiveCustomer(command.customerId);
     }
     const passwordHash = await this.passwordHasher.hash(command.password);
@@ -90,8 +91,13 @@ export class UsersService {
     await this.events.publishAll(user.pullDomainEvents());
   }
 
-  private authorize(roles: Role[], actor: AuthenticatedUser): void {
-    if (roles.includes(Role.CUSTOMER)) {
+  /**
+   * contrato-api.md §3.1: acesso do cliente (só CUSTOMER) → ATTENDANT ou MANAGER; qualquer papel de equipe no pedido
+   * (inclusive misturado com CUSTOMER) → só MANAGER. A autorização vem antes de qualquer validação do agregado, para o
+   * ATTENDANT receber 403, e não 404/422, ao pedir o que não pode.
+   */
+  private authorize(customerOnly: boolean, actor: AuthenticatedUser): void {
+    if (customerOnly) {
       if (!actor.roles.includes(Role.ATTENDANT) && !actor.roles.includes(Role.MANAGER)) {
         throw new ForbiddenException('Apenas ATTENDANT ou MANAGER podem criar o acesso do cliente');
       }
@@ -108,4 +114,8 @@ export class UsersService {
       throw new NotFoundException('Cliente não encontrado');
     }
   }
+}
+
+function isCustomerOnly(roles: Role[]): boolean {
+  return roles.every((role) => role === Role.CUSTOMER);
 }

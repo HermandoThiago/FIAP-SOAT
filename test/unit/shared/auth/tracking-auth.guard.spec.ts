@@ -1,19 +1,15 @@
-import { ForbiddenException, Get, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 import { type AuthService } from '../../../../src/modules/identity/services/auth.service';
 import { type TrackingTokenService } from '../../../../src/modules/identity/services/tracking-token.service';
 import { type AuthenticatedUser } from '../../../../src/shared/auth/principal';
 import { TrackingAuthGuard } from '../../../../src/shared/auth/tracking-auth.guard';
-import { TrackingRoute } from '../../../../src/shared/auth/tracking.decorator';
 import { Role } from '../../../../src/shared/domain/role';
+import { TrackingProbeController } from '../../../support/auth';
 import { bearer, createExecutionContext } from './fakes/execution-context';
 
 // Guard de /tracking/** (ADR-011; PRD-005 RF-066): token de acompanhamento ou login CUSTOMER; equipe → 403.
-@TrackingRoute()
-class TrackingProbeController {
-  @Get()
-  probe(): void {}
-}
+// O ExecutionContext falso aponta para a rota de sondagem compartilhada (@TrackingRoute em test/support/auth.ts).
 
 const SERVICE_ORDER_ID = '2f109cde-cc93-44a8-89bf-6554894ff689';
 const TRACKING_TOKEN = 'tracking-token';

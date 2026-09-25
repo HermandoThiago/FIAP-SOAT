@@ -14,8 +14,4 @@ export class PasswordHash {
     }
     return new PasswordHash(hash);
   }
-
-  equals(other: PasswordHash): boolean {
-    return this.value === other.value;
-  }
 }

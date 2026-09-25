@@ -4,11 +4,13 @@ import { type INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
 
+import { TrackingTokenService } from '../../../src/modules/identity/services/tracking-token.service';
 import { Role } from '../../../src/shared/domain/role';
 import { type ProblemDetails } from '../../../src/shared/http/problem-details';
 import { PrismaService } from '../../../src/shared/prisma/prisma.service';
 import { API_BASE, bearer, loginAs, loginAsAdmin, signToken } from '../../support/auth';
-import { randomEmail, randomPhone, validCpf } from '../../support/generators';
+import { createCustomer, deleteTestCustomers } from '../../support/customers';
+import { randomEmail } from '../../support/generators';
 import { createTestApp, httpServer } from '../../support/test-app';
 import { TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD } from '../../support/test-env';
 
@@ -35,6 +37,14 @@ interface UserBody {
   passwordHash?: string;
 }
 
+interface UserPayload {
+  name: string;
+  email: string;
+  password: string;
+  roles: Role[];
+  customerId?: string;
+}
+
 describe('identity (integration)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -46,30 +56,23 @@ describe('identity (integration)', () => {
 
   afterEach(async () => {
     await prisma.user.deleteMany({ where: { email: { not: TEST_ADMIN_EMAIL } } });
-    await prisma.customer.deleteMany({ where: { name: { startsWith: 'Cliente fictício' } } });
+    await deleteTestCustomers(prisma);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  function teamUser(roles: Role[]): { name: string; email: string; password: string; roles: Role[] } {
+  function teamUser(roles: Role[]): UserPayload {
     return { name: 'Usuário de teste', email: randomEmail(), password: 'test-password-1', roles };
   }
 
-  async function createCustomer(): Promise<string> {
-    const id = randomUUID();
-    await prisma.customer.create({
-      data: {
-        id,
-        customerType: 'INDIVIDUAL',
-        document: validCpf(),
-        name: 'Cliente fictício de teste',
-        email: randomEmail(),
-        phone: randomPhone(),
-      },
-    });
-    return id;
+  /** MANAGER cadastra um usuário com os papéis dados e devolve o token desse usuário logado. */
+  async function loginAsNewUser(roles: Role[]): Promise<string> {
+    const adminToken = await loginAsAdmin(app);
+    const payload = teamUser(roles);
+    await request(httpServer(app)).post(USERS).set(bearer(adminToken)).send(payload).expect(201);
+    return loginAs(app, payload.email, payload.password);
   }
 
   describe('POST /auth/login', () => {
@@ -162,6 +165,19 @@ describe('identity (integration)', () => {
         .send(teamUser([Role.MECHANIC]))
         .expect(401);
     });
+
+    it('should answer 401 when the token is a tracking token', async () => {
+      // ADR-011: aud=tracking só entra em /tracking/**; numa rota administrativa é recusado como qualquer token inválido.
+      const { token } = await app.get(TrackingTokenService).issue(randomUUID());
+
+      const response = await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(token))
+        .send(teamUser([Role.MECHANIC]))
+        .expect(401);
+
+      expect(response.body).toMatchObject({ status: 401, detail: 'Token inválido ou expirado' });
+    });
   });
 
   describe('POST /users — team users', () => {
@@ -205,10 +221,7 @@ describe('identity (integration)', () => {
     });
 
     it('should answer 403 when an ATTENDANT tries to create a MECHANIC', async () => {
-      const adminToken = await loginAsAdmin(app);
-      const attendant = teamUser([Role.ATTENDANT]);
-      await request(httpServer(app)).post(USERS).set(bearer(adminToken)).send(attendant).expect(201);
-      const attendantToken = await loginAs(app, attendant.email, attendant.password);
+      const attendantToken = await loginAsNewUser([Role.ATTENDANT]);
 
       const response = await request(httpServer(app))
         .post(USERS)
@@ -220,6 +233,36 @@ describe('identity (integration)', () => {
         type: 'https://oficina.local/errors/forbidden',
         status: 403,
         detail: 'Apenas MANAGER pode criar usuários da equipe',
+      });
+    });
+
+    it('should answer 403 when an ATTENDANT mixes CUSTOMER with a team role', async () => {
+      const attendantToken = await loginAsNewUser([Role.ATTENDANT]);
+      const customerId = await createCustomer(prisma);
+
+      const response = await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(attendantToken))
+        .send({ ...teamUser([Role.CUSTOMER, Role.MANAGER]), customerId })
+        .expect(403);
+
+      expect(response.body).toMatchObject({ status: 403, detail: 'Apenas MANAGER pode criar usuários da equipe' });
+    });
+
+    it('should answer 403 from the RolesGuard when a MECHANIC calls POST /users', async () => {
+      // Prova @Roles(ATTENDANT, MANAGER) + RolesGuard depois do JwtAuthGuard: o MECHANIC nem chega ao UsersService.
+      const mechanicToken = await loginAsNewUser([Role.MECHANIC]);
+
+      const response = await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(mechanicToken))
+        .send(teamUser([Role.MECHANIC]))
+        .expect(403);
+
+      expect(response.body).toMatchObject({
+        type: 'https://oficina.local/errors/forbidden',
+        status: 403,
+        detail: 'Papel insuficiente para esta operação',
       });
     });
 
@@ -235,8 +278,31 @@ describe('identity (integration)', () => {
 
       expect(body.title).toBe('Dados inválidos');
       expect(body.errors?.map((error) => error.field)).toEqual(
-        expect.arrayContaining(['email', 'password', 'roles', 'customerId']),
+        expect.arrayContaining(['name', 'email', 'password', 'roles', 'customerId']),
       );
+    });
+
+    it('should answer 422 with a single name error when the name is missing', async () => {
+      const token = await loginAsAdmin(app);
+      const { name: _name, ...payload } = teamUser([Role.MECHANIC]);
+
+      const response = await request(httpServer(app)).post(USERS).set(bearer(token)).send(payload).expect(422);
+
+      expect((response.body as ProblemDetails).errors).toEqual([{ field: 'name', message: 'nome obrigatório' }]);
+    });
+
+    it('should answer 422 pointing to password when it exceeds 72 bytes', async () => {
+      const token = await loginAsAdmin(app);
+
+      const response = await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(token))
+        .send({ ...teamUser([Role.MECHANIC]), password: 'é'.repeat(40) })
+        .expect(422);
+
+      expect((response.body as ProblemDetails).errors).toEqual([
+        { field: 'password', message: 'senha deve ter no máximo 72 bytes' },
+      ]);
     });
 
     it('should answer 422 pointing to customerId when a team user carries a customerId', async () => {
@@ -257,7 +323,7 @@ describe('identity (integration)', () => {
   describe('POST /users — customer login (ADR-011)', () => {
     it('should create the CUSTOMER user and let it log in but not use administrative routes when a MANAGER registers it', async () => {
       const adminToken = await loginAsAdmin(app);
-      const customerId = await createCustomer();
+      const customerId = await createCustomer(prisma);
       const payload = { ...teamUser([Role.CUSTOMER]), customerId };
 
       const created = await request(httpServer(app)).post(USERS).set(bearer(adminToken)).send(payload).expect(201);
@@ -278,6 +344,29 @@ describe('identity (integration)', () => {
       expect(forbidden.body).toMatchObject({ status: 403, detail: 'Acesso restrito à equipe da oficina' });
     });
 
+    it('should answer 409 when the customer already has an access user', async () => {
+      // Índice parcial users_customer_id_key: o P2002 chega pelo driver adapter (constraint.index), não por meta.target.
+      const adminToken = await loginAsAdmin(app);
+      const customerId = await createCustomer(prisma);
+      await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(adminToken))
+        .send({ ...teamUser([Role.CUSTOMER]), customerId })
+        .expect(201);
+
+      const response = await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(adminToken))
+        .send({ ...teamUser([Role.CUSTOMER]), customerId })
+        .expect(409);
+
+      expect(response.body).toMatchObject({
+        type: 'https://oficina.local/errors/conflict',
+        status: 409,
+        detail: 'Cliente já possui usuário de acesso',
+      });
+    });
+
     it('should answer 404 when the customerId does not exist', async () => {
       const token = await loginAsAdmin(app);
 
@@ -292,6 +381,17 @@ describe('identity (integration)', () => {
         status: 404,
         detail: 'Cliente não encontrado',
       });
+    });
+
+    it('should answer 404 when the customer is inactive', async () => {
+      const token = await loginAsAdmin(app);
+      const customerId = await createCustomer(prisma, { active: false });
+
+      await request(httpServer(app))
+        .post(USERS)
+        .set(bearer(token))
+        .send({ ...teamUser([Role.CUSTOMER]), customerId })
+        .expect(404);
     });
 
     it('should answer 422 pointing to customerId when the CUSTOMER role comes without customerId', async () => {

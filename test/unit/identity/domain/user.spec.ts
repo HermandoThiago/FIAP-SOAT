@@ -1,4 +1,4 @@
-import { UserRegistered } from '../../../../src/modules/identity/domain/events';
+import { UserAuthenticated, UserRegistered } from '../../../../src/modules/identity/domain/events';
 import { PasswordHash } from '../../../../src/modules/identity/domain/password-hash';
 import { type RegisterUserProps, User } from '../../../../src/modules/identity/domain/user';
 import { ValidationError } from '../../../../src/shared/domain/domain-error';
@@ -141,18 +141,43 @@ describe('User.reconstitute', () => {
   });
 });
 
-describe('User commands and queries', () => {
-  it('should deactivate the user and touch updatedAt when deactivate is called', () => {
-    const user = aUser();
-    const later = new Date('2026-09-26T08:00:00.000Z');
+describe('User.authenticate', () => {
+  const LOGIN_AT = new Date('2026-09-26T08:00:00.000Z');
 
-    user.deactivate(later);
+  it('should emit UserAuthenticated with the user id and roles when the user is active', () => {
+    const user = aUser({ roles: [Role.ATTENDANT, Role.MANAGER] });
 
-    expect(user.active).toBe(false);
-    expect(user.updatedAt).toEqual(later);
-    expect(user.createdAt).toEqual(FIXED_NOW);
+    const authenticated = user.authenticate(LOGIN_AT);
+
+    expect(authenticated).toBe(true);
+    const events = user.pullDomainEvents();
+    expect(events).toHaveLength(1);
+    const event = events[0] as UserAuthenticated;
+    expect(event).toBeInstanceOf(UserAuthenticated);
+    expect(event.name).toBe('UserAuthenticated');
+    expect(event.aggregateId).toBe(USER_ID);
+    expect(event.occurredAt).toEqual(LOGIN_AT);
+    expect(event.payload).toEqual({ userId: USER_ID, roles: [Role.ATTENDANT, Role.MANAGER] });
   });
 
+  it('should return false without emitting events when the user is inactive', () => {
+    const user = aUser({ active: false });
+
+    expect(user.authenticate(LOGIN_AT)).toBe(false);
+    expect(user.pullDomainEvents()).toEqual([]);
+  });
+
+  it('should not change the user state when authenticating', () => {
+    const user = aUser();
+
+    user.authenticate(LOGIN_AT);
+
+    expect(user.active).toBe(true);
+    expect(user.updatedAt).toEqual(FIXED_NOW);
+  });
+});
+
+describe('User queries', () => {
   it('should report the roles it holds when hasRole is called', () => {
     const user = aUser({ roles: [Role.ATTENDANT, Role.MANAGER] });
 

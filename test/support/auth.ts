@@ -1,7 +1,10 @@
-import { type INestApplication } from '@nestjs/common';
+import { Controller, Get, type INestApplication } from '@nestjs/common';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import request from 'supertest';
 
+import { TrackingPrincipal } from '../../src/shared/auth/current-user.decorator';
+import { type TrackingCredential } from '../../src/shared/auth/principal';
+import { TrackingRoute } from '../../src/shared/auth/tracking.decorator';
 import { httpServer } from './test-app';
 import { TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD } from './test-env';
 
@@ -26,4 +29,20 @@ export function signToken(app: INestApplication, payload: object, options: JwtSi
 
 export function bearer(token: string): { Authorization: string } {
   return { Authorization: `Bearer ${token}` };
+}
+
+export const TRACKING_PROBE_PATH = 'tracking-probe';
+
+/**
+ * Rota de sondagem de /tracking/** (ADR-011): devolve a credencial que o TrackingAuthGuard injetou em request.tracking.
+ * O teste unitário do guard só lê a metadata (@TrackingRoute) do handler; o de integração registra o controller no
+ * módulo raiz do teste, como fará o módulo service-orders ao importar o IdentityModule.
+ */
+@TrackingRoute()
+@Controller(TRACKING_PROBE_PATH)
+export class TrackingProbeController {
+  @Get()
+  probe(@TrackingPrincipal() credential: TrackingCredential): TrackingCredential {
+    return credential;
+  }
 }

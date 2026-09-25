@@ -36,7 +36,7 @@ acompanhamento **ou** login `CUSTOMER`), **C(login)** só login `CUSTOMER`, **P*
 |---|---|---|---|---|
 | POST | `/auth/login` | P | `{ "email", "password" }` | `200 { "accessToken", "tokenType": "Bearer", "expiresIn": 3600, "roles": ["MANAGER"] }` (cliente: `"roles": ["CUSTOMER"]`) · `401` genérico |
 | POST | `/auth/refresh` | portador | `{ "refreshToken" }` | (Could) |
-| POST | `/users` | G (equipe) · A,G (papel `CUSTOMER`) | `{ "name", "email", "password", "roles": ["MECHANIC"] }` ou `{ "name", "email", "password", "roles": ["CUSTOMER"], "customerId" }` | `201 User` · `404` cliente inexistente · `409` e-mail duplicado · `422` (Should; usuário `CUSTOMER` — ADR-011) |
+| POST | `/users` | G (equipe) · A,G (papel `CUSTOMER`) | `{ "name", "email", "password", "roles": ["MECHANIC"] }` ou `{ "name", "email", "password", "roles": ["CUSTOMER"], "customerId" }` | `201 User` · `404` cliente inexistente · `409` e-mail duplicado ou cliente que já possui usuário de acesso · `422` (Should; usuário `CUSTOMER` — ADR-011) |
 | GET | `/users` · GET/PUT/DELETE `/users/{id}` | G | — | (Should) |
 | GET | `/health` · `/ready` | P | — | `200 { "status": "UP" }` |
 

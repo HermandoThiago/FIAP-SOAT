@@ -13,10 +13,6 @@ export class InMemoryUserRepository {
     return Promise.resolve(this.users.find((user) => user.email.equals(email)) ?? null);
   }
 
-  findById(id: string): Promise<User | null> {
-    return Promise.resolve(this.users.find((user) => user.id === id) ?? null);
-  }
-
   existsByEmail(email: Email): Promise<boolean> {
     return Promise.resolve(this.users.some((user) => user.email.equals(email)));
   }

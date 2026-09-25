@@ -2,7 +2,7 @@ import { AggregateRoot } from '../../../shared/domain/aggregate-root';
 import { ValidationError } from '../../../shared/domain/domain-error';
 import { type Email } from '../../../shared/domain/email';
 import { isTeamRole, Role } from '../../../shared/domain/role';
-import { UserRegistered } from './events';
+import { UserAuthenticated, UserRegistered } from './events';
 import { type PasswordHash } from './password-hash';
 
 // Agregado User (agregados.md §3; PRD-005 §6; ADR-011): e-mail único (garantido pelo repositório/banco), senha sempre
@@ -98,9 +98,17 @@ export class User extends AggregateRoot {
     return this.props.updatedAt;
   }
 
-  deactivate(now: Date): void {
-    this.props.active = false;
-    this.props.updatedAt = now;
+  /**
+   * Login (RF-060; agregados.md §3), depois de a senha ter sido conferida pela infraestrutura (PasswordHasher):
+   * usuário inativo não autentica → false, sem evento. Ativo → enfileira UserAuthenticated e devolve true.
+   * A regra fica no agregado, não no AuthService (ADR-003).
+   */
+  authenticate(now: Date): boolean {
+    if (!this.props.active) {
+      return false;
+    }
+    this.addDomainEvent(new UserAuthenticated({ userId: this.props.id, roles: [...this.props.roles] }, now));
+    return true;
   }
 
   isCustomer(): boolean {
