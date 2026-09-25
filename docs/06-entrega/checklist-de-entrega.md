@@ -37,14 +37,14 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | T1 | Back-end monolítico | 1 processo de API no compose; `docs/04-arquitetura/visao-geral.md` | | ⬜ |
 | T2 | Organização em camadas (clássicas, por módulo — ADR-003) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | Hermando | ⬜ |
 | T3 | Banco de dados de livre escolha, com decisão justificada | ADR-002 + README §9 + bloco 4 | Diego | ⬜ |
-| T4 | APIs RESTful + Swagger/OpenAPI | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) | | ⬜ |
-| T5 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login` (ADR-004) | integração 401/403 | ⬜ |
-| T6 | Validação de CPF ou CNPJ · validação da placa | VOs `Document` e `LicensePlate` + 422 | unit exaustivo | ⬜ |
-| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit`, `test/integration`, `test/bdd` — CI verde | | ⬜ |
-| T8 | **Evidência** de cobertura mínima de 80 % nos domínios críticos | `docs/06-entrega/evidencias/cobertura.md` (percentual por módulo) + gate no CI | | ⬜ |
+| T4 | APIs RESTful + Swagger/OpenAPI | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) — esqueleto: Swagger em `/docs` e `openapi:export` prontos (ADR-005) | | 🟡 |
+| T5 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login` (ADR-004) — esqueleto: `JwtAuthGuard` HS256 + `POST /auth/login` (prompt 02, Etapa 3) | integração 401/403 | 🟡 |
+| T6 | Validação de CPF ou CNPJ · validação da placa | VOs `Document` e `LicensePlate` + 422 — esqueleto: VOs com testes exaustivos em `test/unit/shared/domain`; 422 nos DTOs vem com o prompt 05 | unit exaustivo | 🟡 |
+| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit`, `test/integration`, `test/bdd` — CI verde — esqueleto: estrutura `test/{unit,integration,bdd}` e CI verdes | | 🟡 |
+| T8 | **Evidência** de cobertura mínima de 80 % nos domínios críticos | `docs/06-entrega/evidencias/cobertura.md` (percentual por módulo) + gate no CI — esqueleto: gate por pasta em `jest.config.ts` (`npm run test:cov`) | | 🟡 |
 | T9 | Instruções para execução local (README completo) | README com os 13 itens do enunciado; outro membro executa só pelo README | Hermando | ⬜ |
 | T10 | **Tratamento adequado das transações** nos principais fluxos | `prisma.$transaction` em aprovar (status + reserva) e finalizar (status + baixa); teste de integração de rollback | Diego | ⬜ |
-| T11 | Dockerfile para build · docker-compose orquestrando o ambiente completo | build limpo; Trivy sem críticas; `docker compose up` em máquina limpa (testado por outro membro) | Hermando | ⬜ |
+| T11 | Dockerfile para build · docker-compose orquestrando o ambiente completo | build limpo; Trivy sem críticas; `docker compose up` em máquina limpa (testado por outro membro) — esqueleto: `Dockerfile` multi-stage + `docker-compose.yml` (migrate + seed + api) — validar em máquina limpa | Hermando | 🟡 |
 | T12 | Repositório **público** durante a correção e a revisão de notas, só com arquivos necessários, sem credenciais/tokens | visibilidade pública ligada na entrega; gitleaks limpo no histórico | | ⬜ |
 | T13 | Versão identificada (branch, tag ou hash) informada no PDF; código do vídeo = código da documentação = commit entregue | tag `v1.0.0` em `master` + hash no PDF | | ⬜ |
 | T14 | **Branch principal protegida, tudo via PR** (enunciado, entregáveis §2: "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR") | `master` e `develop` protegidas **sem bypass para ninguém**; todo commit desde 23/09 chega por PR; os commits diretos da fase de planejamento até 23/09 estão registrados como exceção em `docs/02-adr/decisoes-leves.md` | Hermando | ⬜ |

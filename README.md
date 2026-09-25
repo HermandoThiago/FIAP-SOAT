@@ -46,33 +46,47 @@ fases (Kubernetes, API Gateway, microsserviços) em `docs/04-arquitetura/evoluca
 
 ## 5. Pré-requisitos
 
-- Docker e Docker Compose v2 (`docker compose version`).
-- Para desenvolvimento local fora do contêiner: Node 22 e npm; Git.
+- Docker e Docker Compose v2 (`docker compose version`) — também usados pelos testes de integração (Testcontainers).
+- Para desenvolvimento local fora do contêiner: Node 22 LTS (≥ 22.12) e npm 10; Git.
 
 ## 6. Instruções para execução
 
 ```bash
 git clone <repositório> && cd FIAP-SOAT
-cp .env.example .env           # valores de exemplo, todos fictícios
-docker compose up --build      # API + PostgreSQL + migrações do Prisma + seed de demonstração
+cp .env.example .env           # valores de exemplo, todos fictícios (nunca versione o .env)
+docker compose up --build      # PostgreSQL 16 → prisma migrate deploy + seed (APP_ENV=dev) → API
 # API:      http://localhost:8080/api/v1
-# Health:   http://localhost:8080/health
+# Health:   http://localhost:8080/health  ·  Readiness (checa o banco): http://localhost:8080/ready
+# Swagger:  http://localhost:8080/docs   (APP_ENV=dev)
 ```
 
 Desenvolvimento local (só o banco no Docker):
 
 ```bash
 docker compose up -d postgres
-npm ci && npx prisma migrate dev && npm run start:dev
+npm ci
+npm run prisma:migrate          # prisma migrate dev: aplica as migrações e gera o cliente em src/generated/prisma
+npm run prisma:seed             # dados de demonstração (só com APP_ENV=dev)
+npm run start:dev               # http://localhost:8080 com recarga automática
 ```
+
+Outros scripts: `npm run build` (compila para `dist/`), `npm run lint` (ESLint + Prettier), `npm run depcruise`
+(regras de dependência entre camadas — `docs/04-arquitetura/estrutura-do-repositorio.md` §4), `npm run openapi:export`
+(gera `reports/openapi.json` sem subir o servidor — artefato do CI, ADR-005), `npm run prisma:generate`.
 
 ## 7. Instruções para execução dos testes
 
 ```bash
-npm test            # unitários (domínio e services, sem banco)
-npm run test:e2e    # integração (Testcontainers) + BDD (Cucumber-js, cenários em português)
-npm run test:cov    # cobertura com gate: ≥ 80 % (linhas e branches) em service-orders e catalog
+npm test                 # unitários (domínio, value objects e services com fakes — sem banco, sem HTTP)
+npm run test:integration # integração: sobe um PostgreSQL 16 real (Testcontainers), aplica as migrações e usa supertest
+npm run test:bdd         # BDD: cenários Gherkin em português (Cucumber-js) contra a API real
+npm run test:e2e         # integração + BDD
+npm run test:cov         # unitários + integração com cobertura e gate ≥ 80 % (linhas e branches) por pasta em
+                         # src/modules/{service-orders,catalog}/{domain,services} (jest.config.ts)
 ```
+
+Sem Docker (ou para reaproveitar um PostgreSQL 16 já em execução), aponte `TEST_DATABASE_URL` para um banco **vazio**
+que os testes possam zerar: `TEST_DATABASE_URL=postgresql://oficina:oficina@localhost:5432/oficina_test npm run test:e2e`.
 
 Evidência de cobertura versionada em `docs/06-entrega/evidencias/cobertura.md` `<a preencher em M4>`.
 
@@ -91,8 +105,10 @@ RDS/Aurora nas próximas fases.
 
 ## 10. Usuários e credenciais de demonstração
 
-- O seed cria um usuário por papel de equipe (`MANAGER`, `MECHANIC`, `ATTENDANT`) e um cliente com login (`CUSTOMER`); as
-  senhas vêm das variáveis de ambiente do `.env.example` (`ADMIN_EMAIL`, `ADMIN_PASSWORD` …) — nenhum dado real.
+- Na subida, a API garante o usuário `MANAGER` de `ADMIN_EMAIL`/`ADMIN_PASSWORD` (RF-062). O seed de demonstração
+  (`npm run prisma:seed`, só em `APP_ENV=dev`) acrescenta `mechanic@oficina.local`, `attendant@oficina.local` e o cliente
+  com login `customer@oficina.local` (papel `CUSTOMER`), todos com a senha `SEED_PASSWORD` — valores do `.env.example`,
+  nenhum dado real.
 - Autenticação: `POST /api/v1/auth/login { "email", "password" }` → `accessToken`; no Swagger, colar em **Authorize**.
 - Acesso do cliente: token de acompanhamento gerado em `POST /service-orders/{id}/quote/send` (em dev aparece no log e na
   resposta) **ou** login com papel `CUSTOMER` — rotas `/api/v1/tracking/**`.
@@ -100,12 +116,16 @@ RDS/Aurora nas próximas fases.
 ## 11. Estrutura dos principais diretórios
 
 ```text
+src/main.ts · src/app.module.ts · src/app.setup.ts   bootstrap, módulo raiz e configuração comum (prefixo /api/v1, Swagger em dev)
 src/modules/<contexto>/     controllers/ · dto/ · services/ · repositories/ · domain/ · <contexto>.module.ts
-src/shared/                 value objects, guards JWT, filtro Problem Details, PrismaService, relógio e ids
-prisma/                     schema.prisma (um schema PostgreSQL por módulo), migrations/, seed.ts
-test/                       unit/ · integration/ · bdd/ (features em português) · support/
+src/shared/                 domain/ (value objects, erros, eventos) · auth/ (guards JWT, @Roles, @Public) · http/ (Problem
+                            Details, logs com máscara de PII, /health e /ready) · prisma/ · events/ · config/ · clock e ids
+src/generated/prisma/       cliente do Prisma gerado por `prisma generate` (não versionado)
+prisma/                     schema.prisma (um schema PostgreSQL por módulo), migrations/ (SQL versionado), seed.ts, README.md
+test/                       unit/ · integration/ (Testcontainers + supertest) · bdd/ (features em português) · support/
+scripts/                    export-openapi.ts (artefato openapi.json do CI)
 docs/                       guia do grupo, PRDs, ADRs, ddd/ (entrega DDD), arquitetura, qualidade e segurança, entrega
-prompts/ · .github/         prompts de IA por frente · templates de issue/PR e workflows
+prompts/ · .github/         prompts de IA por frente · templates de issue/PR e workflows (ci.yml, security.yml, claude*.yml)
 ```
 
 Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.

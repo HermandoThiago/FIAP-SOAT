@@ -44,8 +44,12 @@ FIAP-SOAT/
 ├── CLAUDE.md
 ├── docker-compose.yml                  # api + postgres (+ prisma migrate deploy + seed na subida) — obrigatório
 ├── Dockerfile                          # multi-stage (node:22-alpine), usuário não-root — obrigatório
+├── .dockerignore
 ├── .env.example                        # DATABASE_URL, JWT_SECRET, JWT_EXPIRES_MIN, APP_ENV, ADMIN_EMAIL, ADMIN_PASSWORD, PORT
+│                                       # (+ LOG_LEVEL, POSTGRES_*, SHADOW_DATABASE_URL e SEED_PASSWORD, todos opcionais/fictícios)
 ├── package.json · tsconfig*.json · nest-cli.json · eslint.config.mjs · .prettierrc
+├── jest.config.ts · cucumber.js        # projetos unit/integration com gate de cobertura por pasta · BDD em português
+├── prisma.config.ts                    # Prisma 7: URL do banco, pasta de migrações e comando de seed (fora do schema.prisma)
 ├── .dependency-cruiser.cjs             # regras da seção 4
 ├── .github/
 │   ├── workflows/ci.yml                # PR/push em develop e master: título Conventional · lint · dependency-cruiser · unit ·
@@ -58,16 +62,24 @@ FIAP-SOAT/
 │   ├── schema.prisma                   # datasource com multiSchema (customers, catalog, service_orders, identity);
 │   │                                   # um bloco de models por módulo, cada model com @@schema("...")
 │   ├── migrations/                     # Prisma Migrate (SQL versionado; sequência anual da OS e CHECKs escritos à mão)
-│   └── seed.ts                         # dados de demonstração (só em APP_ENV=dev)
+│   ├── seed.ts                         # dados de demonstração (só em APP_ENV=dev)
+│   └── README.md                       # como criar migração com SQL à mão, drift check e seed
 ├── src/
-│   ├── main.ts                         # bootstrap Nest, ValidationPipe, filtro Problem Details, Swagger em /docs (dev)
-│   ├── app.module.ts                   # importa SharedModule e os 4 módulos de contexto
+│   ├── main.ts                         # bootstrap Nest (porta, logger)
+│   ├── app.setup.ts                    # configuração comum ao main, aos testes e ao export do OpenAPI: prefixo /api/v1,
+│   │                                   # Swagger em /docs e /docs/openapi.json (só APP_ENV=dev), bearerAuth e tags por módulo
+│   ├── app.module.ts                   # ConfigModule (env validado), LoggerModule (pino), ValidationPipe → 422, filtro
+│   │                                   # Problem Details, SharedModule e os 4 módulos de contexto
+│   ├── generated/prisma/               # cliente do Prisma gerado por `prisma generate` (não versionado; só shared/prisma e repositories/ importam)
 │   ├── shared/
-│   │   ├── domain/                     # Money, Quantity, Document (Cpf, Cnpj), LicensePlate, Email, Phone,
-│   │   │                               # DomainError, InvalidTransitionError, DomainEvent, AggregateRoot
-│   │   ├── auth/                       # JwtAuthGuard (aud=api), TrackingAuthGuard (aud=tracking ou papel CUSTOMER), @Roles(), @Public()
-│   │   ├── http/                       # ProblemDetailsFilter, middleware de request-id, interceptor de log com máscara de PII, Page<T>
-│   │   ├── prisma/                     # PrismaService (conexão, $transaction) e tipo da transação
+│   │   ├── config/                     # env.ts: schema (zod) das variáveis de ambiente, validado na subida
+│   │   ├── domain/                     # Money, Quantity, Document (Cpf, Cnpj), LicensePlate, Email, Phone, ServiceOrderNumber,
+│   │   │                               # DomainError, ValidationError, InvalidTransitionError, DomainEvent, AggregateRoot, masking
+│   │   ├── auth/                       # JwtAuthGuard (aud=api) + RolesGuard, TrackingAuthGuard (aud=tracking ou papel CUSTOMER),
+│   │   │                               # @Roles(), @Public(), @TrackingRoute(), enum Role (usado pelos controllers de todos os módulos)
+│   │   ├── http/                       # ProblemDetailsFilter, ValidationPipe (422 com errors[].field), logs pino com requestId e
+│   │   │                               # máscara de PII, HealthController (/health, /ready)
+│   │   ├── prisma/                     # PrismaService (conexão via driver adapter pg, $transaction) e tipo da transação
 │   │   ├── clock.ts · id-generator.ts  # SystemClock/FixedClock · UuidV4IdGenerator (crypto.randomUUID)/FixedIdGenerator
 │   │   ├── events/                     # DomainEventPublisher em processo (@nestjs/event-emitter)
 │   │   └── shared.module.ts
@@ -103,8 +115,9 @@ FIAP-SOAT/
 ├── test/
 │   ├── unit/                           # domain + services com repositórios fake em memória (sem Nest, sem banco) — rápidos
 │   ├── integration/                    # services + repositórios reais (Testcontainers Postgres) + controllers (supertest)
-│   ├── bdd/                            # features/*.feature (# language: pt) + steps (Cucumber-js)
-│   └── support/                        # builders (aServiceOrder().inDiagnosis()…), geradores de CPF/CNPJ/placa válidos
+│   ├── bdd/                            # features/*.feature (# language: pt) + steps + support (World e hooks do Cucumber-js)
+│   └── support/                        # test-database (Testcontainers ou TEST_DATABASE_URL + migrate deploy), test-app (app real),
+│                                       # test-env, geradores de CPF/CNPJ/placa válidos, builders (aServiceOrder().inDiagnosis()…)
 └── scripts/                            # export-openapi.ts, security/ (scans locais), demo.sh
 ```
 
@@ -150,7 +163,10 @@ Ferramenta: `dependency-cruiser` (`.dependency-cruiser.cjs` com as regras acima)
 | Validação de entrada | `class-validator` + `class-transformer` (DTOs em `dto/`) | Regras de negócio ficam nos VOs/agregados, não nos DTOs |
 | OpenAPI | `@nestjs/swagger` (code-first, ADR-005) em `/docs` e `/docs/openapi.json`; `scripts/export-openapi.ts` gera o artefato do CI | Exemplos, tags por módulo e `bearerAuth` obrigatórios |
 | Auth | `@nestjs/jwt` (HS256, ADR-004) · `bcrypt` · `@nestjs/throttler` (rate limit, Should) | Guards em `shared/auth`; papéis `ATTENDANT`/`MECHANIC`/`MANAGER`/`CUSTOMER` (ADR-011) |
-| ORM / migrações | **Prisma** (E-17): `prisma/schema.prisma` com `multiSchema` (um schema PostgreSQL por módulo, `@@schema`), Prisma Migrate, `prisma db seed` | Ids vêm do domínio (`@id @db.Uuid` sem `@default`); repositórios mapeiam registro ↔ agregado; o domínio nunca importa `@prisma/client` |
+| ORM / migrações | **Prisma 7** (E-17): `prisma/schema.prisma` com `multiSchema` (um schema PostgreSQL por módulo, `@@schema`), Prisma Migrate, `prisma db seed`; driver adapter `@prisma/adapter-pg` (sem engine nativa), cliente gerado em `src/generated/prisma`, `prisma.config.ts` com a URL e o seed | Ids vêm do domínio (`@id @db.Uuid` sem `@default`); repositórios mapeiam registro ↔ agregado; o domínio nunca importa o cliente gerado (`@prisma/client`/`src/generated`) |
+| Configuração | `@nestjs/config` + `zod` (`src/shared/config/env.ts`) | Falha rápida na subida; `.env.example` completo |
+| Logs | `pino` via `nestjs-pino` | `requestId` por requisição; máscara central de CPF/CNPJ/placa/telefone (ADR-009) |
+| Decimal | `decimal.js` | `Money` (2 casas) e `Quantity` (3 casas) sem float |
 | Eventos em processo | `@nestjs/event-emitter` | Handlers rodam na mesma transação na Fase 1 |
 | Testes | Jest · `supertest` · Testcontainers (`@testcontainers/postgresql`) · Cucumber-js (`@cucumber/cucumber`) | ADR-006: BDD nos 3 fluxos principais |
 | Cobertura | Istanbul via Jest (`coverageThreshold` por pasta: `src/modules/service-orders/{domain,services}` e `src/modules/catalog/{domain,services}` ≥ 80 %) | Gate no CI |

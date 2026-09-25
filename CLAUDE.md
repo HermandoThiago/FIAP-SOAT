@@ -98,5 +98,14 @@ Nome fora do glossário ou tradução divergente (ex.: `Budget` em vez de `Quote
 
 ## Comandos
 
-> Preencher quando o esqueleto (prompt 02) for mesclado: `npm ci`, `npm run start:dev`, `npm test`, `npm run test:e2e`,
-> `npm run test:cov`, `npm run lint`, `npx prisma migrate dev`, `docker compose up --build`.
+- Subir tudo: `cp .env.example .env && docker compose up --build` (PostgreSQL → `prisma migrate deploy` + seed → API em
+  `http://localhost:8080`, Swagger em `/docs` com `APP_ENV=dev`).
+- Desenvolvimento: `docker compose up -d postgres`, `npm ci`, `npm run prisma:migrate` (migrate dev + generate),
+  `npm run prisma:seed`, `npm run start:dev`.
+- Qualidade: `npm run lint` (ESLint + Prettier), `npm run depcruise` (regras de camadas — falha o CI), `npm run build`.
+- Testes: `npm test` (unitários), `npm run test:integration` (Testcontainers), `npm run test:bdd` (Cucumber-js),
+  `npm run test:e2e` (os dois), `npm run test:cov` (cobertura com gate ≥ 80 % por pasta em `service-orders` e `catalog`).
+  Sem Docker: `TEST_DATABASE_URL=postgresql://…/banco_vazio` antes dos comandos de integração/BDD/cobertura.
+- OpenAPI: `npm run openapi:export` → `reports/openapi.json` (artefato do CI, não versionado — ADR-005).
+- Prisma: `npm run prisma:generate`; nova migração = `npx prisma migrate dev --create-only --name <nome>`, editar o SQL à
+  mão (constraints/sequência) e `npm run prisma:migrate` (detalhes em `prisma/README.md`).
