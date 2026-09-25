@@ -1,15 +1,249 @@
 // Prisma 7 (E-17) — um schema PostgreSQL por módulo via multiSchema (ADR-002; modelo-de-dados.md §2).
-// Ids: @id @db.Uuid sem @default — o id nasce no domínio (ADR-009). Constraints da §3 e a sequência anual da OS
-// ficam em SQL escrito à mão nas migrações. O domínio nunca importa o cliente gerado (ADR-003).
+// Ids: @id @db.Uuid sem @default — o id nasce no domínio (ADR-009). Status/tipos/papéis são varchar com CHECK escrito
+// à mão no SQL das migrações (modelo-de-dados.md §3), assim como a sequência anual da OS. Referências entre módulos são
+// colunas uuid simples com índice, nunca relation/FK (ADR-002; ADR-003). O domínio nunca importa o cliente gerado.
+// previewFeatures partialIndexes: os índices parciais da §3 ficam declarados aqui (ver prisma/README.md).
 
 generator client {
-  provider     = "prisma-client"
-  output       = "../src/generated/prisma"
-  moduleFormat = "cjs"
-  runtime      = "nodejs"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
+  runtime         = "nodejs"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
   provider = "postgresql"
   schemas  = ["customers", "catalog", "service_orders", "identity"]
+}
+
+// ───────────────────────────── customers (Cadastro — PRD-001) ─────────────────────────────
+
+/// Cliente PF/CNPJ (agregado Customer). document só dígitos (11 ou 14); único entre clientes ativos.
+model Customer {
+  id           String    @id @db.Uuid
+  /// INDIVIDUAL | COMPANY (CHECK no SQL)
+  customerType String    @map("customer_type") @db.VarChar(20)
+  document     String    @db.VarChar(14)
+  name         String    @db.VarChar(200)
+  email        String?   @db.VarChar(254)
+  /// Só dígitos com DDD (10–11) — ADR-009 Parte 2
+  phone        String?   @db.VarChar(11)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  vehicles     Vehicle[]
+
+  // modelo-de-dados.md §3: UNIQUE (document) WHERE active
+  @@unique([document], where: { active: true }, map: "customers_document_active_key")
+  @@map("customers")
+  @@schema("customers")
+}
+
+/// Veículo do cliente (agregado Vehicle). Placa normalizada (ABC1234 | ABC1D23); única entre veículos ativos.
+model Vehicle {
+  id           String   @id @db.Uuid
+  customerId   String   @map("customer_id") @db.Uuid
+  licensePlate String   @map("license_plate") @db.VarChar(7)
+  brand        String   @db.VarChar(100)
+  model        String   @db.VarChar(100)
+  /// CHECK (year BETWEEN 1900 AND 2100) no SQL
+  year         Int
+  color        String?  @db.VarChar(50)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer     Customer @relation(fields: [customerId], references: [id])
+
+  // modelo-de-dados.md §3: UNIQUE (license_plate) WHERE active
+  @@unique([licensePlate], where: { active: true }, map: "vehicles_license_plate_active_key")
+  @@index([customerId])
+  @@map("vehicles")
+  @@schema("customers")
+}
+
+// ───────────────────────────── catalog (Catálogo & Estoque — PRD-002) ─────────────────────────────
+
+/// Serviço do catálogo (agregado Service; o serviço de aplicação é CatalogService).
+model Service {
+  id               String   @id @db.Uuid
+  name             String   @unique @db.VarChar(200)
+  description      String?
+  price            Decimal  @db.Decimal(12, 2)
+  estimatedMinutes Int      @map("estimated_minutes")
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("services")
+  @@schema("catalog")
+}
+
+/// Peça (PART) ou insumo (SUPPLY) — agregado Part. Estoque só muda por StockMovement (ADR-012; PRD-002 RN-021).
+model Part {
+  id               String          @id @db.Uuid
+  sku              String          @unique @db.VarChar(50)
+  name             String          @db.VarChar(200)
+  /// PART | SUPPLY (CHECK no SQL)
+  type             String          @db.VarChar(20)
+  /// UN, L, ML, KG…
+  unitOfMeasure    String          @map("unit_of_measure") @db.VarChar(10)
+  unitPrice        Decimal         @map("unit_price") @db.Decimal(12, 2)
+  /// CHECK: stock_quantity >= 0 e 0 <= reserved_quantity <= stock_quantity (ADR-012)
+  stockQuantity    Decimal         @default(0) @map("stock_quantity") @db.Decimal(10, 3)
+  reservedQuantity Decimal         @default(0) @map("reserved_quantity") @db.Decimal(10, 3)
+  minimumStock     Decimal         @default(0) @map("minimum_stock") @db.Decimal(10, 3)
+  active           Boolean         @default(true)
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  stockMovements   StockMovement[]
+
+  @@map("parts")
+  @@schema("catalog")
+}
+
+/// Movimentação de estoque (imutável): INBOUND | OUTBOUND | RESERVATION | RELEASE | ADJUSTMENT (ADR-012).
+model StockMovement {
+  id             String   @id @db.Uuid
+  partId         String   @map("part_id") @db.Uuid
+  type           String   @db.VarChar(20)
+  /// CHECK (quantity > 0)
+  quantity       Decimal  @db.Decimal(10, 3)
+  /// ref. service_orders.service_orders (sem FK entre módulos)
+  serviceOrderId String?  @map("service_order_id") @db.Uuid
+  reason         String?  @db.VarChar(500)
+  /// ref. identity.users (sem FK); nulo quando a movimentação nasce de uma ação do cliente (aprovação do orçamento)
+  userId         String?  @map("user_id") @db.Uuid
+  occurredAt     DateTime @map("occurred_at") @db.Timestamptz(6)
+  part           Part     @relation(fields: [partId], references: [id])
+
+  @@index([partId, occurredAt])
+  @@index([serviceOrderId])
+  @@index([userId])
+  @@map("stock_movements")
+  @@schema("catalog")
+}
+
+// ───────────────────────────── service_orders (Atendimento — PRD-003/004, core) ─────────────────────────────
+
+/// Ordem de serviço (agregado ServiceOrder). Status muda só por comando de negócio (ADR-010); Quote é derivado dos itens.
+model ServiceOrder {
+  id                            String                      @id @db.Uuid
+  /// OS-AAAA-NNNNNN (CHECK de formato no SQL), da sequência anual service_orders.service_order_number_seq (ADR-009)
+  number                        String                      @unique @db.VarChar(14)
+  /// ref. customers.customers (sem FK entre módulos)
+  customerId                    String                      @map("customer_id") @db.Uuid
+  /// ref. customers.vehicles (sem FK entre módulos)
+  vehicleId                     String                      @map("vehicle_id") @db.Uuid
+  problemDescription            String                      @map("problem_description")
+  /// RECEIVED | IN_DIAGNOSIS | AWAITING_APPROVAL | IN_PROGRESS | COMPLETED | DELIVERED | CANCELLED (CHECK no SQL)
+  status                        String                      @db.VarChar(30)
+  quoteTotalAmount              Decimal                     @default(0) @map("quote_total_amount") @db.Decimal(12, 2)
+  /// PENDING | SENT | APPROVED | REJECTED (CHECK no SQL)
+  quoteStatus                   String                      @default("PENDING") @map("quote_status") @db.VarChar(20)
+  quoteSentAt                   DateTime?                   @map("quote_sent_at") @db.Timestamptz(6)
+  quoteRespondedAt              DateTime?                   @map("quote_responded_at") @db.Timestamptz(6)
+  rejectionOrCancellationReason String?                     @map("rejection_or_cancellation_reason") @db.VarChar(500)
+  receivedAt                    DateTime                    @map("received_at") @db.Timestamptz(6)
+  diagnosisStartedAt            DateTime?                   @map("diagnosis_started_at") @db.Timestamptz(6)
+  executionStartedAt            DateTime?                   @map("execution_started_at") @db.Timestamptz(6)
+  completedAt                   DateTime?                   @map("completed_at") @db.Timestamptz(6)
+  deliveredAt                   DateTime?                   @map("delivered_at") @db.Timestamptz(6)
+  /// ref. identity.users (sem FK entre módulos)
+  createdBy                     String                      @map("created_by") @db.Uuid
+  /// Lock otimista (agregados.md §3 ServiceOrder 8)
+  version                       Int                         @default(1)
+  createdAt                     DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                     DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  serviceItems                  ServiceOrderServiceItem[]
+  partItems                     ServiceOrderPartItem[]
+  statusHistory                 ServiceOrderStatusHistory[]
+
+  // modelo-de-dados.md §3 / PRD-003 RN-039: no máximo 1 OS em aberto por veículo — UNIQUE (vehicle_id) WHERE status
+  // NOT IN ('DELIVERED','CANCELLED'). A preview partialIndexes não expressa NOT IN, então o predicado vai em raw(), escrito
+  // exatamente na forma que o PostgreSQL devolve ao deparsear (é o texto que `prisma db pull --print` mostra; o Prisma
+  // compara o texto literalmente — ver prisma/README.md).
+  @@unique([vehicleId], where: raw("(((status)::text <> 'DELIVERED'::text) AND ((status)::text <> 'CANCELLED'::text))"), map: "service_orders_vehicle_id_open_key")
+  @@index([customerId])
+  @@index([vehicleId])
+  @@index([createdBy])
+  // Fila por status ordenada pelo recebimento (modelo-de-dados.md §4)
+  @@index([status, receivedAt])
+  @@map("service_orders")
+  @@schema("service_orders")
+}
+
+/// Item de serviço da OS com snapshot de nome/preço na inclusão (PRD-002 RN-022).
+model ServiceOrderServiceItem {
+  id             String       @id @db.Uuid
+  serviceOrderId String       @map("service_order_id") @db.Uuid
+  /// ref. catalog.services (sem FK entre módulos)
+  serviceId      String       @map("service_id") @db.Uuid
+  nameSnapshot   String       @map("name_snapshot") @db.VarChar(200)
+  priceSnapshot  Decimal      @map("price_snapshot") @db.Decimal(12, 2)
+  /// CHECK (quantity > 0)
+  quantity       Int
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([serviceOrderId])
+  @@index([serviceId])
+  @@map("service_order_service_items")
+  @@schema("service_orders")
+}
+
+/// Item de peça/insumo da OS com snapshot de nome/preço unitário na inclusão (PRD-002 RN-022).
+model ServiceOrderPartItem {
+  id                String       @id @db.Uuid
+  serviceOrderId    String       @map("service_order_id") @db.Uuid
+  /// ref. catalog.parts (sem FK entre módulos)
+  partId            String       @map("part_id") @db.Uuid
+  nameSnapshot      String       @map("name_snapshot") @db.VarChar(200)
+  unitPriceSnapshot Decimal      @map("unit_price_snapshot") @db.Decimal(12, 2)
+  /// CHECK (quantity > 0)
+  quantity          Decimal      @db.Decimal(10, 3)
+  serviceOrder      ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([serviceOrderId])
+  @@index([partId])
+  @@map("service_order_part_items")
+  @@schema("service_orders")
+}
+
+/// Histórico de transições, append-only (PRD-004 RN-052). from_status nulo na criação da OS.
+model ServiceOrderStatusHistory {
+  id             String       @id @db.Uuid
+  serviceOrderId String       @map("service_order_id") @db.Uuid
+  fromStatus     String?      @map("from_status") @db.VarChar(30)
+  toStatus       String       @map("to_status") @db.VarChar(30)
+  /// id do usuário da equipe | CUSTOMER | SYSTEM
+  actor          String       @db.VarChar(36)
+  reason         String?      @db.VarChar(500)
+  occurredAt     DateTime     @map("occurred_at") @db.Timestamptz(6)
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([serviceOrderId, occurredAt])
+  @@map("service_order_status_history")
+  @@schema("service_orders")
+}
+
+// ───────────────────────────── identity (Identidade & Acesso — PRD-005, ADR-004/011) ─────────────────────────────
+
+/// Usuário (equipe ou cliente). roles: papéis separados por vírgula ("ATTENDANT,MANAGER" | "CUSTOMER") — CHECK no SQL.
+model User {
+  id           String   @id @db.Uuid
+  name         String   @db.VarChar(200)
+  email        String   @unique @db.VarChar(254)
+  /// bcrypt, custo 12 (ADR-004)
+  passwordHash String   @map("password_hash") @db.VarChar(100)
+  roles        String   @db.VarChar(100)
+  /// ref. customers.customers (sem FK); obrigatório se, e só se, roles = 'CUSTOMER' (ADR-011) — CHECK no SQL
+  customerId   String?  @map("customer_id") @db.Uuid
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // modelo-de-dados.md §3: UNIQUE (customer_id) WHERE customer_id IS NOT NULL
+  @@unique([customerId], where: { customerId: { not: null } }, map: "users_customer_id_key")
+  @@map("users")
+  @@schema("identity")
 }

@@ -1,0 +1,74 @@
+# `docker compose up --build` sobe tudo (README §6; visao-geral.md §2): postgres → migrate (prisma migrate deploy +
+# seed) → api. Os valores vêm do .env (cp .env.example .env); dentro da rede do compose o host do banco é `postgres`,
+# por isso DATABASE_URL é montada aqui a partir de POSTGRES_USER/PASSWORD/DB (senha sem caracteres reservados de URL).
+services:
+  postgres:
+    # ADR-002: PostgreSQL 16 com volume nomeado e healthcheck.
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-oficina}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oficina}
+      POSTGRES_DB: ${POSTGRES_DB:-oficina}
+    ports:
+      # Exposta só para desenvolvimento local fora do contêiner (README §6: `docker compose up -d postgres`).
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # -h 127.0.0.1 (TCP): o servidor temporário do initdb só escuta em socket Unix e não pode contar como pronto.
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U ${POSTGRES_USER:-oficina} -d ${POSTGRES_DB:-oficina}']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  migrate:
+    # modelo-de-dados.md §6: migrações na subida; o seed (§5) só grava em APP_ENV=dev. Roda uma vez e termina.
+    build:
+      context: .
+      target: build
+    image: oficina-api:migrate
+    # required: false — `docker compose up -d postgres` (README §6) funciona sem .env. O migrate e a api continuam
+    # exigindo as variáveis do .env.example (cp .env.example .env): sem elas a aplicação recusa subir.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-oficina}:${POSTGRES_PASSWORD:-oficina}@postgres:5432/${POSTGRES_DB:-oficina}
+    command: ['sh', '-c', 'npx prisma migrate deploy && npx prisma db seed']
+    init: true
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      target: runtime
+    image: oficina-api:local
+    # required: false — ver o serviço migrate; a api ainda exige as variáveis do .env.example.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-oficina}:${POSTGRES_PASSWORD:-oficina}@postgres:5432/${POSTGRES_DB:-oficina}
+      PORT: '8080'
+    ports:
+      - '8080:8080'
+    # init: PID 1 encaminha SIGTERM ao node (parada limpa; app.setup.ts habilita os shutdown hooks do Nest).
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'http://127.0.0.1:8080/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  pgdata:

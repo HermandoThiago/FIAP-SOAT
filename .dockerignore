@@ -1,0 +1,46 @@
+# Contexto de build enxuto e sem segredos (seguranca.md "Dockerfile seguro"). O Dockerfile copia apenas
+# package.json, package-lock.json, tsconfig*.json, nest-cli.json, prisma.config.ts, prisma/ e src/.
+
+# Dependências, builds e artefatos gerados (o cliente Prisma é gerado dentro da imagem)
+node_modules
+dist
+coverage
+reports
+src/generated
+**/*.tsbuildinfo
+**/*.log
+
+# Segredos e ambiente (o compose injeta o .env em runtime; nunca dentro da imagem)
+.env
+.env.*
+**/*.pem
+**/*.key
+
+# Git, CI e ferramentas de desenvolvimento
+.git
+.gitattributes
+.gitignore
+.github
+.idea
+.vscode
+.DS_Store
+.editorconfig
+.prettierrc
+.prettierignore
+.dependency-cruiser.cjs
+eslint.config.mjs
+jest.config.ts
+cucumber.js
+scripts
+test
+
+# Documentação, prompts e enunciado (propriedade intelectual da FIAP — nunca no contexto)
+docs
+prompts
+**/*.md
+**/*.pdf
+
+# Os próprios arquivos de contêiner
+Dockerfile
+.dockerignore
+docker-compose*.yml

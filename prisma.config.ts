@@ -11,5 +11,8 @@ export default defineConfig({
   },
   datasource: {
     url: env('DATABASE_URL'),
+    // Opcional: banco-sombra fixo para `migrate dev` e para o drift check (prisma/README.md); sem ele o Prisma cria um
+    // banco temporário (exige CREATEDB).
+    shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
   },
 });
