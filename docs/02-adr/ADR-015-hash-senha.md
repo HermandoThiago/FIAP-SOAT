@@ -1,4 +1,4 @@
-# ADR-003 — Algoritmo de hashing de senhas (com justificativa exigida no enunciado)
+# ADR-015 — Algoritmo de hashing de senhas
 
 | Campo | Valor |
 |---|---|
