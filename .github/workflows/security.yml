@@ -1,0 +1,292 @@
+name: Security
+
+# Análise de vulnerabilidades no CI (ADR-007 "Decisão"; plano-analise-vulnerabilidades.md §3). Em todo PR: Semgrep (SAST),
+# npm audit + Trivy fs (SCA, IaC, segredos em arquivos), gitleaks (segredos no histórico), hadolint e Trivy image/config
+# (imagem). No push em develop/master, manual ou agendado: tudo acima + OWASP ZAP (DAST) contra o docker compose.
+# Política: CRITICAL bloqueia; HIGH alerta (bloqueia a partir da semana 6); ZAP só gera relatório. Nada aqui imprime segredos.
+
+on:
+  pull_request:
+  push:
+    branches: [develop, master]
+  workflow_dispatch:
+  schedule:
+    # Segunda-feira 06:00 UTC (ADR-008: ZAP manual ou agendado).
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: security-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep
+    permissions:
+      contents: read
+      security-events: write # envio do SARIF ao Code scanning (opcional)
+    steps:
+      - uses: actions/checkout@v4
+
+      # Regras da ADR-007. Sem --error: este scan só gera o SARIF (evidência para o relatório da entrega).
+      - name: Semgrep → SARIF
+        run: |
+          mkdir -p reports
+          semgrep scan --config p/owasp-top-ten --config p/typescript --config p/nodejs --config p/secrets \
+            --sarif -o reports/semgrep.sarif .
+
+      # Gate: só achados de severidade ERROR bloqueiam; WARNING/INFO entram no relatório e seguem o plano §5.
+      - name: Gate (severidade ERROR)
+        run: |
+          semgrep scan --config p/owasp-top-ten --config p/typescript --config p/nodejs --config p/secrets \
+            --severity ERROR --error .
+
+      - name: Publicar SARIF
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-sarif
+          path: reports/semgrep.sarif
+
+      - name: Enviar ao Code scanning
+        if: ${{ !cancelled() }}
+        continue-on-error: true # Code scanning pode estar desligado (repositório privado até a entrega)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/semgrep.sarif
+          category: semgrep
+
+  sca:
+    name: SCA (npm audit + Trivy fs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # O audit só precisa do package-lock.json; --ignore-scripts evita baixar os engines do Prisma à toa.
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # ADR-007 "Decisão": HIGH alerta (bloqueia a partir da semana 6) — auditoria completa, inclusive devDependencies …
+      - name: npm audit (HIGH — alerta)
+        id: audit-high
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
+      - name: Alerta de vulnerabilidades HIGH
+        if: steps.audit-high.outcome == 'failure'
+        run: |
+          echo "::warning::npm audit encontrou vulnerabilidades HIGH: corrigir antes do scan 2 (ADR-007 — bloqueia a partir da semana 6)."
+
+      # … e CRITICAL bloqueia o PR (ADR-007). --omit=dev: o gate cobre só as dependências que vão para a imagem
+      # (runtime do Dockerfile); a CLI do Prisma, Jest, ESLint etc. são devDependencies, não embarcam na imagem e já
+      # aparecem no alerta HIGH acima e no Trivy fs (package-lock.json completo).
+      - name: npm audit (CRITICAL — bloqueia; só dependências de produção)
+        run: npm audit --audit-level=critical --omit=dev
+
+      # Trivy fs: package-lock.json (vuln), Dockerfile e docker-compose.yml (misconfig) e arquivos versionados (secret).
+      # Cada passo do trivy-action instala o próprio binário (o input skip-setup-trivy não é confirmado na 0.28.0).
+      - run: mkdir -p reports
+
+      - name: Trivy fs (CRITICAL — bloqueia)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          severity: CRITICAL
+          exit-code: '1'
+          skip-dirs: node_modules
+
+      - name: Trivy fs (HIGH,CRITICAL — relatório)
+        if: ${{ !cancelled() }}
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          format: table
+          output: reports/trivy-fs.txt
+          skip-dirs: node_modules
+
+      - name: Publicar relatório do Trivy fs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs
+          path: reports/trivy-fs.txt
+
+  gitleaks:
+    name: Segredos (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read # lista os commits do PR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # histórico completo (ADR-007)
+
+      # GITLEAKS_LICENSE só é exigida em contas de organização (secret opcional; vazio em conta pessoal).
+      # Os valores do .env.example são fictícios (change-me…); se algum for apontado, a allowlist entra em .gitleaks.toml
+      # (plano §6) — nunca se versiona um segredo real para "passar" o scan.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_ENABLE_COMMENTS: 'false' # sem escrita no PR: achados no resumo do job e no artefato results.sarif
+
+  hadolint:
+    name: Dockerfile (hadolint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # ADR-007: boas práticas do Dockerfile; só `error` bloqueia (warning/info ficam no log).
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+  image:
+    name: Imagem (Trivy image + config)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: mkdir -p reports
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Equivale ao `docker build -t oficina-api:scan .` do plano §2, com cache de camadas compartilhado com o ci.yml.
+      - name: Build da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          push: false
+          load: true
+          tags: oficina-api:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ADR-007: CRITICAL bloqueia …
+      - name: Trivy image (CRITICAL — bloqueia)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: oficina-api:scan
+          severity: CRITICAL
+          exit-code: '1'
+
+      # … e HIGH,CRITICAL vai para o relatório (evidência do scan 1 / scan 2).
+      - name: Trivy image (HIGH,CRITICAL — relatório)
+        if: ${{ !cancelled() }}
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: oficina-api:scan
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          format: table
+          output: reports/trivy-image.txt
+
+      # IaC (ADR-007): Dockerfile e docker-compose.yml; CRITICAL já bloqueia no Trivy fs (misconfig) do job sca.
+      - name: Trivy config (Dockerfile e docker-compose.yml)
+        if: ${{ !cancelled() }}
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          format: table
+          output: reports/trivy-config.txt
+
+      - name: Publicar relatórios da imagem
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image
+          path: |
+            reports/trivy-image.txt
+            reports/trivy-config.txt
+
+  zap:
+    name: DAST (OWASP ZAP)
+    # Plano §3: só no push em develop/master, manual ou agendado — não em PR. Gera relatório, não bloqueia.
+    if: |
+      github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'))
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # API real via docker compose (README §6) com o .env.example (valores fictícios): APP_ENV=dev expõe
+      # /docs/openapi.json ao ZAP (plano §2).
+      - name: Subir a API (docker compose)
+        run: |
+          cp .env.example .env
+          docker compose up -d --build
+
+      - name: Aguardar /health (até 120 s)
+        run: |
+          for _ in $(seq 1 24); do
+            if curl -fsS http://localhost:8080/health; then
+              echo
+              echo 'API no ar.'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo '::error::A API não respondeu em /health em 120 s.'
+          docker compose logs --no-color
+          exit 1
+
+      # Baseline (spider passivo, headers) e API scan guiado pelo OpenAPI (ADR-005); relatórios como artefatos.
+      - name: ZAP baseline
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: http://localhost:8080/api/v1
+          allow_issue_writing: false
+          fail_action: false
+          artifact_name: zap-baseline
+
+      - name: ZAP API scan (OpenAPI)
+        if: ${{ !cancelled() }}
+        uses: zaproxy/action-api-scan@v0.9.0
+        with:
+          target: http://localhost:8080/docs/openapi.json
+          format: openapi
+          allow_issue_writing: false
+          fail_action: false
+          artifact_name: zap-api-scan
+
+      # Diagnóstico quando algum passo falha (compose, /health ou ZAP): estado dos contêineres e logs. Os valores do
+      # .env.example são fictícios e a API mascara PII nos logs — nada sensível é impresso.
+      - name: Diagnóstico (docker compose ps/logs)
+        if: failure()
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color
+
+      - name: Derrubar a API
+        if: always()
+        run: docker compose down -v

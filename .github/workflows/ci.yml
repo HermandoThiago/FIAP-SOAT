@@ -1,0 +1,211 @@
+name: CI
+
+# Pipeline de integração (ADR-008 "Decisão"; ADR-006; estrategia-de-testes.md §6; estrutura-do-repositorio.md §2):
+# título do PR em Conventional Commits → guarda do GitFlow em master → lint · dependency-cruiser · build · unitários ·
+# integração (Testcontainers) · BDD · cobertura com gate (jest.config.ts) · openapi.json → build da imagem Docker.
+# Roda em PR para develop/master/release/* e em push em develop/master e tags v* (ADR-008). Sem push para registro:
+# a Fase 2 empurra a imagem para o ECR (como-trabalhamos.md §4, "Imagem Docker no CI").
+
+on:
+  pull_request:
+    # edited: revalida o título quando ele é corrigido no GitHub (amannn/action-semantic-pull-request).
+    types: [opened, edited, synchronize, reopened]
+    branches: [develop, master, 'release/**']
+  push:
+    branches: [develop, master]
+    tags: ['v*']
+
+# Um run por ref: um novo push na mesma branch/PR cancela o anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Permissões mínimas: só leitura (o título do PR é lido com o GITHUB_TOKEN).
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: Título do PR (Conventional Commits)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # ADR-008: com squash merge o título do PR vira a mensagem do commit em develop. Tipos e escopos de
+      # como-trabalhamos.md §4; `docs` sem escopo é permitido em mudanças na raiz (requireScope: false).
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            test
+            refactor
+            chore
+            ci
+            build
+          scopes: |
+            customers
+            catalog
+            service-orders
+            identity
+            shared
+            infra
+            ci
+            guia
+            prd
+            adr
+            ddd
+            arquitetura
+            qualidade
+            entrega
+            github
+            prompts
+          requireScope: false
+          # Assunto começa em minúscula, como nos exemplos do guia ("feat(service-orders): create service order").
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            O assunto "{subject}" do título "{title}" não segue o padrão: comece com letra minúscula
+            (ex.: "feat(service-orders): create service order" — como-trabalhamos.md §4).
+
+  branch-policy:
+    name: GitFlow (PR para master)
+    if: github.event_name == 'pull_request' && github.base_ref == 'master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # ADR-008: master só recebe release/* e hotfix/*; o trabalho do dia a dia vai para develop.
+      # O nome da branch entra por variável de ambiente (nunca interpolado no script).
+      - name: Recusar origem fora de release/* ou hotfix/*
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            release/* | hotfix/*)
+              echo "Origem '$HEAD_REF' permitida em master (GitFlow, ADR-008)."
+              ;;
+            *)
+              echo "::error::PR para master só pode vir de release/* ou hotfix/* (GitFlow, ADR-008). Origem: '$HEAD_REF'. Abra o PR para develop."
+              exit 1
+              ;;
+          esac
+
+  quality:
+    name: Lint, testes, cobertura e OpenAPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Telemetria/checagem de versão da CLI do Prisma desligada (como no Dockerfile).
+      CHECKPOINT_DISABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      # prisma.config.ts resolve DATABASE_URL ao carregar, mas `prisma generate` não conecta: placeholder sem credenciais.
+      - name: Gerar cliente Prisma
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: postgresql://localhost:5432/placeholder
+
+      - run: npm run lint
+
+      # Regras de dependência entre camadas e módulos (ADR-003; estrutura-do-repositorio.md §4).
+      - run: npm run depcruise
+
+      - run: npm run build
+
+      # Unitários sem banco nem HTTP (ADR-006). Integração e BDD sobem o PostgreSQL 16 via Testcontainers (ubuntu-latest
+      # tem Docker) e definem as próprias variáveis fictícias (test/support/test-env.ts) — nenhum segredo aqui.
+      - name: Testes unitários
+        run: npm test
+
+      - name: Testes de integração (Testcontainers)
+        run: npm run test:integration
+
+      - name: Cenários BDD (Cucumber-js)
+        run: npm run test:bdd
+
+      # Gate ≥ 80 % de linhas e branches em service-orders e catalog (domain/ + services/): coverageThreshold em jest.config.ts.
+      - name: Cobertura com gate
+        run: npm run test:cov
+
+      # ADR-005 (code-first): o openapi.json é artefato do CI, não versionado; o script usa valores fictícios e não conecta.
+      - name: Exportar openapi.json
+        run: npm run openapi:export
+
+      - name: Publicar relatório de cobertura
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publicar relatório BDD
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-report
+          path: reports/bdd/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Publicar openapi.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: reports/openapi.json
+          retention-days: 14
+
+  docker-image:
+    name: Imagem Docker
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # como-trabalhamos.md §4 ("Imagem Docker no CI"): sempre oficina-api:<sha-curto>; em tag vX.Y.Z também
+      # oficina-api:vX.Y.Z. `oficina-api` é o nome provisório do sistema (enquete E-01).
+      # Em PR, github.sha é o merge commit sintético (refs/pull/N/merge): o sha-curto vem do commit real da branch
+      # (github.event.pull_request.head.sha); nos demais eventos (push em develop/master e tag) é o próprio github.sha.
+      - name: Definir tags da imagem
+        id: tags
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          IMAGE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          tags="oficina-api:${IMAGE_SHA::7}"
+          if [ "$REF_TYPE" = 'tag' ]; then
+            tags="${tags},oficina-api:${REF_NAME}"
+          fi
+          echo "Tags: ${tags}"
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Só build (push: false); load: true deixa a imagem no daemon do runner. Camadas em cache no cache do Actions.
+      - name: Build da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          push: false
+          load: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Listar a imagem gerada
+        run: docker image ls oficina-api
