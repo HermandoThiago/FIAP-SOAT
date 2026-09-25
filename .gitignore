@@ -45,3 +45,7 @@ docker-compose.override.yml
 # (requisitos transcritos em docs/06-entrega/checklist-de-entrega.md)
 enunciado*.pdf
 Fase*Tech Challenge*.pdf
+
+# Cliente do Prisma gerado por `prisma generate` (Prisma 7 — E-17)
+/src/generated/
+*.tsbuildinfo

@@ -1,0 +1,15 @@
+// Prisma 7 (E-17) — um schema PostgreSQL por módulo via multiSchema (ADR-002; modelo-de-dados.md §2).
+// Ids: @id @db.Uuid sem @default — o id nasce no domínio (ADR-009). Constraints da §3 e a sequência anual da OS
+// ficam em SQL escrito à mão nas migrações. O domínio nunca importa o cliente gerado (ADR-003).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+  runtime      = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["customers", "catalog", "service_orders", "identity"]
+}

@@ -1,0 +1,19 @@
+# Gerados / dependências
+node_modules/
+dist/
+coverage/
+reports/
+src/generated/
+package-lock.json
+
+# Documentação e prompts do grupo (formatação manual; tabelas Markdown)
+docs/
+prompts/
+*.md
+
+# Migrações SQL escritas à mão (Prisma Migrate)
+prisma/migrations/
+
+# Workflows do Claude mantidos pelo grupo (formatação manual)
+.github/workflows/claude.yml
+.github/workflows/claude-code-review.yml
