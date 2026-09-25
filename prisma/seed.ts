@@ -607,28 +607,8 @@ async function seed(tx: Prisma.TransactionClient, passwordHashes: { admin: strin
     });
   }
 
-  for (const service of Object.values(services)) {
-    const { id, ...data } = service;
-    await tx.service.upsert({ where: { name: service.name }, update: data, create: { id, ...data } });
-  }
-
-  for (const part of Object.values(parts)) {
-    const { id, inboundId, ...data } = part;
-    await tx.part.upsert({
-      where: { sku: part.sku },
-      update: { ...data, reservedQuantity: '0' },
-      create: { id, ...data },
-    });
-    const inbound = {
-      partId: id,
-      type: 'INBOUND',
-      quantity: initialInbound(part),
-      reason: 'Estoque inicial (seed de demonstração)',
-      userId: ids.managerUser,
-      occurredAt: at('2026-09-01T12:00:00Z'),
-    };
-    await tx.stockMovement.upsert({ where: { id: inboundId }, update: inbound, create: { id: inboundId, ...inbound } });
-  }
+  const userIdMap = new Map<string, string>();
+  const resolveUserId = (fixedId: string): string => userIdMap.get(fixedId) ?? fixedId;
 
   const users = [
     {
@@ -666,14 +646,44 @@ async function seed(tx: Prisma.TransactionClient, passwordHashes: { admin: strin
     },
   ];
   // password_hash só entra no create: uma senha alterada pela API sobrevive a novas execuções (prisma/README.md).
+  // Se a API já criou o MANAGER na subida (RF-062) com outro id, o upsert por e-mail mantém esse id: as referências
+  // (created_by, stock_movements.user_id, actor do histórico) usam o id realmente gravado, nunca o fixo.
   for (const user of users) {
     const { id, passwordHash, ...data } = user;
-    await tx.user.upsert({ where: { email: user.email }, update: data, create: { id, passwordHash, ...data } });
+    const saved = await tx.user.upsert({
+      where: { email: user.email },
+      update: data,
+      create: { id, passwordHash, ...data },
+    });
+    userIdMap.set(id, saved.id);
+  }
+
+  for (const service of Object.values(services)) {
+    const { id, ...data } = service;
+    await tx.service.upsert({ where: { name: service.name }, update: data, create: { id, ...data } });
+  }
+
+  for (const part of Object.values(parts)) {
+    const { id, inboundId, ...data } = part;
+    await tx.part.upsert({
+      where: { sku: part.sku },
+      update: { ...data, reservedQuantity: '0' },
+      create: { id, ...data },
+    });
+    const inbound = {
+      partId: id,
+      type: 'INBOUND',
+      quantity: initialInbound(part),
+      reason: 'Estoque inicial (seed de demonstração)',
+      userId: resolveUserId(ids.managerUser),
+      occurredAt: at('2026-09-01T12:00:00Z'),
+    };
+    await tx.stockMovement.upsert({ where: { id: inboundId }, update: inbound, create: { id: inboundId, ...inbound } });
   }
 
   for (const order of serviceOrders) {
     const { id, serviceItems, partItems, history, ...fields } = order;
-    const data = { ...fields, quoteTotalAmount: quoteTotal(order), createdBy: ids.attendantUser };
+    const data = { ...fields, quoteTotalAmount: quoteTotal(order), createdBy: resolveUserId(ids.attendantUser) };
     await tx.serviceOrder.upsert({ where: { number: order.number }, update: data, create: { id, ...data } });
 
     for (const item of serviceItems) {
@@ -717,7 +727,7 @@ async function seed(tx: Prisma.TransactionClient, passwordHashes: { admin: strin
           type: 'OUTBOUND',
           quantity: item.quantity,
           serviceOrderId: id,
-          userId: ids.mechanicUser,
+          userId: resolveUserId(ids.mechanicUser),
           occurredAt: order.completedAt,
         };
         await tx.stockMovement.upsert({
@@ -733,7 +743,7 @@ async function seed(tx: Prisma.TransactionClient, passwordHashes: { admin: strin
         serviceOrderId: id,
         fromStatus: entry.fromStatus,
         toStatus: entry.toStatus,
-        actor: entry.actor,
+        actor: resolveUserId(entry.actor),
         occurredAt: entry.occurredAt,
       };
       await tx.serviceOrderStatusHistory.upsert({
