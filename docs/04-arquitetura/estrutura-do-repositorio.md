@@ -108,7 +108,7 @@ FIAP-SOAT/
 │       │   ├── controllers/ · dto/     # ServiceOrdersController, TrackingController, MetricsController
 │       │   └── service-orders.module.ts  # imports: CustomersModule, CatalogModule, IdentityModule
 │       └── identity/
-│           ├── domain/                 # User, Role (ATTENDANT, MECHANIC, MANAGER, CUSTOMER), PasswordHash
+│           ├── domain/                 # User, PasswordHash, eventos UserRegistered/UserAuthenticated (Role: ver shared/domain)
 │           ├── services/               # AuthService (login, validateToken), UsersService (register…), TrackingTokenService — exportados
 │           ├── repositories/           # UserRepository (Prisma)
 │           ├── controllers/ · dto/     # AuthController, UsersController

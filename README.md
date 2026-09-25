@@ -72,7 +72,10 @@ npm run start:dev               # http://localhost:8080 com recarga automática
 
 Outros scripts: `npm run build` (compila para `dist/`), `npm run lint` (ESLint + Prettier), `npm run depcruise`
 (regras de dependência entre camadas — `docs/04-arquitetura/estrutura-do-repositorio.md` §4), `npm run openapi:export`
-(gera `reports/openapi.json` sem subir o servidor — artefato do CI, ADR-005), `npm run prisma:generate`.
+(gera `reports/openapi.json` sem subir o servidor — artefato do CI, ADR-005), `npm run prisma:generate` (exige
+`DATABASE_URL` definida — qualquer URL PostgreSQL sintaticamente válida serve; o CI usa um placeholder — mas não conecta).
+Se a API subir antes do seed, o `MANAGER` de `ADMIN_EMAIL` já existe: o seed reaproveita esse usuário (mesmo id) e
+nunca sobrescreve senhas.
 
 ## 7. Instruções para execução dos testes
 
@@ -87,6 +90,8 @@ npm run test:cov         # unitários + integração com cobertura e gate ≥ 80
 
 Sem Docker (ou para reaproveitar um PostgreSQL 16 já em execução), aponte `TEST_DATABASE_URL` para um banco **vazio**
 que os testes possam zerar: `TEST_DATABASE_URL=postgresql://oficina:oficina@localhost:5432/oficina_test npm run test:e2e`.
+Para rodar um único spec: `npm test -- --testPathPatterns test/unit/identity` (o caminho solto após `--` seria lido pelo
+Jest como nome de projeto).
 
 Evidência de cobertura versionada em `docs/06-entrega/evidencias/cobertura.md` `<a preencher em M4>`.
 
