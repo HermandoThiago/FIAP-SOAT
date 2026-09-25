@@ -1,4 +1,4 @@
-# ADR-014 — ORM do projeto (com justificativa exigida no enunciado)
+# ADR-014 — ORM e migrações
 
 | Campo | Valor |
 |---|---|
