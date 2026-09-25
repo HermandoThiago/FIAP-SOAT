@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | Proposta — aguardando enquete E-02 |
+| Status | ✅ **Aceita** — encerrada em 23/09/2026 |
 | Tipo | Tipo 1 |
 | Decisores | Grupo |
 | Data | 2026-09-23 |
