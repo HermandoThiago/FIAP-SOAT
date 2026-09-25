@@ -27,9 +27,9 @@ function hasSourceFiles(folder: string): boolean {
   );
 }
 
-const coverageThreshold: Config['coverageThreshold'] = Object.fromEntries(
+const coverageThreshold = Object.fromEntries(
   CRITICAL_FOLDERS.filter(hasSourceFiles).map((folder) => [`./${folder}/`, { lines: 80, branches: 80 }]),
-);
+) as NonNullable<Config['coverageThreshold']>;
 
 const config: Config = {
   projects: [

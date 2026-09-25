@@ -12,7 +12,9 @@
 //    serviços exportados pelo identity (AuthService, TrackingTokenService — ADR-004/011, glossário §6).
 
 const MODULE = '^src/modules/([^/]+)/';
-const PRISMA_CLIENT = '^(@prisma/client|src/generated/prisma)';
+// Dependências npm aparecem com o caminho resolvido (node_modules/...); o cliente do Prisma é gerado em src/generated.
+const NEST = '^node_modules/@nestjs/';
+const PRISMA_CLIENT = '^node_modules/@prisma/|^src/generated/';
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
@@ -22,7 +24,7 @@ module.exports = {
       severity: 'error',
       comment: 'domain/ é TypeScript puro: sem @nestjs/*, sem Prisma (ADR-003; estrutura §4.1).',
       from: { path: '^src/(modules/[^/]+|shared)/domain/' },
-      to: { path: '^(@nestjs/|@prisma/|src/generated/prisma)' },
+      to: { path: `${NEST}|${PRISMA_CLIENT}` },
     },
     {
       name: 'domain-no-upper-layers',
@@ -134,8 +136,8 @@ module.exports = {
     },
   ],
   options: {
+    // node_modules e o cliente gerado não são percorridos, mas as arestas até eles ficam visíveis para as regras acima.
     doNotFollow: { path: ['node_modules', 'src/generated'] },
-    exclude: { path: ['src/generated'] },
     tsPreCompilationDeps: true,
     tsConfig: { fileName: 'tsconfig.json' },
     enhancedResolveOptions: {

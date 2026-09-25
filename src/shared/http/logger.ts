@@ -1,14 +1,16 @@
 import { randomUUID } from 'node:crypto';
-
 import { type IncomingMessage, type ServerResponse } from 'node:http';
+
 import { type Params } from 'nestjs-pino';
+import { stdSerializers, type TransportSingleOptions } from 'pino';
 
 import { type Env } from '../config/env';
 import { maskPii, maskPiiDeep } from './pii-mask';
 
 export const REQUEST_ID_HEADER = 'x-request-id';
 
-// Logs estruturados (pino) com requestId e máscara de PII (visao-geral.md §6; ADR-009). Em APP_ENV=dev, saída legível.
+// Logs estruturados (pino) com requestId e máscara de PII (visao-geral.md §6; ADR-009). Em APP_ENV=dev, saída legível
+// com pino-pretty quando ele estiver instalado (é devDependency: a imagem de produção cai no JSON padrão).
 export function buildLoggerParams(env: Pick<Env, 'APP_ENV' | 'LOG_LEVEL'>): Params {
   return {
     pinoHttp: {
@@ -36,17 +38,32 @@ export function buildLoggerParams(env: Pick<Env, 'APP_ENV' | 'LOG_LEVEL'>): Para
           remoteAddress: req.remoteAddress,
         }),
         res: (res: { statusCode?: number }) => ({ statusCode: res.statusCode }),
+        // Mensagem e stack de exceções também podem carregar documento/placa (ex.: erro de validação relançado).
+        err: (err: Error) => {
+          const serialized = stdSerializers.err(err);
+          return {
+            ...serialized,
+            message: maskPii(serialized.message),
+            stack: serialized.stack ? maskPii(serialized.stack) : undefined,
+          };
+        },
       },
       hooks: {
         logMethod(args, method) {
-          // Mascara CPF/CNPJ/placa em qualquer mensagem ou objeto logado pela aplicação.
+          // Mascara CPF/CNPJ/placa/telefone em qualquer mensagem ou objeto logado pela aplicação.
           method.apply(this, args.map((arg: unknown) => maskPiiDeep(arg)) as Parameters<typeof method>);
         },
       },
-      transport:
-        env.APP_ENV === 'dev'
-          ? { target: 'pino-pretty', options: { colorize: true, singleLine: true, translateTime: 'SYS:HH:MM:ss' } }
-          : undefined,
+      transport: env.APP_ENV === 'dev' ? prettyTransport() : undefined,
     },
   };
+}
+
+function prettyTransport(): TransportSingleOptions | undefined {
+  try {
+    require.resolve('pino-pretty');
+  } catch {
+    return undefined;
+  }
+  return { target: 'pino-pretty', options: { colorize: true, singleLine: true, translateTime: 'SYS:HH:MM:ss' } };
 }

@@ -66,19 +66,35 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   }
 }
 
-// Mensagens padrão do Nest/Express em inglês → português (ADR-013; contrato-api.md §5). Mensagens da aplicação passam intactas.
-function translateFrameworkMessage(
-  status: HttpStatus,
-  message: string | undefined,
-  request: Request,
-): string | undefined {
-  if (status === HttpStatus.NOT_FOUND && message?.startsWith('Cannot ')) {
+// Mensagens padrão do Nest/Express em inglês (ex.: "Unauthorized", "Forbidden resource", "Cannot GET /x") → português
+// (ADR-013; contrato-api.md §5). Mensagens escritas pela aplicação passam intactas.
+const NEST_DEFAULT_MESSAGES = new Set([
+  'Bad Request',
+  'Unauthorized',
+  'Forbidden',
+  'Forbidden resource',
+  'Not Found',
+  'Method Not Allowed',
+  'Conflict',
+  'Payload Too Large',
+  'Unsupported Media Type',
+  'Unprocessable Entity',
+  'Too Many Requests',
+  'Internal Server Error',
+  'Service Unavailable',
+]);
+
+function translateFrameworkMessage(status: HttpStatus, message: string | undefined, request: Request): string {
+  if (message === undefined || message === '' || NEST_DEFAULT_MESSAGES.has(message)) {
+    return problemTypeFor(status).title;
+  }
+  if (status === HttpStatus.NOT_FOUND && message.startsWith('Cannot ')) {
     return `Rota não encontrada: ${request.method} ${request.path}`;
   }
-  if (status === HttpStatus.BAD_REQUEST && message !== undefined && /JSON/i.test(message)) {
+  if (status === HttpStatus.BAD_REQUEST && /JSON/i.test(message)) {
     return 'JSON malformado';
   }
-  if (status === HttpStatus.BAD_REQUEST && message?.startsWith('Failed to decode param')) {
+  if (status === HttpStatus.BAD_REQUEST && message.startsWith('Failed to decode param')) {
     return 'Parâmetro de rota inválido';
   }
   return message;
