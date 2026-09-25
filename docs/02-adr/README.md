@@ -40,6 +40,8 @@ cada uma; as opções e recomendações ficam como registro.
 | [ADR-011](ADR-011-acesso-do-cliente.md) | Acesso do cliente — **token de acompanhamento + login `CUSTOMER`** | Tipo 1 | 3 | ✅ Aceita (22/09) | E-15 |
 | [ADR-012](ADR-012-controle-de-estoque-na-os.md) | Estoque na OS — **reserva na aprovação + baixa na finalização; bloqueia sem estoque (422)** | Tipo 1 | 3 | ✅ Aceita (22/09) | E-16 |
 | [ADR-013](ADR-013-idioma-do-codigo-e-da-api.md) | Idioma do código e da API — **tudo em inglês + glossário** | Tipo 1 | 1 | ✅ Aceita (16/09) | E-07 |
+| [ADR-014](ADR-014-orm.md) | Escolha do ORM - **Prisma ORM** | Tipo 1 | 1 | ✅ Aceita (23/09) | E-17 |
+| [ADR-015](ADR-015-hash-senha.md) | Escolha de Hash para senha - **Argon2id** | Tipo 1 | 1 | ✅ Aceita (23/09) | E-18 |
 
 Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional) —
 decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md) (ex.: E-17, ORM = Prisma).
