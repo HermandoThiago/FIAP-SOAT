@@ -8,6 +8,8 @@ import { applyTestEnv } from './test-env';
 export interface TestAppOptions {
   /** Controllers extras registrados só no teste (ex.: uma rota de sondagem para um guard). */
   controllers?: Type[];
+  /** Módulos extras importados pelo módulo raiz do teste (ex.: IdentityModule, para o guard do controller extra). */
+  imports?: Type[];
 }
 
 // Instância real da aplicação (mesmos pipes, filtro e prefixo do main.ts) sobre o banco de teste.
@@ -18,7 +20,7 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<INest
   const { AppModule } = await import('../../src/app.module');
   const { setupApp } = await import('../../src/app.setup');
   const moduleRef = await Test.createTestingModule({
-    imports: [AppModule],
+    imports: [AppModule, ...(options.imports ?? [])],
     controllers: options.controllers ?? [],
   }).compile();
   const app = setupApp(moduleRef.createNestApplication({ bufferLogs: true }));

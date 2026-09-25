@@ -74,9 +74,10 @@ FIAP-SOAT/
 │   ├── shared/
 │   │   ├── config/                     # env.ts: schema (zod) das variáveis de ambiente, validado na subida
 │   │   ├── domain/                     # Money, Quantity, Document (Cpf, Cnpj), LicensePlate, Email, Phone, ServiceOrderNumber,
-│   │   │                               # DomainError, ValidationError, InvalidTransitionError, DomainEvent, AggregateRoot, masking
+│   │   │                               # Role (enum usado por @Roles() em todos os módulos), DomainError, ValidationError,
+│   │   │                               # InvalidTransitionError, DomainEvent, AggregateRoot, masking
 │   │   ├── auth/                       # JwtAuthGuard (aud=api) + RolesGuard, TrackingAuthGuard (aud=tracking ou papel CUSTOMER),
-│   │   │                               # @Roles(), @Public(), @TrackingRoute(), enum Role (usado pelos controllers de todos os módulos)
+│   │   │                               # @Roles(), @Public(), @TrackingRoute(), @CurrentUser(), principal (request.user / request.tracking)
 │   │   ├── http/                       # ProblemDetailsFilter, ValidationPipe (422 com errors[].field), logs pino com requestId e
 │   │   │                               # máscara de PII, HealthController (/health, /ready)
 │   │   ├── prisma/                     # PrismaService (conexão via driver adapter pg, $transaction) e tipo da transação
