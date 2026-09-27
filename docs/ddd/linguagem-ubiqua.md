@@ -1,169 +1,73 @@
-# Linguagem ubíqua — glossário do domínio da oficina
+# Linguagem Ubíqua
 
-> Fonte da verdade para nomes no código, na API, nos testes, no Miro e no vídeo — e o arquivo `docs/ddd/linguagem-ubiqua.md`
-> que o enunciado (23/09) pede como glossário entregue, com a relação documentação ↔ código na coluna *Identificador (EN)*.
-> **ADR-013 (Aceita, E-07): código e API em inglês; este glossário mapeia cada termo da linguagem ubíqua (português,
-> como a oficina fala) para o identificador em inglês.** Regra: **um termo, um significado, uma tradução, em todo lugar**.
-> Sinônimos listados são para *evitar* — em português e em inglês.
+Este documento consolida os principais termos utilizados no domínio da oficina mecânica, buscando manter um vocabulário comum entre as pessoas envolvidas no processo.
 
-## 0. Regras de tradução
+## Glossário do domínio
 
-- Documentação, Miro, vídeo, mensagens de erro e textos exibidos ao cliente (`statusDescription`) ficam em **português**.
-- Classes, métodos, campos, rotas, enums, tabelas, colunas, eventos, serviços de aplicação, nomes de módulo e escopos de
-  commit ficam em **inglês**, sempre com a tradução deste glossário (não inventar sinônimos: é `Quote`, nunca `Budget`/`Estimate`).
-- O **número da OS** continua `OS-AAAA-NNNNNN`: é um rótulo que a oficina fala em voz alta, não um identificador de código.
-- Enums em `UPPER_SNAKE_CASE`; campos JSON em `camelCase`; tabelas/colunas em `snake_case`; rotas em `kebab-case` no plural.
-- Termo novo? Entra aqui primeiro (PR `docs(ddd): …`), depois no código.
-
-## 1. Módulos (contextos delimitados)
-
-| Contexto (PT) | Módulo / pasta | Escopo de commit | Schema no banco |
+| Termo | Definição no domínio | Exemplo | Tipo |
 |---|---|---|---|
-| Cadastro (clientes e veículos) | `customers` | `customers` | `customers` |
-| Catálogo & Estoque (serviços, peças/insumos, movimentações) | `catalog` | `catalog` | `catalog` |
-| Atendimento (ordem de serviço, orçamento, status, acompanhamento) — **core** | `service-orders` | `service-orders` | `service_orders` |
-| Identidade & Acesso (usuários, papéis, JWT) | `identity` | `identity` | `identity` |
-| Kernel compartilhado (value objects, erros, eventos) | `shared` | `shared` | — |
+| Cliente | Pessoa que solicita e acompanha os serviços realizados pela oficina e aprova ou recusa orçamentos. | Cliente aprova o orçamento enviado para o reparo do veículo. | Atores |
+| Sistema | Aplicação que registra, controla e automatiza etapas do atendimento e da execução dos serviços. | O sistema atualiza o status da ordem de serviço após a aprovação do orçamento. | Atores |
+| Atendente | Pessoa responsável por receber o cliente, registrar dados e abrir ou acompanhar ordens de serviço. | O atendente abre a ordem de serviço quando o veículo chega à oficina. | Atores |
+| Mecânico | Profissional responsável pelo diagnóstico e pela execução dos serviços de manutenção ou reparo. | O mecânico realiza o diagnóstico e registra os serviços necessários. | Atores |
+| Administrador | Pessoa responsável por manter cadastros e acompanhar informações operacionais da oficina. | O administrador atualiza os cadastros e acompanha informações operacionais da oficina. | Atores |
+| Ordem de serviço | Registro central do atendimento de um veículo, reunindo cliente, veículo, diagnóstico, serviços, peças, orçamento, status e histórico. | OS 1542 aberta para revisão e troca das pastilhas de freio. | Objetos de trabalho |
+| Veículo | Bem do cliente submetido a diagnóstico, manutenção ou reparo e vinculado a uma ordem de serviço. | Honda Fit de placa ABC1D23 vinculado à OS 1542. | Objetos de trabalho |
+| Serviço | Trabalho de manutenção ou reparo que pode ser incluído em uma ordem de serviço e em seu orçamento. | Troca das pastilhas de freio. | Objetos de trabalho |
+| Peça | Item físico utilizado na execução de um serviço e controlado no estoque da oficina. | Jogo de pastilhas de freio dianteiras. | Objetos de trabalho |
+| Orçamento | Composição de serviços, peças e valores apresentada ao cliente para aprovação antes da execução. | Orçamento de R$ 850,00 enviado ao cliente para aprovação. | Objetos de trabalho |
+| Item de orçamento | Linha individual do orçamento que representa um serviço, uma peça ou outro valor cobrado. | Item: troca de óleo — R$ 120,00. | Objetos de trabalho |
+| Reserva de peça | Separação temporária de uma quantidade de peças do estoque para uma ordem de serviço. | Duas pastilhas foram reservadas para a OS 1542. | Objetos de trabalho |
+| Documento (CPF/CNPJ) | Identificador utilizado para registrar e localizar o cliente no sistema. | CPF informado no cadastro do cliente. | Objetos de trabalho |
+| Placa | Identificador do veículo utilizado em seu cadastro e nas consultas da oficina. | Placa ABC1D23. | Objetos de trabalho |
+| Status da ordem de serviço | Situação atual da ordem de serviço ao longo do processo, podendo assumir Recebida, Em diagnóstico, Aguardando aprovação, Aguardando execução, Em execução, Finalizada, Entregue, Orçamento recusado ou Cancelada. | Aguardando aprovação. | Objetos de trabalho |
+| Valor monetário | Quantia associada a serviços, peças e ao total do orçamento. | R$ 350,00 referentes às peças do reparo. | Objetos de trabalho |
+| Catálogo de serviços | Conjunto de serviços disponíveis para seleção e inclusão nas ordens de serviço, com seus preços vigentes. | Alinhamento, balanceamento e troca de óleo. | Objetos de trabalho |
+| Catálogo de peças e insumos | Conjunto de peças e insumos cadastrados para controle de estoque e uso nos serviços, com seus preços vigentes. | Filtro de óleo, pastilha de freio e fluido de arrefecimento. | Objetos de trabalho |
+| Histórico da ordem de serviço | Registro cronológico dos fatos e alterações ocorridos durante o atendimento. | Orçamento enviado às 14h32 e aprovado às 15h10. | Objetos de trabalho |
+| Abrir ordem de serviço | Criar uma nova ordem de serviço para iniciar formalmente o atendimento de um veículo. | O atendente abre uma OS após receber o veículo. | Atividades |
+| Cadastrar cliente | Registrar os dados necessários para identificar o cliente e vinculá-lo aos atendimentos. | Cadastrar nome, CPF e dados de contato. | Atividades |
+| Cadastrar veículo | Registrar os dados do veículo que será atendido pela oficina. | Cadastrar placa, modelo e proprietário. | Atividades |
+| Incluir serviços | Adicionar à ordem de serviço os serviços identificados como necessários. | Incluir troca de óleo e alinhamento na OS. | Atividades |
+| Incluir peças | Adicionar à ordem de serviço ou ao orçamento as peças necessárias para a execução. | Incluir um filtro de óleo e quatro velas. | Atividades |
+| Realizar diagnóstico | Avaliar o veículo para identificar problemas e necessidades de manutenção ou reparo. | O mecânico identifica desgaste nas pastilhas de freio. | Atividades |
+| Gerar orçamento | Calcular e consolidar os itens e valores que serão apresentados ao cliente. | Gerar orçamento com mão de obra e peças. | Atividades |
+| Enviar orçamento | Disponibilizar o orçamento ao cliente para que ele possa analisá-lo. | Enviar o orçamento pelo canal de atendimento. | Atividades |
+| Aprovar orçamento | Registrar a autorização do cliente para execução do que foi orçado. | O cliente aprova o orçamento integralmente. | Atividades |
+| Recusar orçamento | Registrar que o cliente não autorizou a execução do orçamento apresentado. | O cliente recusa o orçamento de reparo. | Atividades |
+| Solicitar reparo adicional | Propor ao cliente um reparo que não fazia parte do orçamento inicialmente aprovado. | Após desmontagem, a oficina solicita autorização para trocar uma peça adicional. | Atividades |
+| Iniciar execução | Registrar o início da realização dos serviços autorizados. | O mecânico inicia a execução após a liberação da OS. | Atividades |
+| Concluir execução | Registrar que os serviços previstos e autorizados foram finalizados. | A troca das peças e os testes finais foram concluídos. | Atividades |
+| Entregar veículo | Registrar a devolução do veículo ao cliente após a conclusão do atendimento. | O veículo é entregue após a finalização do serviço. | Atividades |
+| Cancelar ordem de serviço | Encerrar uma ordem de serviço sem concluir o fluxo normal de execução e entrega. | A OS é cancelada porque o cliente desistiu do reparo. | Atividades |
+| Consultar andamento | Verificar a situação atual e o histórico de uma ordem de serviço. | O cliente consulta se o veículo já está em execução. | Atividades |
+| Cadastrar peça | Registrar uma nova peça ou insumo no catálogo e no controle de estoque. | Cadastrar filtro de ar código FA-203. | Atividades |
+| Registrar entrada de estoque | Aumentar a quantidade disponível de uma peça após seu recebimento. | Registrar entrada de 20 filtros de óleo. | Atividades |
+| Verificar disponibilidade | Consultar se há quantidade suficiente de uma peça para atender uma ordem de serviço. | Verificar se existem duas pastilhas disponíveis em estoque. | Atividades |
+| Dar baixa no estoque | Reduzir o saldo de uma peça quando ela é efetivamente utilizada ou retirada do estoque. | Dar baixa em um filtro utilizado na OS. | Atividades |
+| Reservar peças | Separar peças disponíveis para uso em uma ordem de serviço específica. | Reservar quatro velas para a OS 1542. | Atividades |
+| Liberar reserva | Devolver ao saldo disponível as peças que estavam reservadas e não serão mais utilizadas. | Liberar as peças após a recusa do orçamento. | Atividades |
+| Listar ordens de serviço | Consultar um conjunto de ordens de serviço para acompanhamento operacional. | Listar todas as OS que estão aguardando aprovação. | Atividades |
+| Autenticar | Validar a identidade de um usuário antes do acesso ao sistema. | O atendente informa suas credenciais para que sua identidade seja validada. | Atividades |
+| Transição automática de status | Determinadas ações do processo provocam a atualização automática do status da ordem de serviço. | Quando o orçamento é aprovado, a OS passa para a etapa seguinte. | Anotações |
+| Registro de fatos no histórico | Alterações e acontecimentos relevantes devem permanecer registrados no histórico da ordem de serviço. | A aprovação do orçamento fica registrada com data e hora. | Anotações |
 
-## 2. Contexto Atendimento → módulo `service-orders` (core)
+| Analista financeiro | Pessoa responsável pela elaboração e pelo envio do orçamento ao cliente após a conclusão do diagnóstico. | O analista financeiro prepara o orçamento com os serviços e peças necessários. | Atores |
+| Estoque | Conjunto de peças e insumos disponíveis ou reservados para utilização nos serviços da oficina. | O sistema consulta o estoque antes de reservar uma peça para uma ordem de serviço. | Objetos de trabalho |
 
-| Termo (PT) | Definição | Evitar | Identificador (EN) |
-|---|---|---|---|
-| **Ordem de Serviço (OS)** | Registro de um atendimento a um veículo de um cliente, do recebimento à entrega. Agrega itens de serviço, itens de peça, orçamento, status e histórico. | pedido, ticket, chamado; *WorkOrder*, *RepairOrder*, *Order* | `ServiceOrder`, tabela `service_orders`, rota `/service-orders` |
-| **Número da OS** | Identificador legível (`OS-2026-000123`), único, sequência anual. | id, código | `number` (VO `ServiceOrderNumber`) |
-| **Descrição do problema** | Relato do cliente/atendente na abertura. | queixa, reclamação | `problemDescription` |
-| **Diagnóstico** | Etapa em que o mecânico avalia o veículo e define serviços e peças. | análise, vistoria | `startDiagnosis()`, rota `/diagnosis` |
-| **Item de serviço** | Serviço do catálogo incluído na OS com quantidade e **preço no momento da inclusão** (snapshot). | linha, task | `ServiceItem`, `serviceItems[]`, tabela `service_order_service_items` |
-| **Item de peça** | Peça/insumo incluído na OS com quantidade e preço unitário no momento da inclusão; só entra se houver disponibilidade em estoque (ADR-012). | material, produto | `PartItem`, `partItems[]`, tabela `service_order_part_items` |
-| **Orçamento** | Valor total calculado automaticamente = Σ itens de serviço + Σ itens de peça, com status próprio. | cotação, proposta; *Budget*, *Estimate* | `Quote`, `quote.totalAmount`, `QuoteStatus` = `PENDING` · `SENT` · `APPROVED` · `REJECTED` |
-| **Enviar orçamento** | Congela os itens, gera o token de acompanhamento, notifica o cliente e coloca a OS em *Aguardando aprovação*. | submeter, publicar | `sendQuote()`, `POST …/quote/send` |
-| **Aprovação do orçamento** | Ação do cliente que autoriza a execução; inicia a execução automaticamente e **reserva** as peças (ADR-012). | autorização, aceite | `approveQuote()`, `POST …/quote/approve` |
-| **Recusa do orçamento** | Ação do cliente que não autoriza; leva a OS para *Cancelada* (ADR-010). | rejeição | `rejectQuote(reason)`, `POST …/quote/reject` |
-| **Execução** | Realização dos serviços aprovados. | reparo, conserto (só em texto livre) | `IN_PROGRESS`, `executionStartedAt` |
-| **Finalização** | Mecânico declara os serviços concluídos; fim do tempo de execução; **baixa** as peças reservadas (ADR-012). | conclusão, encerramento; *finish* | `complete()`, `COMPLETED`, `completedAt`, `POST …/complete` |
-| **Entrega** | Atendente registra a devolução do veículo; OS torna-se imutável. | retirada, baixa | `deliver()`, `DELIVERED`, `deliveredAt`, `POST …/deliver` |
-| **Status da OS** | Recebida · Em diagnóstico · Aguardando aprovação · Em execução · Finalizada · Entregue + Cancelada (extensão, ADR-010). | situação, fase, etapa | `ServiceOrderStatus` — mapeamento na §7 |
-| **Transição** | Mudança de status causada por um comando de negócio; nunca por edição direta. | update de status | `StatusTransitionPolicy` |
-| **Histórico da OS** | Lista append-only de transições (de, para, quando, quem, motivo). | log, auditoria | `StatusHistoryEntry`, `statusHistory[]`, tabela `service_order_status_history`, rota `/status-history` |
-| **Cancelamento** | Encerramento definitivo antes da aprovação (recusa do cliente ou decisão do gerente), com motivo; renegociar = nova OS (ADR-010). | exclusão | `cancel(reason)`, `CANCELLED`, `cancellationReason`, `POST …/cancel` |
-| **Tempo de execução** | `completedAt − executionStartedAt` (minutos). | lead time, SLA | `executionTimeMinutes` |
-| **Tempo médio de execução** | Média dos tempos de execução das OS finalizadas em um período (geral ou por serviço). | produtividade | `AverageExecutionTime`, `GET /metrics/average-execution-time` |
-| **Acompanhamento** | Consulta do cliente ao progresso da OS, sem acesso administrativo — com token de acompanhamento ou login de cliente (ADR-011). | portal, status page | `tracking`, rota `/tracking/service-orders/{id}` |
-| **Token de acompanhamento** | Credencial de escopo restrito a uma OS (JWT `aud=tracking`), gerada no envio do orçamento (ADR-011). | link mágico | `TrackingToken`, `trackingUrl`, `TrackingTokenService` |
-| **Marcos temporais** | Data/hora de cada etapa da OS. | timestamps | `milestones { receivedAt, diagnosisStartedAt, quoteSentAt, executionStartedAt, completedAt, deliveredAt }` |
+| Saldo de estoque | Quantidade de uma peça ou insumo disponível no estoque, considerando entradas, baixas e reservas. | O saldo de estoque indica quantos filtros de óleo ainda estão disponíveis. | Objetos de trabalho |
+| Notificação | Comunicação enviada ao cliente sobre acontecimentos relevantes da ordem de serviço, como envio de orçamento ou atualização do atendimento. | O cliente recebe uma notificação quando o orçamento é enviado. | Objetos de trabalho |
+| Controle de acesso | Conjunto de regras que determina quais funcionalidades e informações cada usuário pode acessar após a autenticação. | O controle de acesso permite que apenas usuários autorizados executem determinadas ações. | Objetos de trabalho |
+| Avaliar orçamento | Analisar o orçamento recebido antes de aprová-lo ou recusá-lo. | O cliente avalia os serviços e valores apresentados no orçamento. | Atividades |
+| Concluir diagnóstico | Encerrar o diagnóstico após identificar os serviços e peças necessários para o atendimento. | O mecânico conclui o diagnóstico e libera a preparação do orçamento. | Atividades |
+| Executar serviços | Realizar os serviços previamente diagnosticados e autorizados para a ordem de serviço. | O mecânico executa os serviços aprovados pelo cliente. | Atividades |
+| Solicitar reposição | Solicitar ao fornecedor a reposição de uma peça ou insumo indisponível para atendimento da ordem de serviço. | O atendente solicita reposição quando a peça necessária não está disponível em estoque. | Atividades |
+## Tipos utilizados
 
-## 3. Contexto Cadastro → módulo `customers`
-
-| Termo (PT) | Definição | Evitar | Identificador (EN) |
-|---|---|---|---|
-| **Cliente** | Pessoa física (CPF) ou jurídica (CNPJ) dona de veículos atendidos. | consumidor, usuário; *Client* | `Customer`, tabela `customers`, rota `/customers` |
-| **Tipo de pessoa** | PF ou PJ. | — | `customerType` = `INDIVIDUAL` (PF) · `COMPANY` (PJ) |
-| **Documento** | CPF (11 dígitos) ou CNPJ (14), validado por dígitos verificadores; único entre clientes ativos. | identidade, registro | `Document` (VO; `Cpf` \| `Cnpj`), campo `document` (só dígitos), `formattedDocument` |
-| **Veículo** | Automóvel do cliente identificado pela placa; tem marca, modelo e ano. | carro (texto livre ok); *Car* | `Vehicle`, tabela `vehicles`, rota `/vehicles` |
-| **Placa** | Padrão antigo (`ABC1234`) ou Mercosul (`ABC1D23`); única entre veículos ativos. | chapa; *Plate* sozinho | `LicensePlate` (VO), campo `licensePlate` |
-| **Marca / Modelo / Ano / Cor** | Atributos do veículo. | *make* (usar `brand`) | `brand`, `model`, `year`, `color` |
-| **Inativar** | Remoção lógica (mantém histórico). | deletar, excluir | `deactivate()`, campo `active` |
-
-## 4. Contexto Catálogo & Estoque → módulo `catalog`
-
-| Termo (PT) | Definição | Evitar | Identificador (EN) |
-|---|---|---|---|
-| **Serviço** | Item do catálogo de mão de obra com preço e tempo estimado (ex.: troca de óleo). | tarefa, job; *Labor* | `Service`, tabela `services`, rota `/services` — ⚠️ os serviços de aplicação usam o sufixo `Service` (camadas clássicas, ADR-003); o que mantém a entidade `Service` chama-se **`CatalogService`**, nunca `ServicesService` |
-| **Tempo estimado** | Duração prevista do serviço em minutos. | SLA | `estimatedMinutes` |
-| **Preço** | Preço do serviço no catálogo. | valor | `price` |
-| **Peça** | Item físico contável usado em serviços (ex.: filtro de óleo). | produto, componente; *Piece* | `Part` (`type = PART`), tabela `parts`, rota `/parts` |
-| **Insumo** | Item consumível, possivelmente fracionário (ex.: óleo 5W30, litros). Compartilha o agregado `Part`. | material; *Input* | `Part` (`type = SUPPLY`), `PartType` = `PART` · `SUPPLY` |
-| **Unidade de medida** | UN, L, ML, KG… | — | `unitOfMeasure` |
-| **SKU** | Código único da peça/insumo. | referência | `sku` |
-| **Preço unitário** | Preço por unidade de medida. | — | `unitPrice` |
-| **Estoque** | Quantidade física de uma peça/insumo. Só muda por movimentação. | saldo, inventário; *Inventory* | `stockQuantity` |
-| **Quantidade reservada** | Comprometida com OS aprovadas e ainda não finalizadas (ADR-012). | bloqueio | `reservedQuantity` |
-| **Disponibilidade** | `stockQuantity − reservedQuantity`; é o que a inclusão de peça na OS e a aprovação verificam. | saldo livre | `availableQuantity` |
-| **Estoque mínimo** | Abaixo dele, precisa repor (alerta — Could). | ponto de pedido | `minimumStock` |
-| **Movimentação de estoque** | Registro imutável de entrada, saída, reserva, liberação ou ajuste. | transação, lançamento | `StockMovement`, tabela `stock_movements`, rota `/parts/{id}/stock-movements` |
-| **Entrada** | Aumenta o estoque (compra/abastecimento). | compra | `StockMovementType.INBOUND` |
-| **Reserva** | Compromisso de quantidade para uma OS, na aprovação do orçamento (ADR-012). | bloqueio | `RESERVATION`, `reserve()`, `PartsService.reserveForServiceOrder()` |
-| **Baixa** | Saída vinculada a uma OS, na finalização; consome a reserva (ADR-012). | consumo, débito; *Withdrawal* | `StockMovementType.OUTBOUND`, `withdraw()`, `PartsService.withdrawReservedForServiceOrder()` |
-| **Liberação** | Descompromisso de quantidade sem consumo; existe no modelo, **sem gatilho no MVP** (Could). | estorno | `RELEASE`, `release()` |
-| **Ajuste** | Correção por inventário, com motivo. | acerto | `ADJUSTMENT`, `adjust(quantity, reason)` |
-
-## 5. Contexto Identidade → módulo `identity`
-
-| Termo (PT) | Definição | Evitar | Identificador (EN) |
-|---|---|---|---|
-| **Usuário** | Quem faz login: funcionário da oficina (equipe) ou cliente (ADR-011). | admin, operador, conta | `User`, tabela `users`, rota `/users` |
-| **Papel** | Perfil de autorização. | perfil | `Role` = `ATTENDANT` · `MECHANIC` · `MANAGER` · `CUSTOMER` |
-| **Atendente** | Recebe o cliente, abre OS, registra entrega; pode criar o login do cliente. | recepcionista | `ATTENDANT` |
-| **Mecânico** | Diagnostica, inclui itens, envia orçamento, executa e finaliza. | técnico | `MECHANIC` |
-| **Gerente** | Mantém catálogo, estoque, usuários; cancela OS; acompanha métricas. | dono, administrador | `MANAGER` |
-| **Cliente (acesso)** | Papel do usuário vinculado a um cliente do cadastro; só acessa `/tracking/**` das próprias OS (ADR-011). | — | `CUSTOMER`, `User.customerId` (obrigatório se, e só se, o papel é `CUSTOMER`) |
-| **Token de acesso** | JWT (HS256, 60 min) emitido no login, para equipe ou cliente (ADR-004). | sessão | `accessToken`, claims `sub`, `roles`, `customerId?`, `aud=api` |
-| **Senha** | Sempre armazenada como hash (bcrypt). | — | `password` (entrada), `passwordHash` (armazenado) |
-
-## 6. Kernel compartilhado (`shared`) e fronteiras entre módulos
-
-| Conceito | Identificador (EN) |
-|---|---|
-| Dinheiro (BRL, 2 casas, decimal) | `Money` |
-| Quantidade (decimal 10,3) | `Quantity` |
-| E-mail / Telefone | `Email`, `Phone` |
-| Relógio injetável | `Clock` (`SystemClock`, `FixedClock`) |
-| Gerador de ids (UUID v4) | `IdGenerator` (`UuidV4IdGenerator`, `FixedIdGenerator`) |
-| Publicador de eventos em processo | `DomainEventPublisher` |
-| Transação | `prisma.$transaction` via `PrismaService` (`shared/prisma`) |
-| Guards | `JwtAuthGuard` (equipe), `TrackingAuthGuard` (token de acompanhamento ou `CUSTOMER`), `@Roles()`, `@Public()` |
-| Notificação ao cliente (simulada) | `CustomerNotifier` (implementação `LogCustomerNotifier`) |
-| Serviços exportados pelo `customers` (usados por `service-orders` e `identity`) | `CustomersService`, `VehiclesService` |
-| Serviços exportados pelo `catalog` (usados por `service-orders`) | `CatalogService`, `PartsService` |
-| Serviços exportados pelo `identity` (usados por `service-orders` e pelos guards) | `AuthService`, `TrackingTokenService` |
-| Erro de domínio → 409/422 | `DomainError`, `InvalidTransitionError`, `ValidationError` |
-
-## 7. Status da OS — mapeamento oficial (enunciado → código → texto ao cliente)
-
-| Enunciado (PT) | `ServiceOrderStatus` | `statusDescription` (exibido ao cliente) |
-|---|---|---|
-| Recebida | `RECEIVED` | "Ordem de serviço recebida" |
-| Em diagnóstico | `IN_DIAGNOSIS` | "Em diagnóstico pelo mecânico" |
-| Aguardando aprovação | `AWAITING_APPROVAL` | "Aguardando sua aprovação do orçamento" |
-| Em execução | `IN_PROGRESS` | "Serviços em execução" |
-| Finalizada | `COMPLETED` | "Serviços finalizados — aguardando retirada" |
-| Entregue | `DELIVERED` | "Veículo entregue" |
-| Cancelada (extensão, ADR-010) | `CANCELLED` | "Ordem de serviço cancelada" |
-
-No vídeo, ao mostrar a máquina de estados, use esta tabela: o avaliador procura os seis nomes do enunciado.
-
-## 8. Eventos de domínio (nomes canônicos, passado, inglês)
-
-`CustomerRegistered` · `VehicleRegistered` · `ServiceOrderReceived` · `DiagnosisStarted` · `ItemAddedToServiceOrder` ·
-`ItemRemovedFromServiceOrder` · `QuoteRecalculated` · `QuoteSent` · `QuoteApproved` · `QuoteRejected` · `ExecutionStarted` ·
-`ExecutionCompleted` · `VehicleDelivered` · `ServiceOrderCancelled` · `PartRegistered` · `StockInboundRecorded` ·
-`StockAdjusted` · `StockReserved` · `StockWithdrawn` · `ReservationReleased` · `StockBelowMinimum` · `UserRegistered` ·
-`UserAuthenticated`
-
-No Miro (event storming), os post-its continuam em **português** (é a linguagem da oficina); a tabela
-`docs/ddd/event-storming.md` §6 traz a coluna com o nome em código.
-
-## 9. Serviços de aplicação (classe) e operações (método) — nomes canônicos
-
-Camadas clássicas (ADR-003): cada módulo expõe serviços de aplicação com sufixo `Service`; cada caso de uso é um método.
-
-| Módulo | Serviço | Operações |
-|---|---|---|
-| `service-orders` | `ServiceOrdersService` | `create`, `startDiagnosis`, `addServiceItem`, `addPartItem`, `removeItem`, `sendQuote`, `approveQuote`, `rejectQuote`, `complete`, `deliver`, `cancel`, `findById`, `list` |
-| `service-orders` | `TrackingService` | `getTracking`, `listMine`, `approveQuote`, `rejectQuote` (verificam a propriedade da OS) |
-| `service-orders` | `MetricsService` | `averageExecutionTime` |
-| `catalog` | `CatalogService` (entidade `Service`) | `register`, `update`, `deactivate`, `findById`, `list` |
-| `catalog` | `PartsService` (peças/insumos + estoque) | `register`, `update`, `deactivate`, `findById`, `list`, `recordInbound`, `adjustStock`, `reserveForServiceOrder`, `withdrawReservedForServiceOrder`, `releaseReservation` (Could), `listBelowMinimum` |
-| `customers` | `CustomersService` | `register`, `update`, `deactivate`, `findById`, `findByDocument` |
-| `customers` | `VehiclesService` | `register`, `update`, `deactivate`, `findById`, `findByLicensePlate`, `belongsToCustomer` |
-| `identity` | `AuthService` | `login`, `validateToken` |
-| `identity` | `UsersService` | `register` (equipe ou `CUSTOMER` + `customerId`), `list`, `update`, `deactivate` |
-| `identity` | `TrackingTokenService` | `issue`, `validate` |
-
-Nunca `ServicesService`: a entidade do catálogo é `Service`; quem a mantém é `CatalogService`.
-
-## 10. Convenções de escrita
-
-- Status em texto (docs/vídeo): *Recebida*, *Em diagnóstico*, *Aguardando aprovação*, *Em execução*, *Finalizada*, *Entregue*, *Cancelada*.
-- Datas/horas em UTC no banco e ISO-8601 na API (`2026-10-05T14:30:00Z`); valores monetários em BRL com 2 casas, tipo decimal.
-- Mensagens de erro e `statusDescription` em português; nomes de campos no *Problem Details* em inglês (`errors[].field`).
+- **Atores:** quem executa uma tarefa.
+- **Objetos de trabalho:** elementos utilizados ou produzidos durante o processo.
+- **Atividades:** ações realizadas.
+- **Anotações:** informações complementares.
+- **Números de sequência:** indicam ordem.
+- **Grupos:** organizam elementos relacionados.
+- **Cores:** podem destacar caminho crítico, exceções ou outros significados.
