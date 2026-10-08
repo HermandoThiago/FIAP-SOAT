@@ -1,0 +1,219 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="BPMN - Atendimento e Estoque" id="CDPfBF4OLyuepocn43Mq">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="acgpG5zg15oole4EdgyB-136" parent="1" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontSize=20;fontStyle=1;fontColor=#222222" value="Estados da Ordem de Serviço" vertex="1">
+          <mxGeometry height="28" width="700" x="65" y="188" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-137" parent="1" style="rounded=1;arcSize=6;html=1;fillColor=none;strokeColor=#cccccc;strokeWidth=1;dashed=1" value="" vertex="1">
+          <mxGeometry height="56" width="1310" x="625" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-138" parent="1" style="ellipse;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="26" width="27.13" x="65" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-139" parent="1" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontSize=10" value="Estado inicial" vertex="1">
+          <mxGeometry height="28" width="200" x="119" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-140" parent="1" style="rounded=1;html=1;fillColor=#bbdefb;strokeColor=#1976d2;strokeWidth=2" value="" vertex="1">
+          <mxGeometry height="28" width="48" x="395" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-141" parent="1" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontSize=10" value="Estado do enunciado" vertex="1">
+          <mxGeometry height="28" width="200" x="449" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-142" parent="1" style="rounded=1;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=4" value="" vertex="1">
+          <mxGeometry height="28" width="48" x="725" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-143" parent="1" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontSize=10" value="Estado final" vertex="1">
+          <mxGeometry height="28" width="200" x="779" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-144" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=3;fontSize=12;fontStyle=1" value="Recebida" vertex="1">
+          <mxGeometry height="90" width="90" x="65" y="348" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-145" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1976d2;strokeWidth=2;fontSize=12;fontStyle=1" value="Em Diagnóstico" vertex="1">
+          <mxGeometry height="70" width="150" x="365" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-146" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1976d2;strokeWidth=2;fontSize=12;fontStyle=1" value="Aguardando&#xa;Aprovação" vertex="1">
+          <mxGeometry height="70" width="150" x="735" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-147" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#ffe0b2;strokeColor=#ef6c00;strokeWidth=3;dashed=1;dashPattern=6 4;fontSize=12;fontStyle=1" value="Aguardando&#xa;Execução" vertex="1">
+          <mxGeometry height="70" width="150" x="1023" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-148" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;strokeWidth=2;fontSize=12;fontStyle=1" value="Em Execução" vertex="1">
+          <mxGeometry height="70" width="150" x="1315" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-149" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#388e3c;strokeWidth=2;fontSize=12;fontStyle=1" value="Finalizada" vertex="1">
+          <mxGeometry height="70" width="150" x="1655" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-150" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=4;fontSize=12;fontStyle=1" value="Entregue" vertex="1">
+          <mxGeometry height="70" width="150" x="1935" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-151" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=12;fontStyle=1" value="Orçamento&#xa;Recusado" vertex="1">
+          <mxGeometry height="70" width="150" x="735" y="706" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-152" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=12;fontStyle=1" value="Cancelada" vertex="1">
+          <mxGeometry height="70" width="150" x="1005" y="706" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-153" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-144" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#555555;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-145" value="Realizar diagnóstico">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-154" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-145" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#555555;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-146" value="Concluir diagnóstico">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-155" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-146" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#2e7d32;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-147" value="Aprovar orçamento">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-156" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-147" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#2e7d32;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-148" value="Iniciar execução">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-157" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-148" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#2e7d32;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-149" value="Concluir execução">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-158" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-149" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#2e7d32;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff" target="acgpG5zg15oole4EdgyB-150" value="Entregar veículo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-159" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-146" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#c62828;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0" target="acgpG5zg15oole4EdgyB-151" value="Recusar orçamento">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-160" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-145" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#c62828;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0" target="acgpG5zg15oole4EdgyB-152" value="Cancelar ordem de serviço">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="528" />
+              <mxPoint x="1260" y="528" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-161" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-147" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#c62828;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitDx=0;exitDy=0;" value="Cancelar ordem de serviço">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1086.08" y="428" />
+              <mxPoint x="1086.08" y="688" />
+            </Array>
+            <mxPoint x="1086" y="418" as="sourcePoint" />
+            <mxPoint x="1094" y="688" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-162" edge="1" parent="1" source="acgpG5zg15oole4EdgyB-148" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#ef6c00;strokeWidth=2;fontSize=10;fontStyle=1;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;entryX=0.5;entryY=0;exitDx=0;exitDy=0;" target="acgpG5zg15oole4EdgyB-146" value="Solicitar reparo adicional">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1390.0700000000002" y="310.07" />
+              <mxPoint x="810.0700000000002" y="310.07" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-163" parent="1" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontSize=13;fontStyle=1" value="Tabela de transições válidas" vertex="1">
+          <mxGeometry height="22" width="400" x="1405" y="571" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-164" parent="1" style="html=1;whiteSpace=wrap;fillColor=#455a64;strokeColor=#37474f;fontColor=#ffffff;fontSize=10;fontStyle=1;align=left;spacingLeft=8" value="Estado atual" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="599" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-165" parent="1" style="html=1;whiteSpace=wrap;fillColor=#455a64;strokeColor=#37474f;fontColor=#ffffff;fontSize=10;fontStyle=1;align=left;spacingLeft=8" value="Próximo estado" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="599" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-166" parent="1" style="html=1;whiteSpace=wrap;fillColor=#455a64;strokeColor=#37474f;fontColor=#ffffff;fontSize=10;fontStyle=1;align=left;spacingLeft=8" value="Observação" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="599" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-167" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Recebida" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-168" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Diagnóstico" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-169" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Ordem de serviço aberta e veículo recebido na oficina" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-170" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Diagnóstico" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="651" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-171" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Aprovação" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="651" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-172" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Diagnóstico conclusivo, orçamento gerado e enviado ao cliente" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="651" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-173" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Diagnóstico" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="677" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-174" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Cancelada" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="677" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-175" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Cliente desiste antes mesmo de receber o orçamento" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="677" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-176" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Aprovação" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="703" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-177" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Execução" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="703" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-178" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aprovação não inicia o serviço: a ordem de serviço entra na fila de execução" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="703" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-179" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Aprovação" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="729" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-180" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Orçamento Recusado" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="729" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-181" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Encerra a ordem de serviço sem execução e libera a reserva de peças" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="729" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-182" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Execução" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="755" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-183" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Execução" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="755" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-184" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Guarda: peças reservadas disponíveis e mecânico livre" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="755" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-185" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Execução" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-186" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Cancelada" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-187" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Desistência enquanto a ordem de serviço aguarda na fila" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-188" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Execução" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="807" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-189" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Aguardando Aprovação" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="807" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-190" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Reparo adicional identificado exige nova aprovação do cliente" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="807" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-191" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Execução" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="833" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-192" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Finalizada" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="833" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-193" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Serviço pronto, veículo aguarda retirada" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="833" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-194" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Em Execução" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="859" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-195" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Cancelada" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="859" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-196" parent="1" style="html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Interrupção por problema técnico ou pedido do cliente" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="859" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-197" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Finalizada" vertex="1">
+          <mxGeometry height="26" width="200" x="1405" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-198" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Entregue" vertex="1">
+          <mxGeometry height="26" width="190" x="1605" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="acgpG5zg15oole4EdgyB-199" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#dddddd;fontSize=10;align=left;spacingLeft=8" value="Estado final do fluxo principal" vertex="1">
+          <mxGeometry height="26" width="690" x="1795" y="885" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
