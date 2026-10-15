@@ -19,7 +19,8 @@
     "test:cov": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk --experimental-vm-modules -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
-    "contract:emit": "prisma contract emit"
+    "contract:emit": "prisma contract emit",
+    "db:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -29,6 +30,7 @@
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "8.0.0-rc.17",
+    "argon2": "^0.45.1",
     "decimal.js": "^10.6.0",
     "helmet": "^8.3.0",
     "pg": "^8.23.1",
@@ -58,6 +60,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.2"
   }
 }
