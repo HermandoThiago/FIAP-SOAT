@@ -1,0 +1,2659 @@
+[
+  {
+    "id": "dropTable.Post",
+    "label": "Drop table \"Post\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Post"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Post\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Post\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"Post\"",
+        "sql": "DROP TABLE \"public\".\"Post\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Post\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Post\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.User",
+    "label": "Drop table \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"User\"",
+        "sql": "DROP TABLE \"public\".\"User\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.ItemEstoque",
+    "label": "Create table \"ItemEstoque\"",
+    "summary": "Creates table \"ItemEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ItemEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ItemEstoque\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ItemEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ItemEstoque\"",
+        "sql": "CREATE TABLE \"public\".\"ItemEstoque\" (\n  \"item_estoque_ativo\" bool DEFAULT true NOT NULL,\n  \"item_estoque_atualizado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"item_estoque_codigo\" character varying(40) NOT NULL,\n  \"item_estoque_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"item_estoque_descricao\" character varying(500),\n  \"item_estoque_id\" uuid NOT NULL,\n  \"item_estoque_nome\" character varying(120) NOT NULL,\n  \"item_estoque_preco_venda\" int4 NOT NULL,\n  \"item_estoque_quantidade\" numeric(12,3) DEFAULT '0'::numeric(12,3) NOT NULL,\n  \"item_estoque_reservada\" numeric(12,3) DEFAULT '0'::numeric(12,3) NOT NULL,\n  \"item_estoque_tipo\" text NOT NULL,\n  \"item_estoque_unidade\" text DEFAULT 'UN' NOT NULL,\n  PRIMARY KEY (\"item_estoque_id\"),\n  CONSTRAINT \"ItemEstoque_item_estoque_tipo_check_b24fdb8e\" CHECK (\"item_estoque_tipo\" IN ('PECA', 'INSUMO')),\n  CONSTRAINT \"ItemEstoque_item_estoque_unidade_check_65c10492\" CHECK (\"item_estoque_unidade\" IN ('UN', 'L', 'ML', 'KG', 'G', 'M')),\n  CONSTRAINT \"item_estoque_quantidade_nao_negativa_b8f51f10\" CHECK (item_estoque_quantidade >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ItemEstoque\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ItemEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.MovimentacaoEstoque",
+    "label": "Create table \"MovimentacaoEstoque\"",
+    "summary": "Creates table \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"MovimentacaoEstoque\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"MovimentacaoEstoque\"",
+        "sql": "CREATE TABLE \"public\".\"MovimentacaoEstoque\" (\n  \"item_estoque_id\" uuid NOT NULL,\n  \"movimentacao_criada_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"movimentacao_id\" uuid NOT NULL,\n  \"movimentacao_motivo\" character varying(255),\n  \"movimentacao_quantidade\" numeric(12,3) NOT NULL,\n  \"movimentacao_tipo\" text NOT NULL,\n  \"ordem_servico_id\" uuid NOT NULL,\n  \"usuario_id\" uuid NOT NULL,\n  PRIMARY KEY (\"movimentacao_id\"),\n  CONSTRAINT \"MovimentacaoEstoque_movimentacao_tipo_check_54fc0ba1\" CHECK (\"movimentacao_tipo\" IN ('ENTRADA', 'SAIDA', 'AJUSTE', 'RESERVA', 'LIBERACAO_RESERVA'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"MovimentacaoEstoque\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Orcamento",
+    "label": "Create table \"Orcamento\"",
+    "summary": "Creates table \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Orcamento\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Orcamento\"",
+        "sql": "CREATE TABLE \"public\".\"Orcamento\" (\n  \"orcamento_atualizado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"orcamento_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"orcamento_enviado_em\" timestamptz,\n  \"orcamento_id\" uuid NOT NULL,\n  \"orcamento_motivo_rejeicao\" character varying(500),\n  \"orcamento_respondido_em\" timestamptz,\n  \"orcamento_respondido_por\" uuid,\n  \"orcamento_status\" text DEFAULT 'RASCUNHO' NOT NULL,\n  \"orcamento_valor_total\" int4 DEFAULT 0 NOT NULL,\n  \"orcamento_versao\" int4 DEFAULT 1 NOT NULL,\n  \"ordem_servico_id\" uuid NOT NULL,\n  PRIMARY KEY (\"orcamento_id\"),\n  CONSTRAINT \"Orcamento_orcamento_status_check_fd63cb52\" CHECK (\"orcamento_status\" IN ('RASCUNHO', 'ENVIADO', 'APROVADO', 'REJEITADO'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Orcamento\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.OrdemServico",
+    "label": "Create table \"OrdemServico\"",
+    "summary": "Creates table \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"OrdemServico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"OrdemServico\"",
+        "sql": "CREATE TABLE \"public\".\"OrdemServico\" (\n  \"atendente_id\" uuid NOT NULL,\n  \"mecanico_id\" uuid NOT NULL,\n  \"ordem_servico_atualizada_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ordem_servico_criada_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ordem_servico_descricao_problema\" character varying(1000),\n  \"ordem_servico_diagnostico\" character varying(2000),\n  \"ordem_servico_id\" uuid NOT NULL,\n  \"ordem_servico_km_entrada\" int4,\n  \"ordem_servico_motivo_cancelamento\" character varying(500),\n  \"ordem_servico_numero\" int8 NOT NULL,\n  \"ordem_servico_status\" text DEFAULT 'RECEBIDA' NOT NULL,\n  \"usuario_id\" uuid NOT NULL,\n  \"veiculo_id\" uuid NOT NULL,\n  PRIMARY KEY (\"ordem_servico_id\"),\n  CONSTRAINT \"OrdemServico_ordem_servico_status_check_5efc435f\" CHECK (\"ordem_servico_status\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"OrdemServico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.OrdemServicoItem",
+    "label": "Create table \"OrdemServicoItem\"",
+    "summary": "Creates table \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"OrdemServicoItem\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"OrdemServicoItem\"",
+        "sql": "CREATE TABLE \"public\".\"OrdemServicoItem\" (\n  \"item_estoque_id\" uuid NOT NULL,\n  \"orcamento_id\" uuid,\n  \"ordem_servico_id\" uuid NOT NULL,\n  \"os_item_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"os_item_id\" uuid NOT NULL,\n  \"os_item_preco_unitario\" int4 NOT NULL,\n  \"os_item_quantidade\" numeric(12,3) NOT NULL,\n  PRIMARY KEY (\"os_item_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"OrdemServicoItem\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.OrdemServicoServico",
+    "label": "Create table \"OrdemServicoServico\"",
+    "summary": "Creates table \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"OrdemServicoServico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"OrdemServicoServico\"",
+        "sql": "CREATE TABLE \"public\".\"OrdemServicoServico\" (\n  \"orcamento_id\" uuid,\n  \"ordem_servico_id\" uuid NOT NULL,\n  \"os_servico_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"os_servico_id\" uuid NOT NULL,\n  \"os_servico_preco_unitario\" int4 NOT NULL,\n  \"os_servico_quantidade\" int4 DEFAULT 1 NOT NULL,\n  \"servico_id\" uuid NOT NULL,\n  PRIMARY KEY (\"os_servico_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"OrdemServicoServico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.OrdemServicoStatusHistorico",
+    "label": "Create table \"OrdemServicoStatusHistorico\"",
+    "summary": "Creates table \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"OrdemServicoStatusHistorico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"OrdemServicoStatusHistorico\"",
+        "sql": "CREATE TABLE \"public\".\"OrdemServicoStatusHistorico\" (\n  \"historico_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"historico_id\" uuid NOT NULL,\n  \"historico_observacao\" character varying(500),\n  \"historico_status_anterior\" text,\n  \"historico_status_novo\" text NOT NULL,\n  \"ordem_servico_id\" uuid NOT NULL,\n  \"usuario_id\" uuid,\n  PRIMARY KEY (\"historico_id\"),\n  CONSTRAINT \"OrdemServicoStatusHistorico_historico_status_anterior__e9135d66\" CHECK (\"historico_status_anterior\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA')),\n  CONSTRAINT \"OrdemServicoStatusHistorico_historico_status_novo_chec_f676cc9a\" CHECK (\"historico_status_novo\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"OrdemServicoStatusHistorico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Perfil",
+    "label": "Create table \"Perfil\"",
+    "summary": "Creates table \"Perfil\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Perfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Perfil\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Perfil\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Perfil\"",
+        "sql": "CREATE TABLE \"public\".\"Perfil\" (\n  \"perfil_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"perfil_descricao\" character varying(255),\n  \"perfil_id\" uuid NOT NULL,\n  \"perfil_nome\" character varying(50) NOT NULL,\n  PRIMARY KEY (\"perfil_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Perfil\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Perfil\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Servico",
+    "label": "Create table \"Servico\"",
+    "summary": "Creates table \"Servico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Servico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Servico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Servico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Servico\"",
+        "sql": "CREATE TABLE \"public\".\"Servico\" (\n  \"servico_ativo\" bool DEFAULT true NOT NULL,\n  \"servico_atualizado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"servico_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"servico_descricao\" character varying(500),\n  \"servico_id\" uuid NOT NULL,\n  \"servico_nome\" character varying(120) NOT NULL,\n  \"servico_preco_base\" int4 NOT NULL,\n  PRIMARY KEY (\"servico_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Servico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Servico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Usuario",
+    "label": "Create table \"Usuario\"",
+    "summary": "Creates table \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Usuario\"",
+        "sql": "CREATE TABLE \"public\".\"Usuario\" (\n  \"perfil_id\" uuid NOT NULL,\n  \"usuario_atualizado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"usuario_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"usuario_documento\" character varying(14) NOT NULL,\n  \"usuario_email\" character varying(255) NOT NULL,\n  \"usuario_id\" uuid NOT NULL,\n  \"usuario_nome\" character varying(120) NOT NULL,\n  \"usuario_telefone\" character varying(11),\n  \"usuario_tipo_documento\" text NOT NULL,\n  \"usuario_ultimo_acesso\" timestamptz,\n  PRIMARY KEY (\"usuario_id\"),\n  CONSTRAINT \"Usuario_usuario_tipo_documento_check_ac0df0e9\" CHECK (\"usuario_tipo_documento\" IN ('CPF', 'CNPJ'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.UsuarioSenha",
+    "label": "Create table \"UsuarioSenha\"",
+    "summary": "Creates table \"UsuarioSenha\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "UsuarioSenha"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"UsuarioSenha\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"UsuarioSenha\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"UsuarioSenha\"",
+        "sql": "CREATE TABLE \"public\".\"UsuarioSenha\" (\n  \"senha_alterada_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"senha_criada_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"senha_hash\" character varying(255) NOT NULL,\n  \"senha_salt\" int4,\n  \"usuario_id\" uuid NOT NULL,\n  PRIMARY KEY (\"usuario_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"UsuarioSenha\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"UsuarioSenha\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Veiculo",
+    "label": "Create table \"Veiculo\"",
+    "summary": "Creates table \"Veiculo\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Veiculo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Veiculo\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Veiculo\"",
+        "sql": "CREATE TABLE \"public\".\"Veiculo\" (\n  \"usuario_id\" uuid NOT NULL,\n  \"veiculo_ano_fabricacao\" int2 NOT NULL,\n  \"veiculo_atualizado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"veiculo_chassi\" character varying(17),\n  \"veiculo_cor\" character varying(30) NOT NULL,\n  \"veiculo_criado_em\" timestamptz DEFAULT (now()) NOT NULL,\n  \"veiculo_id\" uuid NOT NULL,\n  \"veiculo_km_atual\" int4,\n  \"veiculo_marca\" character varying(40) NOT NULL,\n  \"veiculo_modelo\" character varying(40) NOT NULL,\n  \"veiculo_placa\" character varying(7) NOT NULL,\n  PRIMARY KEY (\"veiculo_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Veiculo\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.ItemEstoque.ItemEstoque_item_estoque_codigo_key",
+    "label": "Add unique constraint on \"ItemEstoque\" (item_estoque_codigo)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ItemEstoque_item_estoque_codigo_key",
+        "table": "ItemEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ItemEstoque_item_estoque_codigo_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ItemEstoque_item_estoque_codigo_key",
+          "public",
+          "\"public\".\"ItemEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ItemEstoque_item_estoque_codigo_key\"",
+        "sql": "ALTER TABLE \"public\".\"ItemEstoque\" ADD CONSTRAINT \"ItemEstoque_item_estoque_codigo_key\" UNIQUE (\"item_estoque_codigo\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"ItemEstoque_item_estoque_codigo_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ItemEstoque_item_estoque_codigo_key",
+          "public",
+          "\"public\".\"ItemEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Orcamento.Orcamento_ordem_servico_id_orcamento_versao_key",
+    "label": "Add unique constraint on \"Orcamento\" (ordem_servico_id, orcamento_versao)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Orcamento_ordem_servico_id_orcamento_versao_key",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Orcamento_ordem_servico_id_orcamento_versao_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_ordem_servico_id_orcamento_versao_key",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Orcamento_ordem_servico_id_orcamento_versao_key\"",
+        "sql": "ALTER TABLE \"public\".\"Orcamento\" ADD CONSTRAINT \"Orcamento_ordem_servico_id_orcamento_versao_key\" UNIQUE (\"ordem_servico_id\", \"orcamento_versao\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Orcamento_ordem_servico_id_orcamento_versao_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_ordem_servico_id_orcamento_versao_key",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.OrdemServico.OrdemServico_ordem_servico_numero_key",
+    "label": "Add unique constraint on \"OrdemServico\" (ordem_servico_numero)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "OrdemServico_ordem_servico_numero_key",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"OrdemServico_ordem_servico_numero_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_ordem_servico_numero_key",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"OrdemServico_ordem_servico_numero_key\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServico\" ADD CONSTRAINT \"OrdemServico_ordem_servico_numero_key\" UNIQUE (\"ordem_servico_numero\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"OrdemServico_ordem_servico_numero_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_ordem_servico_numero_key",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Perfil.Perfil_perfil_nome_key",
+    "label": "Add unique constraint on \"Perfil\" (perfil_nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Perfil_perfil_nome_key",
+        "table": "Perfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Perfil_perfil_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Perfil_perfil_nome_key",
+          "public",
+          "\"public\".\"Perfil\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Perfil_perfil_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"Perfil\" ADD CONSTRAINT \"Perfil_perfil_nome_key\" UNIQUE (\"perfil_nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Perfil_perfil_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Perfil_perfil_nome_key",
+          "public",
+          "\"public\".\"Perfil\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Servico.Servico_servico_nome_key",
+    "label": "Add unique constraint on \"Servico\" (servico_nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Servico_servico_nome_key",
+        "table": "Servico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Servico_servico_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Servico_servico_nome_key",
+          "public",
+          "\"public\".\"Servico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Servico_servico_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"Servico\" ADD CONSTRAINT \"Servico_servico_nome_key\" UNIQUE (\"servico_nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Servico_servico_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Servico_servico_nome_key",
+          "public",
+          "\"public\".\"Servico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Usuario.Usuario_usuario_email_key",
+    "label": "Add unique constraint on \"Usuario\" (usuario_email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Usuario_usuario_email_key",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Usuario_usuario_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_usuario_email_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Usuario_usuario_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD CONSTRAINT \"Usuario_usuario_email_key\" UNIQUE (\"usuario_email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Usuario_usuario_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_usuario_email_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Usuario.Usuario_usuario_documento_key",
+    "label": "Add unique constraint on \"Usuario\" (usuario_documento)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Usuario_usuario_documento_key",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Usuario_usuario_documento_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_usuario_documento_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Usuario_usuario_documento_key\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD CONSTRAINT \"Usuario_usuario_documento_key\" UNIQUE (\"usuario_documento\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Usuario_usuario_documento_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_usuario_documento_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Veiculo.Veiculo_veiculo_placa_key",
+    "label": "Add unique constraint on \"Veiculo\" (veiculo_placa)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Veiculo_veiculo_placa_key",
+        "table": "Veiculo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Veiculo_veiculo_placa_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_veiculo_placa_key",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Veiculo_veiculo_placa_key\"",
+        "sql": "ALTER TABLE \"public\".\"Veiculo\" ADD CONSTRAINT \"Veiculo_veiculo_placa_key\" UNIQUE (\"veiculo_placa\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Veiculo_veiculo_placa_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_veiculo_placa_key",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Veiculo.Veiculo_veiculo_chassi_key",
+    "label": "Add unique constraint on \"Veiculo\" (veiculo_chassi)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Veiculo_veiculo_chassi_key",
+        "table": "Veiculo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Veiculo_veiculo_chassi_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_veiculo_chassi_key",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Veiculo_veiculo_chassi_key\"",
+        "sql": "ALTER TABLE \"public\".\"Veiculo\" ADD CONSTRAINT \"Veiculo_veiculo_chassi_key\" UNIQUE (\"veiculo_chassi\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Veiculo_veiculo_chassi_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_veiculo_chassi_key",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ItemEstoque.ItemEstoque_item_estoque_tipo_idx_3cad250b",
+    "label": "Create index \"ItemEstoque_item_estoque_tipo_idx_3cad250b\" on \"ItemEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ItemEstoque_item_estoque_tipo_idx_3cad250b",
+        "table": "ItemEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ItemEstoque_item_estoque_tipo_idx_3cad250b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ItemEstoque_item_estoque_tipo_idx_3cad250b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ItemEstoque_item_estoque_tipo_idx_3cad250b\"",
+        "sql": "CREATE INDEX \"ItemEstoque_item_estoque_tipo_idx_3cad250b\" ON \"public\".\"ItemEstoque\" (\"item_estoque_tipo\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ItemEstoque_item_estoque_tipo_idx_3cad250b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ItemEstoque_item_estoque_tipo_idx_3cad250b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.MovimentacaoEstoque.MovimentacaoEstoque_item_estoque_id_idx_67447c15",
+    "label": "Create index \"MovimentacaoEstoque_item_estoque_id_idx_67447c15\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "MovimentacaoEstoque_item_estoque_id_idx_67447c15",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MovimentacaoEstoque_item_estoque_id_idx_67447c15\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_item_estoque_id_idx_67447c15\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MovimentacaoEstoque_item_estoque_id_idx_67447c15\"",
+        "sql": "CREATE INDEX \"MovimentacaoEstoque_item_estoque_id_idx_67447c15\" ON \"public\".\"MovimentacaoEstoque\" (\"item_estoque_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MovimentacaoEstoque_item_estoque_id_idx_67447c15\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_item_estoque_id_idx_67447c15\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.MovimentacaoEstoque.MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d",
+    "label": "Create index \"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\"",
+        "sql": "CREATE INDEX \"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\" ON \"public\".\"MovimentacaoEstoque\" (\"ordem_servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.MovimentacaoEstoque.MovimentacaoEstoque_usuario_id_idx_65b6616a",
+    "label": "Create index \"MovimentacaoEstoque_usuario_id_idx_65b6616a\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "MovimentacaoEstoque_usuario_id_idx_65b6616a",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MovimentacaoEstoque_usuario_id_idx_65b6616a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MovimentacaoEstoque_usuario_id_idx_65b6616a\"",
+        "sql": "CREATE INDEX \"MovimentacaoEstoque_usuario_id_idx_65b6616a\" ON \"public\".\"MovimentacaoEstoque\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MovimentacaoEstoque_usuario_id_idx_65b6616a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MovimentacaoEstoque_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Orcamento.Orcamento_orcamento_respondido_por_idx_af278654",
+    "label": "Create index \"Orcamento_orcamento_respondido_por_idx_af278654\" on \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Orcamento_orcamento_respondido_por_idx_af278654",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Orcamento_orcamento_respondido_por_idx_af278654\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_orcamento_respondido_por_idx_af278654\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Orcamento_orcamento_respondido_por_idx_af278654\"",
+        "sql": "CREATE INDEX \"Orcamento_orcamento_respondido_por_idx_af278654\" ON \"public\".\"Orcamento\" (\"orcamento_respondido_por\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Orcamento_orcamento_respondido_por_idx_af278654\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_orcamento_respondido_por_idx_af278654\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Orcamento.Orcamento_orcamento_status_idx_da38468c",
+    "label": "Create index \"Orcamento_orcamento_status_idx_da38468c\" on \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Orcamento_orcamento_status_idx_da38468c",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Orcamento_orcamento_status_idx_da38468c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_orcamento_status_idx_da38468c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Orcamento_orcamento_status_idx_da38468c\"",
+        "sql": "CREATE INDEX \"Orcamento_orcamento_status_idx_da38468c\" ON \"public\".\"Orcamento\" (\"orcamento_status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Orcamento_orcamento_status_idx_da38468c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_orcamento_status_idx_da38468c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Orcamento.Orcamento_ordem_servico_id_idx_22fc9c3d",
+    "label": "Create index \"Orcamento_ordem_servico_id_idx_22fc9c3d\" on \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Orcamento_ordem_servico_id_idx_22fc9c3d",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Orcamento_ordem_servico_id_idx_22fc9c3d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Orcamento_ordem_servico_id_idx_22fc9c3d\"",
+        "sql": "CREATE INDEX \"Orcamento_ordem_servico_id_idx_22fc9c3d\" ON \"public\".\"Orcamento\" (\"ordem_servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Orcamento_ordem_servico_id_idx_22fc9c3d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Orcamento_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServico.OrdemServico_atendente_id_idx_bc37ffcb",
+    "label": "Create index \"OrdemServico_atendente_id_idx_bc37ffcb\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServico_atendente_id_idx_bc37ffcb",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServico_atendente_id_idx_bc37ffcb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_atendente_id_idx_bc37ffcb\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServico_atendente_id_idx_bc37ffcb\"",
+        "sql": "CREATE INDEX \"OrdemServico_atendente_id_idx_bc37ffcb\" ON \"public\".\"OrdemServico\" (\"atendente_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServico_atendente_id_idx_bc37ffcb\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_atendente_id_idx_bc37ffcb\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServico.OrdemServico_mecanico_id_idx_2a95f1b9",
+    "label": "Create index \"OrdemServico_mecanico_id_idx_2a95f1b9\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServico_mecanico_id_idx_2a95f1b9",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServico_mecanico_id_idx_2a95f1b9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_mecanico_id_idx_2a95f1b9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServico_mecanico_id_idx_2a95f1b9\"",
+        "sql": "CREATE INDEX \"OrdemServico_mecanico_id_idx_2a95f1b9\" ON \"public\".\"OrdemServico\" (\"mecanico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServico_mecanico_id_idx_2a95f1b9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_mecanico_id_idx_2a95f1b9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServico.OrdemServico_ordem_servico_status_idx_580e6243",
+    "label": "Create index \"OrdemServico_ordem_servico_status_idx_580e6243\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServico_ordem_servico_status_idx_580e6243",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServico_ordem_servico_status_idx_580e6243\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_ordem_servico_status_idx_580e6243\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServico_ordem_servico_status_idx_580e6243\"",
+        "sql": "CREATE INDEX \"OrdemServico_ordem_servico_status_idx_580e6243\" ON \"public\".\"OrdemServico\" (\"ordem_servico_status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServico_ordem_servico_status_idx_580e6243\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_ordem_servico_status_idx_580e6243\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServico.OrdemServico_usuario_id_idx_65b6616a",
+    "label": "Create index \"OrdemServico_usuario_id_idx_65b6616a\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServico_usuario_id_idx_65b6616a",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServico_usuario_id_idx_65b6616a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServico_usuario_id_idx_65b6616a\"",
+        "sql": "CREATE INDEX \"OrdemServico_usuario_id_idx_65b6616a\" ON \"public\".\"OrdemServico\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServico_usuario_id_idx_65b6616a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServico.OrdemServico_veiculo_id_idx_b9d7a88f",
+    "label": "Create index \"OrdemServico_veiculo_id_idx_b9d7a88f\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServico_veiculo_id_idx_b9d7a88f",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServico_veiculo_id_idx_b9d7a88f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_veiculo_id_idx_b9d7a88f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServico_veiculo_id_idx_b9d7a88f\"",
+        "sql": "CREATE INDEX \"OrdemServico_veiculo_id_idx_b9d7a88f\" ON \"public\".\"OrdemServico\" (\"veiculo_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServico_veiculo_id_idx_b9d7a88f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServico_veiculo_id_idx_b9d7a88f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoItem.OrdemServicoItem_item_estoque_id_idx_67447c15",
+    "label": "Create index \"OrdemServicoItem_item_estoque_id_idx_67447c15\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoItem_item_estoque_id_idx_67447c15",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoItem_item_estoque_id_idx_67447c15\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_item_estoque_id_idx_67447c15\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoItem_item_estoque_id_idx_67447c15\"",
+        "sql": "CREATE INDEX \"OrdemServicoItem_item_estoque_id_idx_67447c15\" ON \"public\".\"OrdemServicoItem\" (\"item_estoque_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoItem_item_estoque_id_idx_67447c15\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_item_estoque_id_idx_67447c15\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoItem.OrdemServicoItem_orcamento_id_idx_5a304956",
+    "label": "Create index \"OrdemServicoItem_orcamento_id_idx_5a304956\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoItem_orcamento_id_idx_5a304956",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoItem_orcamento_id_idx_5a304956\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_orcamento_id_idx_5a304956\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoItem_orcamento_id_idx_5a304956\"",
+        "sql": "CREATE INDEX \"OrdemServicoItem_orcamento_id_idx_5a304956\" ON \"public\".\"OrdemServicoItem\" (\"orcamento_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoItem_orcamento_id_idx_5a304956\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_orcamento_id_idx_5a304956\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoItem.OrdemServicoItem_ordem_servico_id_idx_22fc9c3d",
+    "label": "Create index \"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoItem_ordem_servico_id_idx_22fc9c3d",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\"",
+        "sql": "CREATE INDEX \"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\" ON \"public\".\"OrdemServicoItem\" (\"ordem_servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoItem_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoServico.OrdemServicoServico_orcamento_id_idx_5a304956",
+    "label": "Create index \"OrdemServicoServico_orcamento_id_idx_5a304956\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoServico_orcamento_id_idx_5a304956",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoServico_orcamento_id_idx_5a304956\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_orcamento_id_idx_5a304956\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoServico_orcamento_id_idx_5a304956\"",
+        "sql": "CREATE INDEX \"OrdemServicoServico_orcamento_id_idx_5a304956\" ON \"public\".\"OrdemServicoServico\" (\"orcamento_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoServico_orcamento_id_idx_5a304956\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_orcamento_id_idx_5a304956\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoServico.OrdemServicoServico_ordem_servico_id_idx_22fc9c3d",
+    "label": "Create index \"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoServico_ordem_servico_id_idx_22fc9c3d",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\"",
+        "sql": "CREATE INDEX \"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\" ON \"public\".\"OrdemServicoServico\" (\"ordem_servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoServico.OrdemServicoServico_servico_id_idx_d1abf681",
+    "label": "Create index \"OrdemServicoServico_servico_id_idx_d1abf681\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoServico_servico_id_idx_d1abf681",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoServico_servico_id_idx_d1abf681\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_servico_id_idx_d1abf681\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoServico_servico_id_idx_d1abf681\"",
+        "sql": "CREATE INDEX \"OrdemServicoServico_servico_id_idx_d1abf681\" ON \"public\".\"OrdemServicoServico\" (\"servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoServico_servico_id_idx_d1abf681\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoServico_servico_id_idx_d1abf681\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoStatusHistorico.OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d",
+    "label": "Create index \"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\" on \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d",
+        "table": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\"",
+        "sql": "CREATE INDEX \"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\" ON \"public\".\"OrdemServicoStatusHistorico\" (\"ordem_servico_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoStatusHistorico.OrdemServicoStatusHistorico_usuario_id_idx_65b6616a",
+    "label": "Create index \"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\" on \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "OrdemServicoStatusHistorico_usuario_id_idx_65b6616a",
+        "table": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\"",
+        "sql": "CREATE INDEX \"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\" ON \"public\".\"OrdemServicoStatusHistorico\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OrdemServicoStatusHistorico_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.OrdemServicoStatusHistorico.os_historico_os_criado_idx_f503259f",
+    "label": "Create index \"os_historico_os_criado_idx_f503259f\" on \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "os_historico_os_criado_idx_f503259f",
+        "table": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"os_historico_os_criado_idx_f503259f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"os_historico_os_criado_idx_f503259f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"os_historico_os_criado_idx_f503259f\"",
+        "sql": "CREATE INDEX \"os_historico_os_criado_idx_f503259f\" ON \"public\".\"OrdemServicoStatusHistorico\" (\"ordem_servico_id\", \"historico_criado_em\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"os_historico_os_criado_idx_f503259f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"os_historico_os_criado_idx_f503259f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Usuario.Usuario_perfil_id_idx_0e75ecf5",
+    "label": "Create index \"Usuario_perfil_id_idx_0e75ecf5\" on \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Usuario_perfil_id_idx_0e75ecf5",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Usuario_perfil_id_idx_0e75ecf5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario_perfil_id_idx_0e75ecf5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Usuario_perfil_id_idx_0e75ecf5\"",
+        "sql": "CREATE INDEX \"Usuario_perfil_id_idx_0e75ecf5\" ON \"public\".\"Usuario\" (\"perfil_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Usuario_perfil_id_idx_0e75ecf5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario_perfil_id_idx_0e75ecf5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Veiculo.Veiculo_usuario_id_idx_65b6616a",
+    "label": "Create index \"Veiculo_usuario_id_idx_65b6616a\" on \"Veiculo\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Veiculo_usuario_id_idx_65b6616a",
+        "table": "Veiculo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Veiculo_usuario_id_idx_65b6616a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Veiculo_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Veiculo_usuario_id_idx_65b6616a\"",
+        "sql": "CREATE INDEX \"Veiculo_usuario_id_idx_65b6616a\" ON \"public\".\"Veiculo\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Veiculo_usuario_id_idx_65b6616a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Veiculo_usuario_id_idx_65b6616a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.MovimentacaoEstoque.MovimentacaoEstoque_item_estoque_id_fkey",
+    "label": "Add foreign key \"MovimentacaoEstoque_item_estoque_id_fkey\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "MovimentacaoEstoque_item_estoque_id_fkey",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"MovimentacaoEstoque_item_estoque_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_item_estoque_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"MovimentacaoEstoque_item_estoque_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"MovimentacaoEstoque\"\nADD CONSTRAINT \"MovimentacaoEstoque_item_estoque_id_fkey\"\nFOREIGN KEY (\"item_estoque_id\")\nREFERENCES \"public\".\"ItemEstoque\" (\"item_estoque_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"MovimentacaoEstoque_item_estoque_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_item_estoque_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.MovimentacaoEstoque.MovimentacaoEstoque_ordem_servico_id_fkey",
+    "label": "Add foreign key \"MovimentacaoEstoque_ordem_servico_id_fkey\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "MovimentacaoEstoque_ordem_servico_id_fkey",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"MovimentacaoEstoque_ordem_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"MovimentacaoEstoque_ordem_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"MovimentacaoEstoque\"\nADD CONSTRAINT \"MovimentacaoEstoque_ordem_servico_id_fkey\"\nFOREIGN KEY (\"ordem_servico_id\")\nREFERENCES \"public\".\"OrdemServico\" (\"ordem_servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"MovimentacaoEstoque_ordem_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.MovimentacaoEstoque.MovimentacaoEstoque_usuario_id_fkey",
+    "label": "Add foreign key \"MovimentacaoEstoque_usuario_id_fkey\" on \"MovimentacaoEstoque\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "MovimentacaoEstoque_usuario_id_fkey",
+        "table": "MovimentacaoEstoque"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"MovimentacaoEstoque_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_usuario_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"MovimentacaoEstoque_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"MovimentacaoEstoque\"\nADD CONSTRAINT \"MovimentacaoEstoque_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"MovimentacaoEstoque_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MovimentacaoEstoque_usuario_id_fkey",
+          "public",
+          "\"public\".\"MovimentacaoEstoque\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Orcamento.Orcamento_ordem_servico_id_fkey",
+    "label": "Add foreign key \"Orcamento_ordem_servico_id_fkey\" on \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Orcamento_ordem_servico_id_fkey",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Orcamento_ordem_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Orcamento_ordem_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Orcamento\"\nADD CONSTRAINT \"Orcamento_ordem_servico_id_fkey\"\nFOREIGN KEY (\"ordem_servico_id\")\nREFERENCES \"public\".\"OrdemServico\" (\"ordem_servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Orcamento_ordem_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Orcamento.Orcamento_orcamento_respondido_por_fkey",
+    "label": "Add foreign key \"Orcamento_orcamento_respondido_por_fkey\" on \"Orcamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Orcamento_orcamento_respondido_por_fkey",
+        "table": "Orcamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Orcamento_orcamento_respondido_por_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_orcamento_respondido_por_fkey",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Orcamento_orcamento_respondido_por_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Orcamento\"\nADD CONSTRAINT \"Orcamento_orcamento_respondido_por_fkey\"\nFOREIGN KEY (\"orcamento_respondido_por\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Orcamento_orcamento_respondido_por_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Orcamento_orcamento_respondido_por_fkey",
+          "public",
+          "\"public\".\"Orcamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServico.OrdemServico_usuario_id_fkey",
+    "label": "Add foreign key \"OrdemServico_usuario_id_fkey\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServico_usuario_id_fkey",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServico_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_usuario_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServico_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServico\"\nADD CONSTRAINT \"OrdemServico_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServico_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_usuario_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServico.OrdemServico_veiculo_id_fkey",
+    "label": "Add foreign key \"OrdemServico_veiculo_id_fkey\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServico_veiculo_id_fkey",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServico_veiculo_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_veiculo_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServico_veiculo_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServico\"\nADD CONSTRAINT \"OrdemServico_veiculo_id_fkey\"\nFOREIGN KEY (\"veiculo_id\")\nREFERENCES \"public\".\"Veiculo\" (\"veiculo_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServico_veiculo_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_veiculo_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServico.OrdemServico_atendente_id_fkey",
+    "label": "Add foreign key \"OrdemServico_atendente_id_fkey\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServico_atendente_id_fkey",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServico_atendente_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_atendente_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServico_atendente_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServico\"\nADD CONSTRAINT \"OrdemServico_atendente_id_fkey\"\nFOREIGN KEY (\"atendente_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServico_atendente_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_atendente_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServico.OrdemServico_mecanico_id_fkey",
+    "label": "Add foreign key \"OrdemServico_mecanico_id_fkey\" on \"OrdemServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServico_mecanico_id_fkey",
+        "table": "OrdemServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServico_mecanico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_mecanico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServico_mecanico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServico\"\nADD CONSTRAINT \"OrdemServico_mecanico_id_fkey\"\nFOREIGN KEY (\"mecanico_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServico_mecanico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServico_mecanico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoItem.OrdemServicoItem_ordem_servico_id_fkey",
+    "label": "Add foreign key \"OrdemServicoItem_ordem_servico_id_fkey\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoItem_ordem_servico_id_fkey",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoItem_ordem_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoItem_ordem_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoItem\"\nADD CONSTRAINT \"OrdemServicoItem_ordem_servico_id_fkey\"\nFOREIGN KEY (\"ordem_servico_id\")\nREFERENCES \"public\".\"OrdemServico\" (\"ordem_servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoItem_ordem_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoItem.OrdemServicoItem_item_estoque_id_fkey",
+    "label": "Add foreign key \"OrdemServicoItem_item_estoque_id_fkey\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoItem_item_estoque_id_fkey",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoItem_item_estoque_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_item_estoque_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoItem_item_estoque_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoItem\"\nADD CONSTRAINT \"OrdemServicoItem_item_estoque_id_fkey\"\nFOREIGN KEY (\"item_estoque_id\")\nREFERENCES \"public\".\"ItemEstoque\" (\"item_estoque_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoItem_item_estoque_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_item_estoque_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoItem.OrdemServicoItem_orcamento_id_fkey",
+    "label": "Add foreign key \"OrdemServicoItem_orcamento_id_fkey\" on \"OrdemServicoItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoItem_orcamento_id_fkey",
+        "table": "OrdemServicoItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoItem_orcamento_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_orcamento_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoItem_orcamento_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoItem\"\nADD CONSTRAINT \"OrdemServicoItem_orcamento_id_fkey\"\nFOREIGN KEY (\"orcamento_id\")\nREFERENCES \"public\".\"Orcamento\" (\"orcamento_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoItem_orcamento_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoItem_orcamento_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoServico.OrdemServicoServico_ordem_servico_id_fkey",
+    "label": "Add foreign key \"OrdemServicoServico_ordem_servico_id_fkey\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoServico_ordem_servico_id_fkey",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoServico_ordem_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoServico_ordem_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoServico\"\nADD CONSTRAINT \"OrdemServicoServico_ordem_servico_id_fkey\"\nFOREIGN KEY (\"ordem_servico_id\")\nREFERENCES \"public\".\"OrdemServico\" (\"ordem_servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoServico_ordem_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoServico.OrdemServicoServico_servico_id_fkey",
+    "label": "Add foreign key \"OrdemServicoServico_servico_id_fkey\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoServico_servico_id_fkey",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoServico_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoServico_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoServico\"\nADD CONSTRAINT \"OrdemServicoServico_servico_id_fkey\"\nFOREIGN KEY (\"servico_id\")\nREFERENCES \"public\".\"Servico\" (\"servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoServico_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoServico.OrdemServicoServico_orcamento_id_fkey",
+    "label": "Add foreign key \"OrdemServicoServico_orcamento_id_fkey\" on \"OrdemServicoServico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoServico_orcamento_id_fkey",
+        "table": "OrdemServicoServico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoServico_orcamento_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_orcamento_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoServico_orcamento_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoServico\"\nADD CONSTRAINT \"OrdemServicoServico_orcamento_id_fkey\"\nFOREIGN KEY (\"orcamento_id\")\nREFERENCES \"public\".\"Orcamento\" (\"orcamento_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoServico_orcamento_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoServico_orcamento_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoServico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoStatusHistorico.OrdemServicoStatusHistorico_ordem_servico_id_fkey",
+    "label": "Add foreign key \"OrdemServicoStatusHistorico_ordem_servico_id_fkey\" on \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoStatusHistorico_ordem_servico_id_fkey",
+        "table": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoStatusHistorico_ordem_servico_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoStatusHistorico_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoStatusHistorico_ordem_servico_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoStatusHistorico\"\nADD CONSTRAINT \"OrdemServicoStatusHistorico_ordem_servico_id_fkey\"\nFOREIGN KEY (\"ordem_servico_id\")\nREFERENCES \"public\".\"OrdemServico\" (\"ordem_servico_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoStatusHistorico_ordem_servico_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoStatusHistorico_ordem_servico_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.OrdemServicoStatusHistorico.OrdemServicoStatusHistorico_usuario_id_fkey",
+    "label": "Add foreign key \"OrdemServicoStatusHistorico_usuario_id_fkey\" on \"OrdemServicoStatusHistorico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "OrdemServicoStatusHistorico_usuario_id_fkey",
+        "table": "OrdemServicoStatusHistorico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"OrdemServicoStatusHistorico_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoStatusHistorico_usuario_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"OrdemServicoStatusHistorico_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"OrdemServicoStatusHistorico\"\nADD CONSTRAINT \"OrdemServicoStatusHistorico_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"OrdemServicoStatusHistorico_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "OrdemServicoStatusHistorico_usuario_id_fkey",
+          "public",
+          "\"public\".\"OrdemServicoStatusHistorico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Usuario.Usuario_perfil_id_fkey",
+    "label": "Add foreign key \"Usuario_perfil_id_fkey\" on \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Usuario_perfil_id_fkey",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Usuario_perfil_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfil_id_fkey",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Usuario_perfil_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\"\nADD CONSTRAINT \"Usuario_perfil_id_fkey\"\nFOREIGN KEY (\"perfil_id\")\nREFERENCES \"public\".\"Perfil\" (\"perfil_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Usuario_perfil_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfil_id_fkey",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.UsuarioSenha.UsuarioSenha_usuario_id_fkey",
+    "label": "Add foreign key \"UsuarioSenha_usuario_id_fkey\" on \"UsuarioSenha\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "UsuarioSenha_usuario_id_fkey",
+        "table": "UsuarioSenha"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"UsuarioSenha_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "UsuarioSenha_usuario_id_fkey",
+          "public",
+          "\"public\".\"UsuarioSenha\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"UsuarioSenha_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"UsuarioSenha\"\nADD CONSTRAINT \"UsuarioSenha_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"UsuarioSenha_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "UsuarioSenha_usuario_id_fkey",
+          "public",
+          "\"public\".\"UsuarioSenha\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Veiculo.Veiculo_usuario_id_fkey",
+    "label": "Add foreign key \"Veiculo_usuario_id_fkey\" on \"Veiculo\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Veiculo_usuario_id_fkey",
+        "table": "Veiculo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Veiculo_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_usuario_id_fkey",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Veiculo_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Veiculo\"\nADD CONSTRAINT \"Veiculo_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"Usuario\" (\"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Veiculo_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Veiculo_usuario_id_fkey",
+          "public",
+          "\"public\".\"Veiculo\""
+        ]
+      }
+    ]
+  }
+]

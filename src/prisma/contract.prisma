@@ -1,0 +1,297 @@
+// use prisma-8
+
+// =====================================================================
+// ENUMS (armazenados como text + CHECK; veja native_enum para enum nativo do PG)
+// =====================================================================
+enum TipoDocumentoUsuario {
+  @@type("pg/text@1")
+  CPF
+  CNPJ
+}
+
+enum StatusOrdemServico {
+  @@type("pg/text@1")
+  RECEBIDA
+  EM_DIAGNOSTICO
+  AGUARDANDO_APROVACAO
+  AGUARDANDO_EXECUCAO
+  EM_EXECUCAO
+  FINALIZADA
+  ENTREGUE
+  ORCAMENTO_RECUSADO
+  CANCELADA
+}
+
+enum StatusOrcamento {
+  @@type("pg/text@1")
+  RASCUNHO
+  ENVIADO
+  APROVADO
+  REJEITADO
+}
+
+enum TipoItemEstoque {
+  @@type("pg/text@1")
+  PECA
+  INSUMO
+}
+
+enum UnidadeMedida {
+  @@type("pg/text@1")
+  UN
+  L
+  ML
+  KG
+  G
+  M
+}
+
+enum TipoMovimentacaoEstoque {
+  @@type("pg/text@1")
+  ENTRADA
+  SAIDA
+  AJUSTE
+  RESERVA
+  LIBERACAO_RESERVA
+}
+
+// =====================================================================
+// USUÁRIOS E ACESSO
+// =====================================================================
+
+// Papéis do sistema: Admin, Atendente, Mecânico, Cliente...
+model Perfil {
+  perfilId        Uuid              @id @default(uuid()) @map("perfil_id")
+  perfilNome      VarChar(50)       @unique @map("perfil_nome")
+  perfilDescricao VarChar(255)?     @map("perfil_descricao")
+  perfilCriadoEm  TimestamptzJsDate @default(now()) @map("perfil_criado_em")
+
+  usuarios        Usuario[]
+}
+
+// Clientes e funcionários. O papel é definido pelo perfil.
+model Usuario {
+  usuarioId             Uuid                          @id @default(uuid()) @map("usuario_id")
+  perfilId              Uuid                          @map("perfil_id")
+  usuarioNome           VarChar(120)                  @map("usuario_nome")
+  usuarioEmail          VarChar(255)                  @unique @map("usuario_email")
+  usuarioDocumento      VarChar(14)                   @unique @map("usuario_documento") // CPF ou CNPJ, somente dígitos
+  usuarioTipoDocumento  TipoDocumentoUsuario          @map("usuario_tipo_documento")
+  usuarioTelefone       VarChar(11)?                  @map("usuario_telefone")
+  usuarioUltimoAcesso   TimestamptzJsDate?            @map("usuario_ultimo_acesso")
+  usuarioCriadoEm       TimestamptzJsDate             @default(now()) @map("usuario_criado_em")
+  usuarioAtualizadoEm   TimestamptzJsDate             @default(now()) @map("usuario_atualizado_em")
+
+  perfil                Perfil                        @relation(fields: [perfilId], references: [perfilId])
+  senha                 UsuarioSenha?
+  veiculos              Veiculo[]
+  ordensComoCliente     OrdemServico[]                @relation("OrdemServicoCliente")
+  ordensComoAtendente   OrdemServico[]                @relation("OrdemServicoAtendente")
+  ordensComoMecanico    OrdemServico[]                @relation("OrdemServicoMecanico")
+  movimentacoesEstoque  MovimentacaoEstoque[]
+  historicosStatus      OrdemServicoStatusHistorico[]
+  orcamentosRespondidos Orcamento[]
+
+  @@index([perfilId])
+}
+
+// Relação 1:1 com Usuario. Separada para evitar vazamento do hash em consultas e APIs.
+model UsuarioSenha {
+  usuarioId       Uuid              @id @map("usuario_id")
+  senhaHash       VarChar(255)      @map("senha_hash") // String PHC do Argon2id (já contém salt e parâmetros)
+  senhaSalt       Int?              @map("senha_salt")
+  senhaAlteradaEm TimestamptzJsDate @default(now()) @map("senha_alterada_em")
+  senhaCriadaEm   TimestamptzJsDate @default(now()) @map("senha_criada_em")
+
+  usuario         Usuario           @relation(fields: [usuarioId], references: [usuarioId])
+}
+
+// =====================================================================
+// VEÍCULOS
+// =====================================================================
+model Veiculo {
+  veiculoId            Uuid              @id @default(uuid()) @map("veiculo_id")
+  usuarioId            Uuid              @map("usuario_id") // Proprietário (cliente)
+  veiculoPlaca         VarChar(7)        @unique @map("veiculo_placa") // Maiúsculas e sem hífen
+  veiculoChassi        VarChar(17)?      @unique @map("veiculo_chassi")
+  veiculoMarca         VarChar(40)       @map("veiculo_marca")
+  veiculoModelo        VarChar(40)       @map("veiculo_modelo")
+  veiculoAnoFabricacao SmallInt          @map("veiculo_ano_fabricacao")
+  veiculoCor           VarChar(30)       @map("veiculo_cor")
+  veiculoKmAtual       Int?              @map("veiculo_km_atual")
+  veiculoCriadoEm      TimestamptzJsDate @default(now()) @map("veiculo_criado_em")
+  veiculoAtualizadoEm  TimestamptzJsDate @default(now()) @map("veiculo_atualizado_em")
+
+  proprietario         Usuario           @relation(fields: [usuarioId], references: [usuarioId])
+  ordensServico        OrdemServico[]
+
+  @@index([usuarioId])
+}
+
+// =====================================================================
+// CATÁLOGO: SERVIÇOS E ESTOQUE
+// =====================================================================
+model Servico {
+  servicoId           Uuid                  @id @default(uuid()) @map("servico_id")
+  servicoNome         VarChar(120)          @unique @map("servico_nome")
+  servicoDescricao    VarChar(500)?         @map("servico_descricao")
+  servicoPrecoBase    Int                   @map("servico_preco_base") // Em centavos (ex.: 15000 = R$ 150,00)
+  servicoAtivo        Boolean               @default(true) @map("servico_ativo")
+  servicoCriadoEm     TimestamptzJsDate     @default(now()) @map("servico_criado_em")
+  servicoAtualizadoEm TimestamptzJsDate     @default(now()) @map("servico_atualizado_em")
+
+  ordensServico       OrdemServicoServico[]
+}
+
+// Peças e insumos, diferenciados pelo campo itemEstoqueTipo.
+model ItemEstoque {
+  itemEstoqueId           Uuid                  @id @default(uuid()) @map("item_estoque_id")
+  itemEstoqueTipo         TipoItemEstoque       @map("item_estoque_tipo")
+  itemEstoqueCodigo       VarChar(40)           @unique @map("item_estoque_codigo") // SKU / código interno
+  itemEstoqueNome         VarChar(120)          @map("item_estoque_nome")
+  itemEstoqueDescricao    VarChar(500)?         @map("item_estoque_descricao")
+  itemEstoqueUnidade      UnidadeMedida         @default(UN) @map("item_estoque_unidade")
+  itemEstoquePrecoVenda   Int                   @map("item_estoque_preco_venda") // Em centavos
+  itemEstoqueQuantidade   Numeric(12, 3)        @default(0) @map("item_estoque_quantidade") // Saldo físico (>= 0)
+  itemEstoqueReservada    Numeric(12, 3)        @default(0) @map("item_estoque_reservada") // Reservado por OS aprovadas. Disponível = quantidade - reservada
+  itemEstoqueAtivo        Boolean               @default(true) @map("item_estoque_ativo")
+  itemEstoqueCriadoEm     TimestamptzJsDate     @default(now()) @map("item_estoque_criado_em")
+  itemEstoqueAtualizadoEm TimestamptzJsDate     @default(now()) @map("item_estoque_atualizado_em")
+
+  movimentacoes           MovimentacaoEstoque[]
+  itensOs                 OrdemServicoItem[]
+
+  @@index([itemEstoqueTipo])
+  @@check(expression: "item_estoque_quantidade >= 0", name: "item_estoque_quantidade_nao_negativa")
+}
+
+model MovimentacaoEstoque {
+  movimentacaoId         Uuid                    @id @default(uuid()) @map("movimentacao_id")
+  itemEstoqueId          Uuid                    @map("item_estoque_id")
+  ordemServicoId         Uuid                    @map("ordem_servico_id") // Preenchido quando a movimentação vem de uma OS
+  usuarioId              Uuid                    @map("usuario_id") // Quem realizou a movimentação
+  movimentacaoTipo       TipoMovimentacaoEstoque @map("movimentacao_tipo")
+  movimentacaoQuantidade Numeric(12, 3)          @map("movimentacao_quantidade") // Sempre positiva; o tipo define o sentido
+  movimentacaoMotivo     VarChar(255)?           @map("movimentacao_motivo")
+  movimentacaoCriadaEm   TimestamptzJsDate       @default(now()) @map("movimentacao_criada_em")
+
+  itemEstoque            ItemEstoque             @relation(fields: [itemEstoqueId], references: [itemEstoqueId])
+  ordemServico           OrdemServico            @relation(fields: [ordemServicoId], references: [ordemServicoId])
+  usuario                Usuario                 @relation(fields: [usuarioId], references: [usuarioId])
+
+  @@index([itemEstoqueId])
+  @@index([ordemServicoId])
+}
+
+// =====================================================================
+// ORDEM DE SERVIÇO
+// =====================================================================
+model OrdemServico {
+  ordemServicoId                 Uuid                          @id @default(uuid()) @map("ordem_servico_id")
+  ordemServicoNumero             BigIntNumber                  @unique @map("ordem_servico_numero") // Número sequencial amigável para o cliente
+  usuarioId                      Uuid                          @map("usuario_id") // Cliente
+  veiculoId                      Uuid                          @map("veiculo_id")
+  atendenteId                    Uuid                          @map("atendente_id") // Funcionário que abriu a OS
+  mecanicoId                     Uuid                          @map("mecanico_id") // Mecânico responsável pela execução
+  ordemServicoStatus             StatusOrdemServico            @default(RECEBIDA) @map("ordem_servico_status")
+  ordemServicoDescricaoProblema  VarChar(1000)?                @map("ordem_servico_descricao_problema")
+  ordemServicoDiagnostico        VarChar(2000)?                @map("ordem_servico_diagnostico")
+  ordemServicoKmEntrada          Int?                          @map("ordem_servico_km_entrada")
+  ordemServicoMotivoCancelamento VarChar(500)?                 @map("ordem_servico_motivo_cancelamento")
+  ordemServicoCriadaEm           TimestamptzJsDate             @default(now()) @map("ordem_servico_criada_em")
+  ordemServicoAtualizadaEm       TimestamptzJsDate             @default(now()) @map("ordem_servico_atualizada_em")
+
+  cliente                        Usuario                       @relation("OrdemServicoCliente", fields: [usuarioId], references: [usuarioId])
+  veiculo                        Veiculo                       @relation(fields: [veiculoId], references: [veiculoId])
+  atendente                      Usuario                       @relation("OrdemServicoAtendente", fields: [atendenteId], references: [usuarioId])
+  mecanico                       Usuario                       @relation("OrdemServicoMecanico", fields: [mecanicoId], references: [usuarioId])
+
+  historicoStatus                OrdemServicoStatusHistorico[]
+  orcamentos                     Orcamento[]
+  servicos                       OrdemServicoServico[]
+  itens                          OrdemServicoItem[]
+  movimentacoes                  MovimentacaoEstoque[]
+
+  @@index([usuarioId])
+  @@index([veiculoId])
+  @@index([mecanicoId])
+  @@index([ordemServicoStatus])
+}
+
+// Fonte do tempo médio de execução e da linha do tempo exibida ao cliente.
+model OrdemServicoStatusHistorico {
+  historicoId             Uuid                @id @default(uuid()) @map("historico_id")
+  ordemServicoId          Uuid                @map("ordem_servico_id")
+  historicoStatusAnterior StatusOrdemServico? @map("historico_status_anterior")
+  historicoStatusNovo     StatusOrdemServico  @map("historico_status_novo")
+  usuarioId               Uuid?               @map("usuario_id") // Nulo quando a mudança é automática
+  historicoObservacao     VarChar(500)?       @map("historico_observacao")
+  historicoCriadoEm       TimestamptzJsDate   @default(now()) @map("historico_criado_em")
+
+  ordemServico            OrdemServico        @relation(fields: [ordemServicoId], references: [ordemServicoId])
+  usuario                 Usuario?            @relation(fields: [usuarioId], references: [usuarioId])
+
+  @@index([ordemServicoId, historicoCriadoEm], name: "os_historico_os_criado_idx")
+}
+
+// =====================================================================
+// ORÇAMENTO E ITENS DA OS
+// =====================================================================
+model Orcamento {
+  orcamentoId             Uuid                  @id @default(uuid()) @map("orcamento_id")
+  ordemServicoId          Uuid                  @map("ordem_servico_id")
+  orcamentoVersao         Int                   @default(1) @map("orcamento_versao") // Nova versão a cada reparo adicional
+  orcamentoStatus         StatusOrcamento       @default(RASCUNHO) @map("orcamento_status")
+  orcamentoValorTotal     Int                   @default(0) @map("orcamento_valor_total") // Em centavos
+  orcamentoEnviadoEm      TimestamptzJsDate?    @map("orcamento_enviado_em")
+  orcamentoRespondidoEm   TimestamptzJsDate?    @map("orcamento_respondido_em")
+  orcamentoRespondidoPor  Uuid?                 @map("orcamento_respondido_por")
+  orcamentoMotivoRejeicao VarChar(500)?         @map("orcamento_motivo_rejeicao")
+  orcamentoCriadoEm       TimestamptzJsDate     @default(now()) @map("orcamento_criado_em")
+  orcamentoAtualizadoEm   TimestamptzJsDate     @default(now()) @map("orcamento_atualizado_em")
+
+  ordemServico            OrdemServico          @relation(fields: [ordemServicoId], references: [ordemServicoId])
+  respondidoPor           Usuario?              @relation(fields: [orcamentoRespondidoPor], references: [usuarioId])
+
+  servicos                OrdemServicoServico[]
+  itens                   OrdemServicoItem[]
+
+  @@unique([ordemServicoId, orcamentoVersao])
+  @@index([orcamentoStatus])
+}
+
+model OrdemServicoServico {
+  osServicoId            Uuid              @id @default(uuid()) @map("os_servico_id")
+  ordemServicoId         Uuid              @map("ordem_servico_id")
+  servicoId              Uuid              @map("servico_id")
+  orcamentoId            Uuid?             @map("orcamento_id") // Orçamento em que o serviço foi incluído
+  osServicoQuantidade    Int               @default(1) @map("os_servico_quantidade")
+  osServicoPrecoUnitario Int               @map("os_servico_preco_unitario") // Em centavos. Preço congelado no momento da inclusão
+  osServicoCriadoEm      TimestamptzJsDate @default(now()) @map("os_servico_criado_em")
+
+  ordemServico           OrdemServico      @relation(fields: [ordemServicoId], references: [ordemServicoId])
+  servico                Servico           @relation(fields: [servicoId], references: [servicoId])
+  orcamento              Orcamento?        @relation(fields: [orcamentoId], references: [orcamentoId])
+
+  @@index([ordemServicoId])
+  @@index([servicoId])
+  @@index([orcamentoId])
+}
+
+model OrdemServicoItem {
+  osItemId            Uuid              @id @default(uuid()) @map("os_item_id")
+  ordemServicoId      Uuid              @map("ordem_servico_id")
+  itemEstoqueId       Uuid              @map("item_estoque_id")
+  orcamentoId         Uuid?             @map("orcamento_id") // Orçamento em que o item foi incluído
+  osItemQuantidade    Numeric(12, 3)    @map("os_item_quantidade")
+  osItemPrecoUnitario Int               @map("os_item_preco_unitario") // Em centavos. Preço congelado no momento da inclusão
+  osItemCriadoEm      TimestamptzJsDate @default(now()) @map("os_item_criado_em")
+
+  ordemServico        OrdemServico      @relation(fields: [ordemServicoId], references: [ordemServicoId])
+  itemEstoque         ItemEstoque       @relation(fields: [itemEstoqueId], references: [itemEstoqueId])
+  orcamento           Orcamento?        @relation(fields: [orcamentoId], references: [orcamentoId])
+
+  @@index([ordemServicoId])
+  @@index([itemEstoqueId])
+  @@index([orcamentoId])
+}
