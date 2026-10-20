@@ -1,0 +1,3957 @@
+{
+  "schemaVersion": "1",
+  "targetFamily": "sql",
+  "target": "postgres",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "roots": {
+    "ItemEstoque": {
+      "model": "ItemEstoque",
+      "namespace": "public"
+    },
+    "MovimentacaoEstoque": {
+      "model": "MovimentacaoEstoque",
+      "namespace": "public"
+    },
+    "Orcamento": {
+      "model": "Orcamento",
+      "namespace": "public"
+    },
+    "OrdemServico": {
+      "model": "OrdemServico",
+      "namespace": "public"
+    },
+    "OrdemServicoItem": {
+      "model": "OrdemServicoItem",
+      "namespace": "public"
+    },
+    "OrdemServicoServico": {
+      "model": "OrdemServicoServico",
+      "namespace": "public"
+    },
+    "OrdemServicoStatusHistorico": {
+      "model": "OrdemServicoStatusHistorico",
+      "namespace": "public"
+    },
+    "Perfil": {
+      "model": "Perfil",
+      "namespace": "public"
+    },
+    "Servico": {
+      "model": "Servico",
+      "namespace": "public"
+    },
+    "Usuario": {
+      "model": "Usuario",
+      "namespace": "public"
+    },
+    "UsuarioSenha": {
+      "model": "UsuarioSenha",
+      "namespace": "public"
+    },
+    "Veiculo": {
+      "model": "Veiculo",
+      "namespace": "public"
+    }
+  },
+  "domain": {
+    "namespaces": {
+      "public": {
+        "enum": {
+          "StatusOrcamento": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RASCUNHO",
+                "value": "RASCUNHO"
+              },
+              {
+                "name": "ENVIADO",
+                "value": "ENVIADO"
+              },
+              {
+                "name": "APROVADO",
+                "value": "APROVADO"
+              },
+              {
+                "name": "REJEITADO",
+                "value": "REJEITADO"
+              }
+            ]
+          },
+          "StatusOrdemServico": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RECEBIDA",
+                "value": "RECEBIDA"
+              },
+              {
+                "name": "EM_DIAGNOSTICO",
+                "value": "EM_DIAGNOSTICO"
+              },
+              {
+                "name": "AGUARDANDO_APROVACAO",
+                "value": "AGUARDANDO_APROVACAO"
+              },
+              {
+                "name": "AGUARDANDO_EXECUCAO",
+                "value": "AGUARDANDO_EXECUCAO"
+              },
+              {
+                "name": "EM_EXECUCAO",
+                "value": "EM_EXECUCAO"
+              },
+              {
+                "name": "FINALIZADA",
+                "value": "FINALIZADA"
+              },
+              {
+                "name": "ENTREGUE",
+                "value": "ENTREGUE"
+              },
+              {
+                "name": "ORCAMENTO_RECUSADO",
+                "value": "ORCAMENTO_RECUSADO"
+              },
+              {
+                "name": "CANCELADA",
+                "value": "CANCELADA"
+              }
+            ]
+          },
+          "TipoDocumentoUsuario": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "CPF",
+                "value": "CPF"
+              },
+              {
+                "name": "CNPJ",
+                "value": "CNPJ"
+              }
+            ]
+          },
+          "TipoItemEstoque": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PECA",
+                "value": "PECA"
+              },
+              {
+                "name": "INSUMO",
+                "value": "INSUMO"
+              }
+            ]
+          },
+          "TipoMovimentacaoEstoque": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ENTRADA",
+                "value": "ENTRADA"
+              },
+              {
+                "name": "SAIDA",
+                "value": "SAIDA"
+              },
+              {
+                "name": "AJUSTE",
+                "value": "AJUSTE"
+              },
+              {
+                "name": "RESERVA",
+                "value": "RESERVA"
+              },
+              {
+                "name": "LIBERACAO_RESERVA",
+                "value": "LIBERACAO_RESERVA"
+              }
+            ]
+          },
+          "UnidadeMedida": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "UN",
+                "value": "UN"
+              },
+              {
+                "name": "L",
+                "value": "L"
+              },
+              {
+                "name": "ML",
+                "value": "ML"
+              },
+              {
+                "name": "KG",
+                "value": "KG"
+              },
+              {
+                "name": "G",
+                "value": "G"
+              },
+              {
+                "name": "M",
+                "value": "M"
+              }
+            ]
+          }
+        },
+        "models": {
+          "ItemEstoque": {
+            "fields": {
+              "itemEstoqueAtivo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "itemEstoqueAtualizadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "itemEstoqueCodigo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 40
+                  }
+                }
+              },
+              "itemEstoqueCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "itemEstoqueDescricao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 500
+                  }
+                }
+              },
+              "itemEstoqueId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "itemEstoqueNome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 120
+                  }
+                }
+              },
+              "itemEstoquePrecoVenda": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "itemEstoqueQuantidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                }
+              },
+              "itemEstoqueReservada": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                }
+              },
+              "itemEstoqueTipo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "TipoItemEstoque",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "itemEstoqueUnidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "UnidadeMedida",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "itensOs": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "itemEstoqueId"
+                  ],
+                  "targetFields": [
+                    "itemEstoqueId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoItem",
+                  "namespace": "public"
+                }
+              },
+              "movimentacoes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "itemEstoqueId"
+                  ],
+                  "targetFields": [
+                    "itemEstoqueId"
+                  ]
+                },
+                "to": {
+                  "model": "MovimentacaoEstoque",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "itemEstoqueAtivo": {
+                  "column": "item_estoque_ativo"
+                },
+                "itemEstoqueAtualizadoEm": {
+                  "column": "item_estoque_atualizado_em"
+                },
+                "itemEstoqueCodigo": {
+                  "column": "item_estoque_codigo"
+                },
+                "itemEstoqueCriadoEm": {
+                  "column": "item_estoque_criado_em"
+                },
+                "itemEstoqueDescricao": {
+                  "column": "item_estoque_descricao"
+                },
+                "itemEstoqueId": {
+                  "column": "item_estoque_id"
+                },
+                "itemEstoqueNome": {
+                  "column": "item_estoque_nome"
+                },
+                "itemEstoquePrecoVenda": {
+                  "column": "item_estoque_preco_venda"
+                },
+                "itemEstoqueQuantidade": {
+                  "column": "item_estoque_quantidade"
+                },
+                "itemEstoqueReservada": {
+                  "column": "item_estoque_reservada"
+                },
+                "itemEstoqueTipo": {
+                  "column": "item_estoque_tipo"
+                },
+                "itemEstoqueUnidade": {
+                  "column": "item_estoque_unidade"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ItemEstoque"
+            }
+          },
+          "MovimentacaoEstoque": {
+            "fields": {
+              "itemEstoqueId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "movimentacaoCriadaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "movimentacaoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "movimentacaoMotivo": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
+                }
+              },
+              "movimentacaoQuantidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                }
+              },
+              "movimentacaoTipo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "TipoMovimentacaoEstoque",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "itemEstoque": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "itemEstoqueId"
+                  ],
+                  "targetFields": [
+                    "itemEstoqueId"
+                  ]
+                },
+                "to": {
+                  "model": "ItemEstoque",
+                  "namespace": "public"
+                }
+              },
+              "ordemServico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "itemEstoqueId": {
+                  "column": "item_estoque_id"
+                },
+                "movimentacaoCriadaEm": {
+                  "column": "movimentacao_criada_em"
+                },
+                "movimentacaoId": {
+                  "column": "movimentacao_id"
+                },
+                "movimentacaoMotivo": {
+                  "column": "movimentacao_motivo"
+                },
+                "movimentacaoQuantidade": {
+                  "column": "movimentacao_quantidade"
+                },
+                "movimentacaoTipo": {
+                  "column": "movimentacao_tipo"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "MovimentacaoEstoque"
+            }
+          },
+          "Orcamento": {
+            "fields": {
+              "orcamentoAtualizadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoEnviadoEm": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoMotivoRejeicao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 500
+                  }
+                }
+              },
+              "orcamentoRespondidoEm": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoRespondidoPor": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusOrcamento",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "orcamentoValorTotal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoVersao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "itens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "orcamentoId"
+                  ],
+                  "targetFields": [
+                    "orcamentoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoItem",
+                  "namespace": "public"
+                }
+              },
+              "ordemServico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "respondidoPor": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "orcamentoRespondidoPor"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              },
+              "servicos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "orcamentoId"
+                  ],
+                  "targetFields": [
+                    "orcamentoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoServico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "orcamentoAtualizadoEm": {
+                  "column": "orcamento_atualizado_em"
+                },
+                "orcamentoCriadoEm": {
+                  "column": "orcamento_criado_em"
+                },
+                "orcamentoEnviadoEm": {
+                  "column": "orcamento_enviado_em"
+                },
+                "orcamentoId": {
+                  "column": "orcamento_id"
+                },
+                "orcamentoMotivoRejeicao": {
+                  "column": "orcamento_motivo_rejeicao"
+                },
+                "orcamentoRespondidoEm": {
+                  "column": "orcamento_respondido_em"
+                },
+                "orcamentoRespondidoPor": {
+                  "column": "orcamento_respondido_por"
+                },
+                "orcamentoStatus": {
+                  "column": "orcamento_status"
+                },
+                "orcamentoValorTotal": {
+                  "column": "orcamento_valor_total"
+                },
+                "orcamentoVersao": {
+                  "column": "orcamento_versao"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Orcamento"
+            }
+          },
+          "OrdemServico": {
+            "fields": {
+              "atendenteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "mecanicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoAtualizadaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoCriadaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoDescricaoProblema": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 1000
+                  }
+                }
+              },
+              "ordemServicoDiagnostico": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 2000
+                  }
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoKmEntrada": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoMotivoCancelamento": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 500
+                  }
+                }
+              },
+              "ordemServicoNumero": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8number@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusOrdemServico",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "atendente": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "atendenteId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              },
+              "cliente": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              },
+              "historicoStatus": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoStatusHistorico",
+                  "namespace": "public"
+                }
+              },
+              "itens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoItem",
+                  "namespace": "public"
+                }
+              },
+              "mecanico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "mecanicoId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              },
+              "movimentacoes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "MovimentacaoEstoque",
+                  "namespace": "public"
+                }
+              },
+              "orcamentos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "Orcamento",
+                  "namespace": "public"
+                }
+              },
+              "servicos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoServico",
+                  "namespace": "public"
+                }
+              },
+              "veiculo": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "veiculoId"
+                  ],
+                  "targetFields": [
+                    "veiculoId"
+                  ]
+                },
+                "to": {
+                  "model": "Veiculo",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "atendenteId": {
+                  "column": "atendente_id"
+                },
+                "mecanicoId": {
+                  "column": "mecanico_id"
+                },
+                "ordemServicoAtualizadaEm": {
+                  "column": "ordem_servico_atualizada_em"
+                },
+                "ordemServicoCriadaEm": {
+                  "column": "ordem_servico_criada_em"
+                },
+                "ordemServicoDescricaoProblema": {
+                  "column": "ordem_servico_descricao_problema"
+                },
+                "ordemServicoDiagnostico": {
+                  "column": "ordem_servico_diagnostico"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                },
+                "ordemServicoKmEntrada": {
+                  "column": "ordem_servico_km_entrada"
+                },
+                "ordemServicoMotivoCancelamento": {
+                  "column": "ordem_servico_motivo_cancelamento"
+                },
+                "ordemServicoNumero": {
+                  "column": "ordem_servico_numero"
+                },
+                "ordemServicoStatus": {
+                  "column": "ordem_servico_status"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                },
+                "veiculoId": {
+                  "column": "veiculo_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "OrdemServico"
+            }
+          },
+          "OrdemServicoItem": {
+            "fields": {
+              "itemEstoqueId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "orcamentoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "osItemCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "osItemId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "osItemPrecoUnitario": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "osItemQuantidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "itemEstoque": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "itemEstoqueId"
+                  ],
+                  "targetFields": [
+                    "itemEstoqueId"
+                  ]
+                },
+                "to": {
+                  "model": "ItemEstoque",
+                  "namespace": "public"
+                }
+              },
+              "orcamento": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "orcamentoId"
+                  ],
+                  "targetFields": [
+                    "orcamentoId"
+                  ]
+                },
+                "to": {
+                  "model": "Orcamento",
+                  "namespace": "public"
+                }
+              },
+              "ordemServico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "itemEstoqueId": {
+                  "column": "item_estoque_id"
+                },
+                "orcamentoId": {
+                  "column": "orcamento_id"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                },
+                "osItemCriadoEm": {
+                  "column": "os_item_criado_em"
+                },
+                "osItemId": {
+                  "column": "os_item_id"
+                },
+                "osItemPrecoUnitario": {
+                  "column": "os_item_preco_unitario"
+                },
+                "osItemQuantidade": {
+                  "column": "os_item_quantidade"
+                }
+              },
+              "namespaceId": "public",
+              "table": "OrdemServicoItem"
+            }
+          },
+          "OrdemServicoServico": {
+            "fields": {
+              "orcamentoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "osServicoCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "osServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "osServicoPrecoUnitario": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "osServicoQuantidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "servicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "orcamento": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "orcamentoId"
+                  ],
+                  "targetFields": [
+                    "orcamentoId"
+                  ]
+                },
+                "to": {
+                  "model": "Orcamento",
+                  "namespace": "public"
+                }
+              },
+              "ordemServico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "servico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "servicoId"
+                  ],
+                  "targetFields": [
+                    "servicoId"
+                  ]
+                },
+                "to": {
+                  "model": "Servico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "orcamentoId": {
+                  "column": "orcamento_id"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                },
+                "osServicoCriadoEm": {
+                  "column": "os_servico_criado_em"
+                },
+                "osServicoId": {
+                  "column": "os_servico_id"
+                },
+                "osServicoPrecoUnitario": {
+                  "column": "os_servico_preco_unitario"
+                },
+                "osServicoQuantidade": {
+                  "column": "os_servico_quantidade"
+                },
+                "servicoId": {
+                  "column": "servico_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "OrdemServicoServico"
+            }
+          },
+          "OrdemServicoStatusHistorico": {
+            "fields": {
+              "historicoCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "historicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "historicoObservacao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 500
+                  }
+                }
+              },
+              "historicoStatusAnterior": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusOrdemServico",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "historicoStatusNovo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusOrdemServico",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "ordemServicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "ordemServico": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ordemServicoId"
+                  ],
+                  "targetFields": [
+                    "ordemServicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "historicoCriadoEm": {
+                  "column": "historico_criado_em"
+                },
+                "historicoId": {
+                  "column": "historico_id"
+                },
+                "historicoObservacao": {
+                  "column": "historico_observacao"
+                },
+                "historicoStatusAnterior": {
+                  "column": "historico_status_anterior"
+                },
+                "historicoStatusNovo": {
+                  "column": "historico_status_novo"
+                },
+                "ordemServicoId": {
+                  "column": "ordem_servico_id"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "OrdemServicoStatusHistorico"
+            }
+          },
+          "Perfil": {
+            "fields": {
+              "perfilCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "perfilDescricao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
+                }
+              },
+              "perfilId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "perfilNome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 50
+                  }
+                }
+              }
+            },
+            "relations": {
+              "usuarios": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "perfilId"
+                  ],
+                  "targetFields": [
+                    "perfilId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "perfilCriadoEm": {
+                  "column": "perfil_criado_em"
+                },
+                "perfilDescricao": {
+                  "column": "perfil_descricao"
+                },
+                "perfilId": {
+                  "column": "perfil_id"
+                },
+                "perfilNome": {
+                  "column": "perfil_nome"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Perfil"
+            }
+          },
+          "Servico": {
+            "fields": {
+              "servicoAtivo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "servicoAtualizadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "servicoCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "servicoDescricao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 500
+                  }
+                }
+              },
+              "servicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "servicoNome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 120
+                  }
+                }
+              },
+              "servicoPrecoBase": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "ordensServico": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "servicoId"
+                  ],
+                  "targetFields": [
+                    "servicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoServico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "servicoAtivo": {
+                  "column": "servico_ativo"
+                },
+                "servicoAtualizadoEm": {
+                  "column": "servico_atualizado_em"
+                },
+                "servicoCriadoEm": {
+                  "column": "servico_criado_em"
+                },
+                "servicoDescricao": {
+                  "column": "servico_descricao"
+                },
+                "servicoId": {
+                  "column": "servico_id"
+                },
+                "servicoNome": {
+                  "column": "servico_nome"
+                },
+                "servicoPrecoBase": {
+                  "column": "servico_preco_base"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Servico"
+            }
+          },
+          "Usuario": {
+            "fields": {
+              "perfilId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioAtualizadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioDocumento": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 14
+                  }
+                }
+              },
+              "usuarioEmail": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioNome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 120
+                  }
+                }
+              },
+              "usuarioTelefone": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 11
+                  }
+                }
+              },
+              "usuarioTipoDocumento": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "TipoDocumentoUsuario",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "usuarioUltimoAcesso": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "historicosStatus": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServicoStatusHistorico",
+                  "namespace": "public"
+                }
+              },
+              "movimentacoesEstoque": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "MovimentacaoEstoque",
+                  "namespace": "public"
+                }
+              },
+              "orcamentosRespondidos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "orcamentoRespondidoPor"
+                  ]
+                },
+                "to": {
+                  "model": "Orcamento",
+                  "namespace": "public"
+                }
+              },
+              "ordensComoAtendente": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "atendenteId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "ordensComoCliente": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "ordensComoMecanico": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "mecanicoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "perfil": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "perfilId"
+                  ],
+                  "targetFields": [
+                    "perfilId"
+                  ]
+                },
+                "to": {
+                  "model": "Perfil",
+                  "namespace": "public"
+                }
+              },
+              "senha": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "UsuarioSenha",
+                  "namespace": "public"
+                }
+              },
+              "veiculos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Veiculo",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "perfilId": {
+                  "column": "perfil_id"
+                },
+                "usuarioAtualizadoEm": {
+                  "column": "usuario_atualizado_em"
+                },
+                "usuarioCriadoEm": {
+                  "column": "usuario_criado_em"
+                },
+                "usuarioDocumento": {
+                  "column": "usuario_documento"
+                },
+                "usuarioEmail": {
+                  "column": "usuario_email"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                },
+                "usuarioNome": {
+                  "column": "usuario_nome"
+                },
+                "usuarioTelefone": {
+                  "column": "usuario_telefone"
+                },
+                "usuarioTipoDocumento": {
+                  "column": "usuario_tipo_documento"
+                },
+                "usuarioUltimoAcesso": {
+                  "column": "usuario_ultimo_acesso"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Usuario"
+            }
+          },
+          "UsuarioSenha": {
+            "fields": {
+              "senhaAlteradaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "senhaCriadaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "senhaHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
+                }
+              },
+              "senhaSalt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "senhaAlteradaEm": {
+                  "column": "senha_alterada_em"
+                },
+                "senhaCriadaEm": {
+                  "column": "senha_criada_em"
+                },
+                "senhaHash": {
+                  "column": "senha_hash"
+                },
+                "senhaSalt": {
+                  "column": "senha_salt"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "UsuarioSenha"
+            }
+          },
+          "Veiculo": {
+            "fields": {
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoAnoFabricacao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int2@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoAtualizadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoChassi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 17
+                  }
+                }
+              },
+              "veiculoCor": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 30
+                  }
+                }
+              },
+              "veiculoCriadoEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoKmAtual": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "veiculoMarca": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 40
+                  }
+                }
+              },
+              "veiculoModelo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 40
+                  }
+                }
+              },
+              "veiculoPlaca": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 7
+                  }
+                }
+              }
+            },
+            "relations": {
+              "ordensServico": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "veiculoId"
+                  ],
+                  "targetFields": [
+                    "veiculoId"
+                  ]
+                },
+                "to": {
+                  "model": "OrdemServico",
+                  "namespace": "public"
+                }
+              },
+              "proprietario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "usuarioId": {
+                  "column": "usuario_id"
+                },
+                "veiculoAnoFabricacao": {
+                  "column": "veiculo_ano_fabricacao"
+                },
+                "veiculoAtualizadoEm": {
+                  "column": "veiculo_atualizado_em"
+                },
+                "veiculoChassi": {
+                  "column": "veiculo_chassi"
+                },
+                "veiculoCor": {
+                  "column": "veiculo_cor"
+                },
+                "veiculoCriadoEm": {
+                  "column": "veiculo_criado_em"
+                },
+                "veiculoId": {
+                  "column": "veiculo_id"
+                },
+                "veiculoKmAtual": {
+                  "column": "veiculo_km_atual"
+                },
+                "veiculoMarca": {
+                  "column": "veiculo_marca"
+                },
+                "veiculoModelo": {
+                  "column": "veiculo_modelo"
+                },
+                "veiculoPlaca": {
+                  "column": "veiculo_placa"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Veiculo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "namespaces": {
+      "public": {
+        "entries": {
+          "table": {
+            "ItemEstoque": {
+              "checks": [
+                {
+                  "expression": "\"item_estoque_tipo\" IN ('PECA', 'INSUMO')",
+                  "name": "ItemEstoque_item_estoque_tipo_check_b24fdb8e",
+                  "prefix": "ItemEstoque_item_estoque_tipo_check"
+                },
+                {
+                  "expression": "\"item_estoque_unidade\" IN ('UN', 'L', 'ML', 'KG', 'G', 'M')",
+                  "name": "ItemEstoque_item_estoque_unidade_check_65c10492",
+                  "prefix": "ItemEstoque_item_estoque_unidade_check"
+                },
+                {
+                  "expression": "item_estoque_quantidade >= 0",
+                  "name": "item_estoque_quantidade_nao_negativa_b8f51f10",
+                  "prefix": "item_estoque_quantidade_nao_negativa"
+                }
+              ],
+              "columns": {
+                "item_estoque_ativo": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "item_estoque_atualizado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "item_estoque_codigo": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 40
+                  }
+                },
+                "item_estoque_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "item_estoque_descricao": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 500
+                  }
+                },
+                "item_estoque_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "item_estoque_nome": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 120
+                  }
+                },
+                "item_estoque_preco_venda": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "item_estoque_quantidade": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "default": {
+                    "kind": "literal",
+                    "value": "0"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                },
+                "item_estoque_reservada": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "default": {
+                    "kind": "literal",
+                    "value": "0"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                },
+                "item_estoque_tipo": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TipoItemEstoque",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "item_estoque_unidade": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "UN"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "UnidadeMedida",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "item_estoque_tipo"
+                  ],
+                  "name": "ItemEstoque_item_estoque_tipo_idx_3cad250b",
+                  "prefix": "ItemEstoque_item_estoque_tipo_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "item_estoque_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "item_estoque_codigo"
+                  ]
+                }
+              ]
+            },
+            "MovimentacaoEstoque": {
+              "checks": [
+                {
+                  "expression": "\"movimentacao_tipo\" IN ('ENTRADA', 'SAIDA', 'AJUSTE', 'RESERVA', 'LIBERACAO_RESERVA')",
+                  "name": "MovimentacaoEstoque_movimentacao_tipo_check_54fc0ba1",
+                  "prefix": "MovimentacaoEstoque_movimentacao_tipo_check"
+                }
+              ],
+              "columns": {
+                "item_estoque_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "movimentacao_criada_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "movimentacao_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "movimentacao_motivo": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 255
+                  }
+                },
+                "movimentacao_quantidade": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                },
+                "movimentacao_tipo": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TipoMovimentacaoEstoque",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "MovimentacaoEstoque_item_estoque_id_idx_67447c15"
+                  },
+                  "source": {
+                    "columns": [
+                      "item_estoque_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MovimentacaoEstoque"
+                  },
+                  "target": {
+                    "columns": [
+                      "item_estoque_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ItemEstoque"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d"
+                  },
+                  "source": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MovimentacaoEstoque"
+                  },
+                  "target": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "MovimentacaoEstoque_usuario_id_idx_65b6616a"
+                  },
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MovimentacaoEstoque"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "item_estoque_id"
+                  ],
+                  "name": "MovimentacaoEstoque_item_estoque_id_idx_67447c15",
+                  "prefix": "MovimentacaoEstoque_item_estoque_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_id"
+                  ],
+                  "name": "MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d",
+                  "prefix": "MovimentacaoEstoque_ordem_servico_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "MovimentacaoEstoque_usuario_id_idx_65b6616a",
+                  "prefix": "MovimentacaoEstoque_usuario_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "movimentacao_id"
+                ]
+              },
+              "uniques": []
+            },
+            "Orcamento": {
+              "checks": [
+                {
+                  "expression": "\"orcamento_status\" IN ('RASCUNHO', 'ENVIADO', 'APROVADO', 'REJEITADO')",
+                  "name": "Orcamento_orcamento_status_check_fd63cb52",
+                  "prefix": "Orcamento_orcamento_status_check"
+                }
+              ],
+              "columns": {
+                "orcamento_atualizado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "orcamento_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "orcamento_enviado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "orcamento_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "orcamento_motivo_rejeicao": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 500
+                  }
+                },
+                "orcamento_respondido_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "orcamento_respondido_por": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "orcamento_status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "RASCUNHO"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusOrcamento",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "orcamento_valor_total": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "orcamento_versao": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nullable": false
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Orcamento_ordem_servico_id_idx_22fc9c3d"
+                  },
+                  "source": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Orcamento"
+                  },
+                  "target": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Orcamento_orcamento_respondido_por_idx_af278654"
+                  },
+                  "source": {
+                    "columns": [
+                      "orcamento_respondido_por"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Orcamento"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "orcamento_respondido_por"
+                  ],
+                  "name": "Orcamento_orcamento_respondido_por_idx_af278654",
+                  "prefix": "Orcamento_orcamento_respondido_por_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "orcamento_status"
+                  ],
+                  "name": "Orcamento_orcamento_status_idx_da38468c",
+                  "prefix": "Orcamento_orcamento_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_id"
+                  ],
+                  "name": "Orcamento_ordem_servico_id_idx_22fc9c3d",
+                  "prefix": "Orcamento_ordem_servico_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "orcamento_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "ordem_servico_id",
+                    "orcamento_versao"
+                  ]
+                }
+              ]
+            },
+            "OrdemServico": {
+              "checks": [
+                {
+                  "expression": "\"ordem_servico_status\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA')",
+                  "name": "OrdemServico_ordem_servico_status_check_5efc435f",
+                  "prefix": "OrdemServico_ordem_servico_status_check"
+                }
+              ],
+              "columns": {
+                "atendente_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "mecanico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "ordem_servico_atualizada_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "ordem_servico_criada_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "ordem_servico_descricao_problema": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 1000
+                  }
+                },
+                "ordem_servico_diagnostico": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 2000
+                  }
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "ordem_servico_km_entrada": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "ordem_servico_motivo_cancelamento": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 500
+                  }
+                },
+                "ordem_servico_numero": {
+                  "codecId": "pg/int8number@1",
+                  "dataType": "pg/int8",
+                  "nullable": false
+                },
+                "ordem_servico_status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "RECEBIDA"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusOrdemServico",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "veiculo_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "OrdemServico_usuario_id_idx_65b6616a"
+                  },
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServico_veiculo_id_idx_b9d7a88f"
+                  },
+                  "source": {
+                    "columns": [
+                      "veiculo_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "veiculo_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Veiculo"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServico_atendente_id_idx_bc37ffcb"
+                  },
+                  "source": {
+                    "columns": [
+                      "atendente_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServico_mecanico_id_idx_2a95f1b9"
+                  },
+                  "source": {
+                    "columns": [
+                      "mecanico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "atendente_id"
+                  ],
+                  "name": "OrdemServico_atendente_id_idx_bc37ffcb",
+                  "prefix": "OrdemServico_atendente_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "mecanico_id"
+                  ],
+                  "name": "OrdemServico_mecanico_id_idx_2a95f1b9",
+                  "prefix": "OrdemServico_mecanico_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_status"
+                  ],
+                  "name": "OrdemServico_ordem_servico_status_idx_580e6243",
+                  "prefix": "OrdemServico_ordem_servico_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "OrdemServico_usuario_id_idx_65b6616a",
+                  "prefix": "OrdemServico_usuario_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "veiculo_id"
+                  ],
+                  "name": "OrdemServico_veiculo_id_idx_b9d7a88f",
+                  "prefix": "OrdemServico_veiculo_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "ordem_servico_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "ordem_servico_numero"
+                  ]
+                }
+              ]
+            },
+            "OrdemServicoItem": {
+              "columns": {
+                "item_estoque_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "orcamento_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "os_item_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "os_item_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "os_item_preco_unitario": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "os_item_quantidade": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "OrdemServicoItem_ordem_servico_id_idx_22fc9c3d"
+                  },
+                  "source": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServicoItem_item_estoque_id_idx_67447c15"
+                  },
+                  "source": {
+                    "columns": [
+                      "item_estoque_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "item_estoque_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ItemEstoque"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServicoItem_orcamento_id_idx_5a304956"
+                  },
+                  "source": {
+                    "columns": [
+                      "orcamento_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "orcamento_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Orcamento"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "item_estoque_id"
+                  ],
+                  "name": "OrdemServicoItem_item_estoque_id_idx_67447c15",
+                  "prefix": "OrdemServicoItem_item_estoque_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "orcamento_id"
+                  ],
+                  "name": "OrdemServicoItem_orcamento_id_idx_5a304956",
+                  "prefix": "OrdemServicoItem_orcamento_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_id"
+                  ],
+                  "name": "OrdemServicoItem_ordem_servico_id_idx_22fc9c3d",
+                  "prefix": "OrdemServicoItem_ordem_servico_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "os_item_id"
+                ]
+              },
+              "uniques": []
+            },
+            "OrdemServicoServico": {
+              "columns": {
+                "orcamento_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "os_servico_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "os_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "os_servico_preco_unitario": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "os_servico_quantidade": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nullable": false
+                },
+                "servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "OrdemServicoServico_ordem_servico_id_idx_22fc9c3d"
+                  },
+                  "source": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServicoServico_servico_id_idx_d1abf681"
+                  },
+                  "source": {
+                    "columns": [
+                      "servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Servico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServicoServico_orcamento_id_idx_5a304956"
+                  },
+                  "source": {
+                    "columns": [
+                      "orcamento_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoServico"
+                  },
+                  "target": {
+                    "columns": [
+                      "orcamento_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Orcamento"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "orcamento_id"
+                  ],
+                  "name": "OrdemServicoServico_orcamento_id_idx_5a304956",
+                  "prefix": "OrdemServicoServico_orcamento_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_id"
+                  ],
+                  "name": "OrdemServicoServico_ordem_servico_id_idx_22fc9c3d",
+                  "prefix": "OrdemServicoServico_ordem_servico_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "servico_id"
+                  ],
+                  "name": "OrdemServicoServico_servico_id_idx_d1abf681",
+                  "prefix": "OrdemServicoServico_servico_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "os_servico_id"
+                ]
+              },
+              "uniques": []
+            },
+            "OrdemServicoStatusHistorico": {
+              "checks": [
+                {
+                  "expression": "\"historico_status_anterior\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA')",
+                  "name": "OrdemServicoStatusHistorico_historico_status_anterior__e9135d66",
+                  "prefix": "OrdemServicoStatusHistorico_historico_status_anterior_"
+                },
+                {
+                  "expression": "\"historico_status_novo\" IN ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE', 'ORCAMENTO_RECUSADO', 'CANCELADA')",
+                  "name": "OrdemServicoStatusHistorico_historico_status_novo_chec_f676cc9a",
+                  "prefix": "OrdemServicoStatusHistorico_historico_status_novo_chec"
+                }
+              ],
+              "columns": {
+                "historico_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "historico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "historico_observacao": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 500
+                  }
+                },
+                "historico_status_anterior": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusOrdemServico",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "historico_status_novo": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusOrdemServico",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "ordem_servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d"
+                  },
+                  "source": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoStatusHistorico"
+                  },
+                  "target": {
+                    "columns": [
+                      "ordem_servico_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServico"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "OrdemServicoStatusHistorico_usuario_id_idx_65b6616a"
+                  },
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "OrdemServicoStatusHistorico"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "ordem_servico_id"
+                  ],
+                  "name": "OrdemServicoStatusHistorico_ordem_servico_id_idx_22fc9c3d",
+                  "prefix": "OrdemServicoStatusHistorico_ordem_servico_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "OrdemServicoStatusHistorico_usuario_id_idx_65b6616a",
+                  "prefix": "OrdemServicoStatusHistorico_usuario_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "ordem_servico_id",
+                    "historico_criado_em"
+                  ],
+                  "name": "os_historico_os_criado_idx_f503259f",
+                  "prefix": "os_historico_os_criado_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "historico_id"
+                ]
+              },
+              "uniques": []
+            },
+            "Perfil": {
+              "columns": {
+                "perfil_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "perfil_descricao": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 255
+                  }
+                },
+                "perfil_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "perfil_nome": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 50
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "perfil_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "perfil_nome"
+                  ]
+                }
+              ]
+            },
+            "Servico": {
+              "columns": {
+                "servico_ativo": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "servico_atualizado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "servico_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "servico_descricao": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 500
+                  }
+                },
+                "servico_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "servico_nome": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 120
+                  }
+                },
+                "servico_preco_base": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "servico_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "servico_nome"
+                  ]
+                }
+              ]
+            },
+            "Usuario": {
+              "checks": [
+                {
+                  "expression": "\"usuario_tipo_documento\" IN ('CPF', 'CNPJ')",
+                  "name": "Usuario_usuario_tipo_documento_check_ac0df0e9",
+                  "prefix": "Usuario_usuario_tipo_documento_check"
+                }
+              ],
+              "columns": {
+                "perfil_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "usuario_atualizado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "usuario_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "usuario_documento": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 14
+                  }
+                },
+                "usuario_email": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 255
+                  }
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "usuario_nome": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 120
+                  }
+                },
+                "usuario_telefone": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 11
+                  }
+                },
+                "usuario_tipo_documento": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TipoDocumentoUsuario",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "usuario_ultimo_acesso": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Usuario_perfil_id_idx_0e75ecf5"
+                  },
+                  "source": {
+                    "columns": [
+                      "perfil_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  },
+                  "target": {
+                    "columns": [
+                      "perfil_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Perfil"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "perfil_id"
+                  ],
+                  "name": "Usuario_perfil_id_idx_0e75ecf5",
+                  "prefix": "Usuario_perfil_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "usuario_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "usuario_email"
+                  ]
+                },
+                {
+                  "columns": [
+                    "usuario_documento"
+                  ]
+                }
+              ]
+            },
+            "UsuarioSenha": {
+              "columns": {
+                "senha_alterada_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "senha_criada_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "senha_hash": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 255
+                  }
+                },
+                "senha_salt": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "primaryKey": true
+                  },
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "UsuarioSenha"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "usuario_id"
+                ]
+              },
+              "uniques": []
+            },
+            "Veiculo": {
+              "columns": {
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "veiculo_ano_fabricacao": {
+                  "codecId": "pg/int2@1",
+                  "dataType": "pg/int2",
+                  "nullable": false
+                },
+                "veiculo_atualizado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "veiculo_chassi": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 17
+                  }
+                },
+                "veiculo_cor": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 30
+                  }
+                },
+                "veiculo_criado_em": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "veiculo_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "veiculo_km_atual": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "veiculo_marca": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 40
+                  }
+                },
+                "veiculo_modelo": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 40
+                  }
+                },
+                "veiculo_placa": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 7
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Veiculo_usuario_id_idx_65b6616a"
+                  },
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Veiculo"
+                  },
+                  "target": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "Veiculo_usuario_id_idx_65b6616a",
+                  "prefix": "Veiculo_usuario_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "veiculo_id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "veiculo_placa"
+                  ]
+                },
+                {
+                  "columns": [
+                    "veiculo_chassi"
+                  ]
+                }
+              ]
+            }
+          },
+          "valueSet": {
+            "StatusOrcamento": {
+              "kind": "valueSet",
+              "values": [
+                "RASCUNHO",
+                "ENVIADO",
+                "APROVADO",
+                "REJEITADO"
+              ]
+            },
+            "StatusOrdemServico": {
+              "kind": "valueSet",
+              "values": [
+                "RECEBIDA",
+                "EM_DIAGNOSTICO",
+                "AGUARDANDO_APROVACAO",
+                "AGUARDANDO_EXECUCAO",
+                "EM_EXECUCAO",
+                "FINALIZADA",
+                "ENTREGUE",
+                "ORCAMENTO_RECUSADO",
+                "CANCELADA"
+              ]
+            },
+            "TipoDocumentoUsuario": {
+              "kind": "valueSet",
+              "values": [
+                "CPF",
+                "CNPJ"
+              ]
+            },
+            "TipoItemEstoque": {
+              "kind": "valueSet",
+              "values": [
+                "PECA",
+                "INSUMO"
+              ]
+            },
+            "TipoMovimentacaoEstoque": {
+              "kind": "valueSet",
+              "values": [
+                "ENTRADA",
+                "SAIDA",
+                "AJUSTE",
+                "RESERVA",
+                "LIBERACAO_RESERVA"
+              ]
+            },
+            "UnidadeMedida": {
+              "kind": "valueSet",
+              "values": [
+                "UN",
+                "L",
+                "ML",
+                "KG",
+                "G",
+                "M"
+              ]
+            }
+          }
+        },
+        "id": "public",
+        "kind": "postgres-schema"
+      }
+    },
+    "storageHash": "6aee47636293b275ce495da3bfcbc73ecd931ba90831d682c6a7c3cf994369a4"
+  },
+  "execution": {
+    "executionHash": "6604959bb6d2a50ac97f54f201b64c68eb6cfb691848a2c01f8bdaa8de85b47c",
+    "mutations": {
+      "defaults": [
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "ItemEstoque",
+            "field": "item_estoque_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "MovimentacaoEstoque",
+            "field": "movimentacao_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Orcamento",
+            "field": "orcamento_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "OrdemServico",
+            "field": "ordem_servico_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "OrdemServicoItem",
+            "field": "os_item_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "OrdemServicoServico",
+            "field": "os_servico_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "OrdemServicoStatusHistorico",
+            "field": "historico_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Perfil",
+            "field": "perfil_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Servico",
+            "field": "servico_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Usuario",
+            "field": "usuario_id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Veiculo",
+            "field": "veiculo_id",
+            "namespace": "public"
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "postgres": {
+      "distinctOn": true,
+      "forKeyShare": true,
+      "forNoKeyUpdate": true,
+      "jsonAgg": true,
+      "lateral": true,
+      "limit": true,
+      "orderBy": true,
+      "returning": true
+    },
+    "sql": {
+      "checkConstraint": true,
+      "defaultInInsert": true,
+      "enums": true,
+      "forShare": true,
+      "forUpdate": true,
+      "insertOnConflictSkip": true,
+      "insertOnConflictWithoutTarget": true,
+      "lateral": true,
+      "lockNowait": true,
+      "lockOf": true,
+      "lockSkipLocked": true,
+      "returning": true,
+      "scalarList": true
+    }
+  },
+  "extensions": {},
+  "meta": {},
+  "_generated": {
+    "warning": "⚠️  GENERATED FILE - DO NOT EDIT",
+    "message": "This file is automatically generated by \"prisma contract emit\".",
+    "regenerate": "To regenerate, run: prisma contract emit"
+  }
+}
