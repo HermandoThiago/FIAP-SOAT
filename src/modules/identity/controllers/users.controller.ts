@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -7,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
@@ -35,5 +37,14 @@ export class UserController {
   @Get(':userId')
   async findUserById(@Param('userId', ParseUUIDPipe) userId: string) {
     return await this.userService.findUserById(userId);
+  }
+
+  @ApiOperation({ description: 'Deleta usuário pelo ID' })
+  @ApiNoContentResponse({ description: 'Usuário deletado com sucesso' })
+  @ApiNotFoundResponse({ description: 'Usuário não encontrado' })
+  @HttpCode(204)
+  @Delete(':userId')
+  async deleteUserById(@Param('userId', ParseUUIDPipe) userId: string) {
+    return await this.userService.deleteUser(userId);
   }
 }

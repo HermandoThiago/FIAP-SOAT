@@ -1,12 +1,13 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { Prisma } from '../../../generated/prisma/client';
 import { DatabaseService } from '../../../shared/database/database.service';
+import { User } from '../domain/entities';
 import { ListUsersQueryDto, RegisterUserDto, UpdateUserDto } from '../dtos';
 
 @Injectable()
@@ -57,12 +58,20 @@ export class UsersService {
           ? payload.usuarioTelefone
           : undefined,
         usuarioTipoDocumento: payload.usuarioTipoDocumento,
-        perfil: { connect: { perfilId } },
-        senha: { create: { senhaHash: password } },
+        perfil: {
+          connect: {
+            perfilId,
+          },
+        },
+        senha: {
+          create: {
+            senhaHash: password,
+          },
+        },
       },
     });
 
-    return createdUser;
+    return plainToInstance(User, createdUser);
   }
 
   async findUserById(userId: string) {
@@ -82,7 +91,7 @@ export class UsersService {
       throw new NotFoundException(`Usuário não encontrado`);
     }
 
-    return user;
+    return plainToInstance(User, user);
   }
 
   async findAll({ page, pageSize, perfilId }: ListUsersQueryDto) {
@@ -105,33 +114,15 @@ export class UsersService {
       this.orm.usuario.count({ where }),
     ]);
 
-    return { users: items, total, page, pageSize };
+    return { users: plainToInstance(User, items), total, page, pageSize };
   }
 
   async updateUser(userId: string, payload: UpdateUserDto) {
-    // Só entra no UPDATE o que foi enviado (undefined = não alterar; null no telefone = remover)
-    const data = {
-      ...(payload.usuarioNome !== undefined && {
-        usuarioNome: payload.usuarioNome.trim(),
-      }),
-      ...(payload.usuarioEmail !== undefined && {
-        usuarioEmail: payload.usuarioEmail.trim().toLowerCase(),
-      }),
-      ...(payload.usuarioTelefone !== undefined && {
-        usuarioTelefone: payload.usuarioTelefone,
-      }),
-      ...(payload.perfilId !== undefined && { perfilId: payload.perfilId }),
-    };
-
-    if (Object.keys(data).length === 0) {
-      throw new BadRequestException('Informe ao menos um campo para atualizar');
-    }
-
     try {
       return await this.orm.usuario.update({
         where: { usuarioId: userId },
         data: {
-          ...data,
+          ...payload,
           usuarioAtualizadoEm: new Date(), // o banco só preenche o default na criação
         },
       });
