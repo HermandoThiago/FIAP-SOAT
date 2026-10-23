@@ -8,7 +8,7 @@ import { plainToInstance } from 'class-transformer';
 import { Prisma } from '../../../generated/prisma/client';
 import { DatabaseService } from '../../../shared/database/database.service';
 import { User } from '../domain/entities';
-import { ListUsersQueryDto, RegisterUserDto, UpdateUserDto } from '../dtos';
+import { CreateUserDto, ListUsersQueryDto, UpdateUserDto } from '../dtos';
 
 @Injectable()
 export class UsersService {
@@ -19,8 +19,8 @@ export class UsersService {
     this.orm = this.prisma.db;
   }
 
-  async createUser(payload: RegisterUserDto, salt: NonSharedBuffer) {
-    const { perfilId, password } = payload;
+  async createUser(payload: CreateUserDto, salt: NonSharedBuffer) {
+    const { perfilId, senhaHash } = payload;
 
     const perfil = await this.orm.perfil.findUnique({ where: { perfilId } });
 
@@ -49,6 +49,10 @@ export class UsersService {
       throw new ConflictException('Documento já cadastrado');
     }
 
+    console.log(payload.usuarioTipoDocumento);
+
+    console.log('Miauuuuuuuuuuuuuu');
+
     const createdUser = await this.orm.usuario.create({
       data: {
         usuarioNome: payload.usuarioNome,
@@ -65,7 +69,7 @@ export class UsersService {
         },
         senha: {
           create: {
-            senhaHash: password,
+            senhaHash,
           },
         },
       },

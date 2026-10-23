@@ -10,16 +10,21 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Public } from '../auth';
 import { ListUsersQueryDto, UpdateUserDto } from '../dtos';
 import { UsersService } from '../services';
 
 @ApiTags('Users')
+@ApiBearerAuth()
+// @Roles(Role.ADMIN)
+@Public()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UsersService) {}

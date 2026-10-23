@@ -86,6 +86,7 @@ model Usuario {
 
   perfil                Perfil                        @relation(fields: [perfilId], references: [perfilId], onDelete: NoAction, onUpdate: NoAction)
   senha                 UsuarioSenha?
+  sessoes               SessaoRefresh[]
   veiculos              Veiculo[]
   ordensComoCliente     OrdemServico[]                @relation("OrdemServicoCliente")
   ordensComoAtendente   OrdemServico[]                @relation("OrdemServicoAtendente")
@@ -106,6 +107,24 @@ model UsuarioSenha {
   senhaCriadaEm   DateTime @default(now()) @map("senha_criada_em") @db.Timestamptz(6)
 
   usuario Usuario @relation(fields: [usuarioId], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+// Refresh tokens opacos. Só o hash SHA-256 é guardado; cada uso gera um novo token (rotação)
+// e a "família" permite revogar toda a cadeia se um token já usado for reapresentado.
+model SessaoRefresh {
+  sessaoId         String    @id @default(uuid()) @map("sessao_id") @db.Uuid
+  usuarioId        String    @map("usuario_id") @db.Uuid
+  sessaoTokenHash  String    @unique @map("sessao_token_hash") @db.VarChar(64)
+  sessaoFamiliaId  String    @map("sessao_familia_id") @db.Uuid
+  sessaoExpiraEm   DateTime  @map("sessao_expira_em") @db.Timestamptz(6)
+  sessaoRevogadaEm DateTime? @map("sessao_revogada_em") @db.Timestamptz(6)
+  sessaoCriadaEm   DateTime  @default(now()) @map("sessao_criada_em") @db.Timestamptz(6)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [usuarioId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([usuarioId])
+  @@index([sessaoFamiliaId])
+  @@map("SessaoRefresh")
 }
 
 // =====================================================================

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsIn,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { TipoDocumentoUsuario } from '../../../generated/prisma/enums';
 
-const documentTypes = Object.values(TipoDocumentoUsuario);
+// const documentTypes = Object.values(TipoDocumentoUsuario);
 
 export class RegisterUserDto {
   @ApiProperty()
@@ -29,9 +29,9 @@ export class RegisterUserDto {
   @IsNotEmpty()
   readonly usuarioDocumento: string;
 
-  @ApiProperty({ enum: documentTypes })
+  @ApiProperty({ enum: TipoDocumentoUsuario })
   @MaxLength(4)
-  @IsIn(documentTypes)
+  @IsEnum(TipoDocumentoUsuario)
   readonly usuarioTipoDocumento: TipoDocumentoUsuario;
 
   @ApiProperty()
@@ -45,7 +45,7 @@ export class RegisterUserDto {
   @ApiProperty()
   @IsString()
   @MinLength(12, { message: 'A senha deve ter no mínimo 12 caracteres' })
-  readonly password: string;
+  readonly senha: string;
 
   @ApiProperty()
   @IsUUID()
