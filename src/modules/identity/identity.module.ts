@@ -1,8 +1,13 @@
 import 'dotenv/config';
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthGuard, RolesGuard } from './auth';
+import {
+  JwtAuthGuard,
+  RequestContext,
+  RequestContextInterceptor,
+  RolesGuard,
+} from './auth';
 import { AuthController } from './controllers';
 import { UserController } from './controllers/users.controller';
 import { AuthService } from './services';
@@ -25,10 +30,12 @@ if (!jwtSecret || jwtSecret.length < 32) {
     }),
   ],
   controllers: [AuthController, UserController],
-  exports: [UsersService, AuthService],
+  exports: [UsersService, AuthService, RequestContext],
   providers: [
     UsersService,
     AuthService,
+    RequestContext,
+    { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
     // Ordem importa: primeiro autentica (JwtAuthGuard), depois autoriza por perfil (RolesGuard).
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

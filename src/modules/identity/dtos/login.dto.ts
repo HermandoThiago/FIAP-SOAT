@@ -10,5 +10,5 @@ export class LoginDto {
   @ApiProperty({ required: true })
   @IsString()
   @IsNotEmpty()
-  readonly password: string;
+  readonly senha: string;
 }

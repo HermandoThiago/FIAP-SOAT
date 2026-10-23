@@ -1,11 +1,17 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { plainToInstance } from 'class-transformer';
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import { promisify } from 'node:util';
 import { DatabaseService } from '../../../shared/database/database.service';
-import { Role } from '../auth';
+import { RequestContext, Role } from '../auth';
 import { User } from '../domain/entities';
 import { LoginDto, RegisterUserDto } from '../dtos';
 import { UsersService } from './users.service';
@@ -28,12 +34,28 @@ export class AuthService {
     private readonly prisma: DatabaseService,
     private readonly userService: UsersService,
     private readonly jwt: JwtService,
+    private readonly ctx: RequestContext,
   ) {
     this.orm = this.prisma.db;
   }
 
   async register(payload: RegisterUserDto) {
     try {
+      const perfil = await this.orm.perfil.findUnique({
+        where: { perfilId: payload.perfilId },
+      });
+      if (!perfil) throw new NotFoundException('Perfil não encontrado');
+
+      // Só Admin cria outro Admin (a rota já limita o acesso a Admin e Atendente).
+      if (
+        perfil.perfilNome === Role.ADMIN &&
+        this.ctx.requireUser().role !== Role.ADMIN
+      ) {
+        throw new ForbiddenException(
+          'Somente administradores podem criar outros administradores',
+        );
+      }
+
       const { senha, ...rest } = payload;
 
       const salt = await GENERATE_SALT(SALT_LENGTH);
@@ -55,7 +77,7 @@ export class AuthService {
     }
   }
 
-  async login({ email, password }: LoginDto) {
+  async login({ email, senha }: LoginDto) {
     const user = await this.orm.usuario.findUnique({
       where: { usuarioEmail: email },
       include: { senha: true, perfil: true },
@@ -64,9 +86,7 @@ export class AuthService {
     // Sempre executa o verify (hash falso se o usuário não existe) para não vazar, pelo tempo
     // de resposta, quais e-mails estão cadastrados.
     const hash = user?.senha?.senhaHash ?? (await this.getDummyHash());
-    const isPasswordValid = await argon
-      .verify(hash, password)
-      .catch(() => false);
+    const isPasswordValid = await argon.verify(hash, senha).catch(() => false);
 
     if (!user || !user.senha || !isPasswordValid) {
       throw new UnauthorizedException('E-mail ou senha incorretos');
@@ -86,18 +106,39 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const session = await this.orm.sessaoRefresh.findUnique({
-      where: { sessaoTokenHash: hashToken(refreshToken) },
-      include: { usuario: { include: { perfil: true } } },
+      where: {
+        sessaoTokenHash: hashToken(refreshToken),
+      },
+      include: {
+        usuario: {
+          include: {
+            perfil: true,
+          },
+        },
+      },
     });
 
     if (!session) throw new UnauthorizedException('Refresh token inválido');
+
+    // Só o dono do token renova. Checado antes da rotação para não consumir o token alheio.
+    if (session.usuarioId !== this.ctx.userId) {
+      this.logger.warn(
+        `Usuário ${this.ctx.userId} tentou usar refresh token do usuário ${session.usuarioId}`,
+      );
+      throw new UnauthorizedException('Refresh token inválido');
+    }
 
     // Rotação: cada refresh token só vale uma vez. Revogado e reapresentado = possível roubo,
     // então derruba toda a cadeia (família) de tokens.
     // O updateMany condicional garante que só uma de duas requisições concorrentes ganhe.
     const { count } = await this.orm.sessaoRefresh.updateMany({
-      where: { sessaoId: session.sessaoId, sessaoRevogadaEm: null },
-      data: { sessaoRevogadaEm: new Date() },
+      where: {
+        sessaoId: session.sessaoId,
+        sessaoRevogadaEm: null,
+      },
+      data: {
+        sessaoRevogadaEm: new Date(),
+      },
     });
 
     if (count === 0) {
@@ -123,6 +164,7 @@ export class AuthService {
     const session = await this.orm.sessaoRefresh.findUnique({
       where: { sessaoTokenHash: hashToken(refreshToken) },
     });
+
     if (session) await this.revokeFamily(session.sessaoFamiliaId);
   }
 

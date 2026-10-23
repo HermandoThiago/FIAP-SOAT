@@ -1,15 +1,15 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Public } from '../auth';
+import { Public, Role, Roles } from '../auth';
 import { LoginDto, RefreshTokenDto, RegisterUserDto } from '../dtos';
 import { AuthService } from '../services';
 
-@Public()
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -18,6 +18,8 @@ export class AuthController {
   @ApiOperation({ description: 'Cria um novo usuário (somente Admin)' })
   @ApiResponse({ status: 201, description: 'Usuário registrado com sucesso' })
   @HttpCode(201)
+  @Roles(Role.ADMIN, Role.ATTENDANT)
+  @ApiBearerAuth()
   @Post('register')
   async register(@Body() payload: RegisterUserDto) {
     return await this.authService.register(payload);
@@ -28,6 +30,7 @@ export class AuthController {
   })
   @ApiUnauthorizedResponse({ description: 'E-mail ou senha incorretos' })
   @HttpCode(200)
+  @Public()
   @Post('login')
   async login(@Body() payload: LoginDto) {
     return await this.authService.login(payload);
@@ -40,6 +43,7 @@ export class AuthController {
     description: 'Refresh token inválido ou expirado',
   })
   @HttpCode(200)
+  @ApiBearerAuth()
   @Post('refresh')
   async refresh(@Body() { refreshToken }: RefreshTokenDto) {
     return await this.authService.refresh(refreshToken);
@@ -47,6 +51,7 @@ export class AuthController {
 
   @ApiOperation({ description: 'Encerra a sessão (revoga o refresh token)' })
   @HttpCode(204)
+  @ApiBearerAuth()
   @Post('logout')
   async logout(@Body() { refreshToken }: RefreshTokenDto) {
     await this.authService.logout(refreshToken);
