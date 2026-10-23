@@ -9,10 +9,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { db } from '../../../prisma/db';
+import { TipoDocumentoUsuario } from '../../../generated/prisma/enums';
 
-const documentTypes = db.enums.public.TipoDocumentoUsuario;
-type DocumentType = (typeof documentTypes)['values'][number];
+const documentTypes = Object.values(TipoDocumentoUsuario);
 
 export class RegisterUserDto {
   @ApiProperty()
@@ -30,10 +29,10 @@ export class RegisterUserDto {
   @IsNotEmpty()
   readonly usuarioDocumento: string;
 
-  @ApiProperty({ enum: [...documentTypes.values] })
+  @ApiProperty({ enum: documentTypes })
   @MaxLength(4)
-  @IsIn(documentTypes.values)
-  readonly usuarioTipoDocumento: DocumentType;
+  @IsIn(documentTypes)
+  readonly usuarioTipoDocumento: TipoDocumentoUsuario;
 
   @ApiProperty()
   @IsString()

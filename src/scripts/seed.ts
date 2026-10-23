@@ -1,12 +1,11 @@
-import type { Numeric, Varchar } from '@prisma/orm-postgres/target/codec-types';
+import { PrismaPg } from '@prisma/adapter-pg';
 import * as argon2 from 'argon2';
-import { db } from '../prisma/db';
+import 'dotenv/config';
+import { PrismaClient } from '../generated/prisma/client';
 
-// Os campos VarChar(n) e Numeric(p, s) do contrato são tipados como strings
-// "marcadas" (Varchar<n>, Numeric<p, s>). Estes helpers fazem a conversão de tipo.
-const vc = <N extends number>(s: string) => s as Varchar<N>;
-const nm = <P extends number, S extends number | undefined>(s: string) =>
-  s as Numeric<P, S>;
+const db = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] }),
+});
 
 // Valores monetários em CENTAVOS (15000 = R$ 150,00).
 // Quantidades de estoque são Numeric(12, 3): sempre string decimal.
@@ -103,15 +102,14 @@ async function main() {
   const perfilIds = new Map<string, string>();
 
   for (const p of perfis) {
-    const [exists] = await db.orm.public.Perfil.where({
-      perfilNome: vc<50>(p.nome),
-    }).all();
+    const exists = await db.perfil.findUnique({
+      where: { perfilNome: p.nome },
+    });
 
     const perfil =
       exists ??
-      (await db.orm.public.Perfil.create({
-        perfilNome: vc(p.nome),
-        perfilDescricao: vc(p.descricao),
+      (await db.perfil.create({
+        data: { perfilNome: p.nome, perfilDescricao: p.descricao },
       }));
 
     perfilIds.set(p.nome, perfil.perfilId);
@@ -121,74 +119,78 @@ async function main() {
   const userIds = new Map<string, string>();
 
   for (const u of users) {
-    const [exists] = await db.orm.public.Usuario.where({
-      usuarioEmail: vc<255>(u.email),
-    }).all();
+    const exists = await db.usuario.findUnique({
+      where: { usuarioEmail: u.email },
+    });
 
     if (exists) {
       userIds.set(u.email, exists.usuarioId);
       continue;
     }
 
-    const userCreated = await db.orm.public.Usuario.create({
-      perfilId: perfilIds.get(u.perfil),
-      usuarioNome: vc(u.nome),
-      usuarioEmail: vc(u.email),
-      usuarioDocumento: vc(u.documento),
-      usuarioTipoDocumento: 'CPF',
+    const userCreated = await db.usuario.create({
+      data: {
+        perfilId: perfilIds.get(u.perfil)!,
+        usuarioNome: u.nome,
+        usuarioEmail: u.email,
+        usuarioDocumento: u.documento,
+        usuarioTipoDocumento: 'CPF',
+      },
     });
 
-    await db.orm.public.UsuarioSenha.create({
-      usuarioId: userCreated.usuarioId,
-      senhaHash: vc(hash),
+    await db.usuarioSenha.create({
+      data: { usuarioId: userCreated.usuarioId, senhaHash: hash },
     });
 
     userIds.set(u.email, userCreated.usuarioId);
   }
 
   for (const s of services) {
-    const [exists] = await db.orm.public.Servico.where({
-      servicoNome: vc<120>(s.nome),
-    }).all();
+    const exists = await db.servico.findUnique({
+      where: { servicoNome: s.nome },
+    });
 
     if (!exists) {
-      await db.orm.public.Servico.create({
-        servicoNome: vc(s.nome),
-        servicoPrecoBase: s.precoCentavos,
+      await db.servico.create({
+        data: { servicoNome: s.nome, servicoPrecoBase: s.precoCentavos },
       });
     }
   }
 
   for (const i of itens) {
-    const [exists] = await db.orm.public.ItemEstoque.where({
-      itemEstoqueCodigo: vc<40>(i.codigo),
-    }).all();
+    const exists = await db.itemEstoque.findUnique({
+      where: { itemEstoqueCodigo: i.codigo },
+    });
 
     if (!exists) {
-      await db.orm.public.ItemEstoque.create({
-        itemEstoqueTipo: i.tipo,
-        itemEstoqueCodigo: vc(i.codigo),
-        itemEstoqueNome: vc(i.nome),
-        itemEstoqueUnidade: i.unidade,
-        itemEstoquePrecoVenda: i.precoCentavos,
-        itemEstoqueQuantidade: nm(i.quantidade),
+      await db.itemEstoque.create({
+        data: {
+          itemEstoqueTipo: i.tipo,
+          itemEstoqueCodigo: i.codigo,
+          itemEstoqueNome: i.nome,
+          itemEstoqueUnidade: i.unidade,
+          itemEstoquePrecoVenda: i.precoCentavos,
+          itemEstoqueQuantidade: i.quantidade,
+        },
       });
     }
   }
 
-  const [vehicle] = await db.orm.public.Veiculo.where({
-    veiculoPlaca: vc<7>('ABC1D23'),
-  }).all();
+  const vehicle = await db.veiculo.findUnique({
+    where: { veiculoPlaca: 'ABC1D23' },
+  });
 
   if (!vehicle) {
-    await db.orm.public.Veiculo.create({
-      usuarioId: userIds.get('cliente@oficina.local'),
-      veiculoPlaca: vc('ABC1D23'),
-      veiculoMarca: vc('Fiat'),
-      veiculoModelo: vc('Uno'),
-      veiculoAnoFabricacao: 2015,
-      veiculoCor: vc('Prata'),
-      veiculoKmAtual: 85000,
+    await db.veiculo.create({
+      data: {
+        usuarioId: userIds.get('cliente@oficina.local')!,
+        veiculoPlaca: 'ABC1D23',
+        veiculoMarca: 'Fiat',
+        veiculoModelo: 'Uno',
+        veiculoAnoFabricacao: 2015,
+        veiculoCor: 'Prata',
+        veiculoKmAtual: 85000,
+      },
     });
   }
 
@@ -200,4 +202,4 @@ main()
     console.error(error);
     process.exitCode = 1;
   })
-  .finally(() => db.close());
+  .finally(() => db.$disconnect());

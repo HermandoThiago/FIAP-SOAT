@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { vc } from '../../../prisma/types';
+import { Prisma } from '../../../generated/prisma/client';
 import { DatabaseService } from '../../../shared/database/database.service';
 import { ListUsersQueryDto, RegisterUserDto, UpdateUserDto } from '../dtos';
 
@@ -15,31 +15,31 @@ export class UsersService {
   private orm;
 
   constructor(private readonly prisma: DatabaseService) {
-    this.orm = this.prisma.db.orm.public;
+    this.orm = this.prisma.db;
   }
 
   async createUser(payload: RegisterUserDto, salt: NonSharedBuffer) {
     const { perfilId, password } = payload;
 
-    const [perfil] = await this.orm.Perfil.where({ perfilId }).all();
+    const perfil = await this.orm.perfil.findUnique({ where: { perfilId } });
 
     if (!perfil) {
       this.logger.error(`PerfilId ${perfilId} não encontrado!`);
       throw new NotFoundException('Perfil não encontrado');
     }
 
-    const [emailExists] = await this.orm.Usuario.where({
-      usuarioEmail: vc<255>(payload.usuarioEmail),
-    }).all();
+    const emailExists = await this.orm.usuario.findUnique({
+      where: { usuarioEmail: payload.usuarioEmail },
+    });
 
     if (emailExists) {
       this.logger.error(`E-mail ${payload.usuarioEmail} já cadastrado!`);
       throw new ConflictException('E-mail já cadastrado');
     }
 
-    const [documentExists] = await this.orm.Usuario.where({
-      usuarioDocumento: vc<14>(payload.usuarioDocumento),
-    }).all();
+    const documentExists = await this.orm.usuario.findUnique({
+      where: { usuarioDocumento: payload.usuarioDocumento },
+    });
 
     if (documentExists) {
       this.logger.error(
@@ -48,23 +48,34 @@ export class UsersService {
       throw new ConflictException('Documento já cadastrado');
     }
 
-    const createdUser = await this.orm.Usuario.create({
-      usuarioNome: vc<120>(payload.usuarioNome),
-      usuarioEmail: vc<255>(payload.usuarioEmail),
-      usuarioDocumento: vc<14>(payload.usuarioDocumento),
-      usuarioTelefone: payload.usuarioTelefone
-        ? vc<11>(payload.usuarioTelefone)
-        : undefined,
-      usuarioTipoDocumento: payload.usuarioTipoDocumento,
-      perfil: (rel) => rel.connect({ perfilId }),
-      senha: (rel) => rel.create({ senhaHash: vc<255>(password) }),
+    const createdUser = await this.orm.usuario.create({
+      data: {
+        usuarioNome: payload.usuarioNome,
+        usuarioEmail: payload.usuarioEmail,
+        usuarioDocumento: payload.usuarioDocumento,
+        usuarioTelefone: payload.usuarioTelefone
+          ? payload.usuarioTelefone
+          : undefined,
+        usuarioTipoDocumento: payload.usuarioTipoDocumento,
+        perfil: { connect: { perfilId } },
+        senha: { create: { senhaHash: password } },
+      },
     });
 
     return createdUser;
   }
 
   async findUserById(userId: string) {
-    const user = await this.orm.Usuario.where({ usuarioId: userId }).first();
+    const user = await this.orm.usuario.findUnique({
+      where: { usuarioId: userId },
+      include: {
+        perfil: {
+          select: {
+            perfilNome: true,
+          },
+        },
+      },
+    });
 
     if (!user) {
       this.logger.error(`Usuário ${userId} não encontrado`);
@@ -75,17 +86,23 @@ export class UsersService {
   }
 
   async findAll({ page, pageSize, perfilId }: ListUsersQueryDto) {
-    const users = perfilId
-      ? this.orm.Usuario.where({ perfilId })
-      : this.orm.Usuario;
+    const where = perfilId ? { perfilId } : {};
 
-    const [items, { total }] = await Promise.all([
-      users
-        .orderBy([(u) => u.usuarioNome.asc(), (u) => u.usuarioId.asc()]) // desempate estável
-        .limit(pageSize)
-        .offset((page - 1) * pageSize)
-        .all(),
-      users.aggregate((aggregate) => ({ total: aggregate.count() })),
+    const [items, total] = await Promise.all([
+      this.orm.usuario.findMany({
+        where,
+        orderBy: [{ usuarioNome: 'asc' }, { usuarioId: 'asc' }], // desempate estável
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+        include: {
+          perfil: {
+            select: {
+              perfilNome: true,
+            },
+          },
+        },
+      }),
+      this.orm.usuario.count({ where }),
     ]);
 
     return { users: items, total, page, pageSize };
@@ -95,16 +112,13 @@ export class UsersService {
     // Só entra no UPDATE o que foi enviado (undefined = não alterar; null no telefone = remover)
     const data = {
       ...(payload.usuarioNome !== undefined && {
-        usuarioNome: vc<120>(payload.usuarioNome.trim()),
+        usuarioNome: payload.usuarioNome.trim(),
       }),
       ...(payload.usuarioEmail !== undefined && {
-        usuarioEmail: vc<255>(payload.usuarioEmail.trim().toLowerCase()),
+        usuarioEmail: payload.usuarioEmail.trim().toLowerCase(),
       }),
       ...(payload.usuarioTelefone !== undefined && {
-        usuarioTelefone:
-          payload.usuarioTelefone === null
-            ? null
-            : vc<11>(payload.usuarioTelefone),
+        usuarioTelefone: payload.usuarioTelefone,
       }),
       ...(payload.perfilId !== undefined && { perfilId: payload.perfilId }),
     };
@@ -113,29 +127,36 @@ export class UsersService {
       throw new BadRequestException('Informe ao menos um campo para atualizar');
     }
 
-    const updated = await this.orm.Usuario.where({
-      usuarioId: userId,
-    }).update({
-      ...data,
-      usuarioAtualizadoEm: new Date(), // o banco só preenche o default na criação
-    });
-
-    if (!updated) throw new NotFoundException('Usuário não encontrado');
-
-    return updated;
+    try {
+      return await this.orm.usuario.update({
+        where: { usuarioId: userId },
+        data: {
+          ...data,
+          usuarioAtualizadoEm: new Date(), // o banco só preenche o default na criação
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Usuário não encontrado');
+      }
+      throw error;
+    }
   }
 
   async deleteUser(userId: string): Promise<void> {
     // A senha aponta para o usuário (sem ON DELETE CASCADE): apaga a senha e depois o usuário,
     // na mesma transação. Se o usuário ainda tiver veículos/ordens, tudo é desfeito.
-    await this.prisma.db.transaction(async (tx) => {
-      await tx.orm.public.UsuarioSenha.where({ usuarioId: userId }).delete();
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.usuarioSenha.deleteMany({ where: { usuarioId: userId } });
 
-      const removed = await tx.orm.public.Usuario.where({
-        usuarioId: userId,
-      }).delete();
+      const { count } = await tx.usuario.deleteMany({
+        where: { usuarioId: userId },
+      });
 
-      if (!removed) throw new NotFoundException('Usuário não encontrado');
+      if (count === 0) throw new NotFoundException('Usuário não encontrado');
     });
 
     this.logger.log(`Usuário ${userId} excluído`);
