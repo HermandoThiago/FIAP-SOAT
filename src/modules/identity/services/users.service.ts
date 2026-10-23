@@ -88,7 +88,7 @@ export class UsersService {
       users.aggregate((aggregate) => ({ total: aggregate.count() })),
     ]);
 
-    return { items, total, page, pageSize };
+    return { users: items, total, page, pageSize };
   }
 
   async updateUser(userId: string, payload: UpdateUserDto) {
