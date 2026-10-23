@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   Param,
   ParseUUIDPipe,
+  Patch,
   Query,
 } from '@nestjs/common';
 import {
@@ -14,7 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ListUsersQueryDto } from '../dtos';
+import { ListUsersQueryDto, UpdateUserDto } from '../dtos';
 import { UsersService } from '../services';
 
 @ApiTags('Users')
@@ -46,5 +48,13 @@ export class UserController {
   @Delete(':userId')
   async deleteUserById(@Param('userId', ParseUUIDPipe) userId: string) {
     return await this.userService.deleteUser(userId);
+  }
+
+  @Patch(':userId')
+  async updateUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() payload: UpdateUserDto,
+  ) {
+    return this.userService.updateUser(userId, payload);
   }
 }
