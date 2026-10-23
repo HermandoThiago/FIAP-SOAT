@@ -1,0 +1,3 @@
+src/prisma/contract.prisma
+src/prisma/contract.json
+src/prisma/contract.d.ts
