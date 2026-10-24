@@ -15,7 +15,6 @@ async function bootstrap() {
     .setTitle('FIAP SOAT')
     .setDescription('Endpoints para desafio pós tech fiap')
     .setVersion('1.0')
-    // .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

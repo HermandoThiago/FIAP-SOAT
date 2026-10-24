@@ -9,7 +9,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { TipoDocumentoUsuario } from '../../../generated/prisma/enums';
+import { IsValidDocument } from './is-valid-document.decorator';
 
 // const documentTypes = Object.values(TipoDocumentoUsuario);
 
@@ -24,9 +26,13 @@ export class RegisterUserDto {
   @IsNotEmpty()
   readonly usuarioEmail: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'CPF ou CNPJ; pontuação é ignorada' })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.replace(/\D/g, '') : value,
+  )
   @IsString()
   @IsNotEmpty()
+  @IsValidDocument()
   readonly usuarioDocumento: string;
 
   @ApiProperty({ enum: TipoDocumentoUsuario })

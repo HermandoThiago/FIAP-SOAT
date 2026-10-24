@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { RequestContext } from '../../src/modules/identity/auth';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import { UsersService } from '../../src/modules/identity/services/users.service';
 
@@ -15,7 +16,10 @@ describe('UsersService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new UsersService({ db } as unknown as DatabaseService);
+    service = new UsersService(
+      { db } as unknown as DatabaseService,
+      { userId: 'admin-id' } as unknown as RequestContext,
+    );
   });
 
   describe('deleteUser', () => {

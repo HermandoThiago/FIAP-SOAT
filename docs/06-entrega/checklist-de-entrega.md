@@ -38,9 +38,9 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | T2 | Organização em camadas (clássicas, por módulo — ADR-003) explicada | ADR-003 + árvore do repo + bloco 3 do vídeo | Hermando | ⬜ |
 | T3 | Banco de dados de livre escolha, com decisão justificada | ADR-002 + README §9 + bloco 4 | Diego | ⬜ |
 | T4 | APIs RESTful + Swagger/OpenAPI | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) | | ⬜ |
-| T5 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login` (ADR-004) | integração 401/403 | ⬜ |
+| T5 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login`, `/auth/refresh` (rotação de refresh token) e `/auth/logout`; papéis via `RolesGuard`; `DELETE /users/{id}` = exclusão lógica (`usuarioAtivo`), que bloqueia login/refresh e preserva o histórico (ADR-004). Pendente: teste de integração 401/403 | | 🟡 |
 | T6 | Validação de CPF ou CNPJ · validação da placa | VOs `Document` e `LicensePlate` + 422 | unit exaustivo | ⬜ |
-| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit`, `test/integration`, `test/bdd` — CI verde | | ⬜ |
+| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit` (controllers de auth e users) e `test/services` (`AuthService`, `UsersService`) já existem; faltam `test/integration` e `test/bdd` — CI verde | | 🟡 |
 | T8 | **Evidência** de cobertura mínima de 80 % nos domínios críticos | `docs/06-entrega/evidencias/cobertura.md` (percentual por módulo) + gate no CI | | ⬜ |
 | T9 | Instruções para execução local (README completo) | README com os 13 itens do enunciado; outro membro executa só pelo README | Hermando | ⬜ |
 | T10 | **Tratamento adequado das transações** nos principais fluxos | `prisma.$transaction` em aprovar (status + reserva) e finalizar (status + baixa); teste de integração de rollback | Diego | ⬜ |
