@@ -19,6 +19,12 @@ export class User implements Usuario {
   usuarioUltimoAcesso: Date | null;
 
   @Exclude()
+  usuarioAtivo: boolean;
+
+  @Exclude()
+  usuarioInativadoEm: Date | null;
+
+  @Exclude()
   usuarioCriadoEm: Date;
 
   @Exclude()

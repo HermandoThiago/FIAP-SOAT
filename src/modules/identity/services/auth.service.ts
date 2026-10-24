@@ -88,7 +88,8 @@ export class AuthService {
     const hash = user?.senha?.senhaHash ?? (await this.getDummyHash());
     const isPasswordValid = await argon.verify(hash, senha).catch(() => false);
 
-    if (!user || !user.senha || !isPasswordValid) {
+    // Mesma mensagem para usuário inativo: não revela que o e-mail existe.
+    if (!user || !user.usuarioAtivo || !user.senha || !isPasswordValid) {
       throw new UnauthorizedException('E-mail ou senha incorretos');
     }
 
@@ -125,6 +126,13 @@ export class AuthService {
       this.logger.warn(
         `Usuário ${this.ctx.userId} tentou usar refresh token do usuário ${session.usuarioId}`,
       );
+
+      throw new UnauthorizedException('Refresh token inválido');
+    }
+
+    // Usuário inativado: barreira extra além da revogação feita na exclusão lógica.
+    if (!session.usuario.usuarioAtivo) {
+      await this.revokeFamily(session.sessaoFamiliaId);
       throw new UnauthorizedException('Refresh token inválido');
     }
 

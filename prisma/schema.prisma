@@ -81,6 +81,8 @@ model Usuario {
   usuarioTipoDocumento TipoDocumentoUsuario @map("usuario_tipo_documento")
   usuarioTelefone      String?              @map("usuario_telefone") @db.VarChar(11)
   usuarioUltimoAcesso  DateTime?            @map("usuario_ultimo_acesso") @db.Timestamptz(6)
+  usuarioAtivo         Boolean              @default(true) @map("usuario_ativo") // Exclusão lógica: preserva OS e histórico
+  usuarioInativadoEm   DateTime?            @map("usuario_inativado_em") @db.Timestamptz(6)
   usuarioCriadoEm      DateTime             @default(now()) @map("usuario_criado_em") @db.Timestamptz(6)
   usuarioAtualizadoEm  DateTime             @default(now()) @map("usuario_atualizado_em") @db.Timestamptz(6)
 
@@ -106,7 +108,7 @@ model UsuarioSenha {
   senhaAlteradaEm DateTime @default(now()) @map("senha_alterada_em") @db.Timestamptz(6)
   senhaCriadaEm   DateTime @default(now()) @map("senha_criada_em") @db.Timestamptz(6)
 
-  usuario Usuario @relation(fields: [usuarioId], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
+  usuario Usuario @relation(fields: [usuarioId], references: [usuarioId], onDelete: Cascade, onUpdate: NoAction)
 }
 
 // Refresh tokens opacos. Só o hash SHA-256 é guardado; cada uso gera um novo token (rotação)
@@ -250,7 +252,7 @@ model OrdemServicoStatusHistorico {
   historicoObservacao     String?             @map("historico_observacao") @db.VarChar(500)
   historicoCriadoEm       DateTime            @default(now()) @map("historico_criado_em") @db.Timestamptz(6)
 
-  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: Cascade, onUpdate: NoAction)
   usuario      Usuario?     @relation(fields: [usuarioId], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([ordemServicoId, historicoCriadoEm], map: "os_historico_os_criado_idx_f503259f")
@@ -274,7 +276,7 @@ model Orcamento {
   orcamentoCriadoEm       DateTime        @default(now()) @map("orcamento_criado_em") @db.Timestamptz(6)
   orcamentoAtualizadoEm   DateTime        @default(now()) @map("orcamento_atualizado_em") @db.Timestamptz(6)
 
-  ordemServico  OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
+  ordemServico  OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: Cascade, onUpdate: NoAction)
   respondidoPor Usuario?     @relation(fields: [orcamentoRespondidoPor], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
 
   servicos OrdemServicoServico[]
@@ -295,9 +297,9 @@ model OrdemServicoServico {
   osServicoPrecoUnitario Int      @map("os_servico_preco_unitario") // Em centavos. Preço congelado no momento da inclusão
   osServicoCriadoEm      DateTime @default(now()) @map("os_servico_criado_em") @db.Timestamptz(6)
 
-  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: Cascade, onUpdate: NoAction)
   servico      Servico      @relation(fields: [servicoId], references: [servicoId], onDelete: NoAction, onUpdate: NoAction)
-  orcamento    Orcamento?   @relation(fields: [orcamentoId], references: [orcamentoId], onDelete: NoAction, onUpdate: NoAction)
+  orcamento    Orcamento?   @relation(fields: [orcamentoId], references: [orcamentoId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([ordemServicoId], map: "OrdemServicoServico_ordem_servico_id_idx_22fc9c3d")
   @@index([servicoId], map: "OrdemServicoServico_servico_id_idx_d1abf681")
@@ -313,9 +315,9 @@ model OrdemServicoItem {
   osItemPrecoUnitario Int      @map("os_item_preco_unitario") // Em centavos. Preço congelado no momento da inclusão
   osItemCriadoEm      DateTime @default(now()) @map("os_item_criado_em") @db.Timestamptz(6)
 
-  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: Cascade, onUpdate: NoAction)
   itemEstoque  ItemEstoque  @relation(fields: [itemEstoqueId], references: [itemEstoqueId], onDelete: NoAction, onUpdate: NoAction)
-  orcamento    Orcamento?   @relation(fields: [orcamentoId], references: [orcamentoId], onDelete: NoAction, onUpdate: NoAction)
+  orcamento    Orcamento?   @relation(fields: [orcamentoId], references: [orcamentoId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([ordemServicoId], map: "OrdemServicoItem_ordem_servico_id_idx_22fc9c3d")
   @@index([itemEstoqueId], map: "OrdemServicoItem_item_estoque_id_idx_67447c15")

@@ -3,10 +3,12 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Prisma } from '../../../generated/prisma/client';
 import { DatabaseService } from '../../../shared/database/database.service';
+import { RequestContext } from '../auth';
 import { User } from '../domain/entities';
 import { CreateUserDto, ListUsersQueryDto, UpdateUserDto } from '../dtos';
 
@@ -15,7 +17,10 @@ export class UsersService {
   private logger = new Logger(UsersService.name);
   private orm;
 
-  constructor(private readonly prisma: DatabaseService) {
+  constructor(
+    private readonly prisma: DatabaseService,
+    private readonly ctx: RequestContext,
+  ) {
     this.orm = this.prisma.db;
   }
 
@@ -49,10 +54,6 @@ export class UsersService {
       throw new ConflictException('Documento já cadastrado');
     }
 
-    console.log(payload.usuarioTipoDocumento);
-
-    console.log('Miauuuuuuuuuuuuuu');
-
     const createdUser = await this.orm.usuario.create({
       data: {
         usuarioNome: payload.usuarioNome,
@@ -79,8 +80,8 @@ export class UsersService {
   }
 
   async findUserById(userId: string) {
-    const user = await this.orm.usuario.findUnique({
-      where: { usuarioId: userId },
+    const user = await this.orm.usuario.findFirst({
+      where: { usuarioId: userId, usuarioAtivo: true },
       include: {
         perfil: {
           select: {
@@ -99,7 +100,7 @@ export class UsersService {
   }
 
   async findAll({ page, pageSize, perfilId }: ListUsersQueryDto) {
-    const where = perfilId ? { perfilId } : {};
+    const where = { usuarioAtivo: true, ...(perfilId ? { perfilId } : {}) };
 
     const [items, total] = await Promise.all([
       this.orm.usuario.findMany({
@@ -123,13 +124,44 @@ export class UsersService {
 
   async updateUser(userId: string, payload: UpdateUserDto) {
     try {
-      return await this.orm.usuario.update({
-        where: { usuarioId: userId },
+      const existsUser = await this.orm.usuario.findFirst({
+        where: {
+          usuarioId: userId,
+          usuarioAtivo: true,
+        },
+        include: {
+          perfil: {
+            select: {
+              perfilNome: true,
+            },
+          },
+        },
+      });
+
+      if (!existsUser) {
+        this.logger.error(`Usuário ${userId} não encontrado`);
+        throw new NotFoundException(`Usuário não encontrado`);
+      }
+
+      if (userId != this.ctx.userId) {
+        this.logger.warn(
+          `Usuário ${this.ctx.userId} tentou alterar informações de outro usuário`,
+        );
+
+        throw new UnauthorizedException('Refresh token inválido');
+      }
+
+      const updatedUser = await this.orm.usuario.update({
+        where: {
+          usuarioId: userId,
+        },
         data: {
           ...payload,
           usuarioAtualizadoEm: new Date(), // o banco só preenche o default na criação
         },
       });
+
+      return plainToInstance(User, updatedUser);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -142,18 +174,31 @@ export class UsersService {
   }
 
   async deleteUser(userId: string): Promise<void> {
-    // A senha aponta para o usuário (sem ON DELETE CASCADE): apaga a senha e depois o usuário,
-    // na mesma transação. Se o usuário ainda tiver veículos/ordens, tudo é desfeito.
-    await this.prisma.db.$transaction(async (tx) => {
-      await tx.usuarioSenha.deleteMany({ where: { usuarioId: userId } });
+    // Exclusão lógica: preserva OS, veículos e histórico (analytics). Inativa o usuário e revoga
+    // as sessões na mesma transação.
+    const now = new Date();
 
-      const { count } = await tx.usuario.deleteMany({
-        where: { usuarioId: userId },
+    await this.prisma.db.$transaction(async (tx) => {
+      const { count } = await tx.usuario.updateMany({
+        where: {
+          usuarioId: userId,
+          usuarioAtivo: true,
+        },
+        data: {
+          usuarioAtivo: false,
+          usuarioInativadoEm: now,
+          usuarioAtualizadoEm: now,
+        },
       });
 
       if (count === 0) throw new NotFoundException('Usuário não encontrado');
+
+      await tx.sessaoRefresh.updateMany({
+        where: { usuarioId: userId, sessaoRevogadaEm: null },
+        data: { sessaoRevogadaEm: now },
+      });
     });
 
-    this.logger.log(`Usuário ${userId} excluído`);
+    this.logger.log(`Usuário ${userId} inativado`);
   }
 }
