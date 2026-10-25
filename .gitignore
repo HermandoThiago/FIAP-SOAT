@@ -48,3 +48,6 @@ Fase*Tech Challenge*.pdf
 
 # Cache de build do TypeScript
 *.tsbuildinfo
+
+# Prisma Client gerado (npm/pnpm prisma generate)
+src/generated/
