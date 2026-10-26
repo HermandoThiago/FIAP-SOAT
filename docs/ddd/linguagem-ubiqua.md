@@ -58,12 +58,15 @@ Este documento consolida os principais termos utilizados no domínio da oficina 
 | Saldo de estoque | Quantidade de uma peça ou insumo disponível no estoque, considerando entradas, baixas e reservas. | O saldo de estoque indica quantos filtros de óleo ainda estão disponíveis. | Objetos de trabalho |
 | Notificação | Comunicação enviada ao cliente sobre acontecimentos relevantes da ordem de serviço, como envio de orçamento ou atualização do atendimento. | O cliente recebe uma notificação quando o orçamento é enviado. | Objetos de trabalho |
 | Controle de acesso | Conjunto de regras que determina quais funcionalidades e informações cada usuário pode acessar após a autenticação. | O controle de acesso permite que apenas usuários autorizados executem determinadas ações. | Objetos de trabalho |
-| Usuário inativo | Usuário desligado do sistema por exclusão lógica (`usuarioAtivo = false`, com `usuarioInativadoEm`). Não autentica nem aparece nas consultas, mas continua vinculado às ordens de serviço, veículos e históricos que gerou. E-mail e documento permanecem reservados a ele. | O atendente que deixou a oficina é inativado, e as ordens de serviço que abriu continuam consultáveis para análises. | Objetos de trabalho |
+feat/auth_and_crud_users
+| Usuário inativo | Usuário desligado do sistema por exclusão lógica (`usuarioAtivo = false`, com `usuarioInativadoEm`). Não autentica nem aparece nas consultas, mas continua vinculado às ordens de serviço, veículos e históricos que gerou. E-mail e documento permanecem reservados a ele. | O atendente que deixou a oficina é inativado, e as ordens de serviço que abriu continuam consultáveis para análises. | Objetos de trabalho | master
 | Avaliar orçamento | Analisar o orçamento recebido antes de aprová-lo ou recusá-lo. | O cliente avalia os serviços e valores apresentados no orçamento. | Atividades |
 | Concluir diagnóstico | Encerrar o diagnóstico após identificar os serviços e peças necessários para o atendimento. | O mecânico conclui o diagnóstico e libera a preparação do orçamento. | Atividades |
 | Executar serviços | Realizar os serviços previamente diagnosticados e autorizados para a ordem de serviço. | O mecânico executa os serviços aprovados pelo cliente. | Atividades |
 | Solicitar reposição | Solicitar ao fornecedor a reposição de uma peça ou insumo indisponível para atendimento da ordem de serviço. | O atendente solicita reposição quando a peça necessária não está disponível em estoque. | Atividades |
+feat/auth_and_crud_users
 | Inativar usuário | Desligar um usuário do sistema sem apagar seus dados: ele deixa de acessar o sistema, suas sessões são revogadas e o histórico de atendimento é preservado. É o que a rota de exclusão de usuário faz. | O administrador inativa um mecânico desligado, e as ordens de serviço dele permanecem no histórico. | Atividades |
+master
 ## Tipos utilizados
 
 - **Atores:** quem executa uma tarefa.
