@@ -1,1 +1,1 @@
-export * from './item-estoque.dto';
+export * from './item-estoque.entity';
