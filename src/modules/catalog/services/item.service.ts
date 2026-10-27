@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -53,11 +54,11 @@ export class ItemService {
     const current = await this.findItemById(itemId);
 
     const quantidade =
-      payload.itemEstoqueQuantidade ?? current.itemEstoqueQuantidade.toNumber();
+      payload.itemEstoqueQuantidade ?? current.itemEstoqueQuantidade;
     const reservada =
-      payload.itemEstoqueReservada ?? current.itemEstoqueReservada.toNumber();
+      payload.itemEstoqueReservada ?? current.itemEstoqueReservada;
 
-    if (reservada > quantidade) {
+    if (Number(reservada) > Number(quantidade)) {
       throw new UnprocessableEntityException(
         'A quantidade reservada não pode exceder o saldo em estoque',
       );
@@ -131,22 +132,27 @@ export class ItemService {
       throw new NotFoundException('Item não encontrado');
     }
 
+    if (!item.itemEstoqueAtivo) {
+      this.logger.error(`Item ${item.itemEstoqueNome} se encontra inativo!`);
+      throw new BadRequestException(
+        `Item ${item.itemEstoqueNome} se encontra inativo!`,
+      );
+    }
+
     return plainToInstance(ItemEstoque, item);
   }
 
   async deleteById(itemId: string) {
-    try {
-      const item = await this.findItemById(itemId);
+    const item = await this.findItemById(itemId);
 
-      await this.orm.itemEstoque.update({
-        where: {
-          itemEstoqueId: itemId,
-        },
-        data: {
-          itemEstoqueAtivo: false,
-          itemEstoqueAtualizadoEm: new Date(),
-        },
-      });
-    } catch (error) {}
+    await this.orm.itemEstoque.update({
+      where: {
+        itemEstoqueId: itemId,
+      },
+      data: {
+        itemEstoqueAtivo: false,
+        itemEstoqueAtualizadoEm: new Date(),
+      },
+    });
   }
 }

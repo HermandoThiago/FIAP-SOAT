@@ -1,5 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/client';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
   ItemEstoque as ItemEstoquePrisma,
   TipoItemEstoque,
@@ -14,8 +14,14 @@ export class ItemEstoque implements ItemEstoquePrisma {
   itemEstoqueDescricao: string | null;
   itemEstoqueUnidade: UnidadeMedida;
   itemEstoquePrecoVenda: number;
+
+  @Type(() => Number)
   itemEstoqueQuantidade: Decimal;
+
+  @Type(() => Number)
   itemEstoqueReservada: Decimal;
+
+  @Type(() => Number)
   itemEstoqueAtivo: boolean;
 
   @Exclude()
