@@ -24,7 +24,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | F11 | CRUD de clientes | `/customers` | integração | ✔ | 6 | | ⬜ |
 | F12 | CRUD de veículos | `/vehicles` | integração | ✔ | 6 | | ⬜ |
 | F13 | CRUD de serviços | `/services` | integração | ✔ | 7 | | ⬜ |
-| F14 | CRUD de peças e insumos | `/parts` | integração | ✔ | 7 | | ⬜ |
+| F14 | CRUD de peças e insumos | `/parts` — em andamento na `feat/crud_pecas`: CRUD em `/itens` (`ItemController`/`ItemService`, módulo `catalog`); **pendente** alinhar rota/nomes ao contrato e glossário (`/parts`, `Part`/`PartsService`), movimentações e teste de integração | unit ✔ · integração ⬜ | ✔ | 7 | | 🟡 |
 | F15 | Controle de estoque | movimentações (`/parts/{id}/stock-movements`) + reserva na aprovação e baixa na finalização (ADR-012); `stockQuantity`/`reservedQuantity`/`availableQuantity` | unit + integração | ✔ | 7/8/9 | | ⬜ |
 | F16 | Listagem de OS | `GET /service-orders` (filtros, paginação) | integração | ✔ | 9 | | ⬜ |
 | F17 | Detalhamento de OS | `GET /service-orders/{id}` + `/status-history` | integração | ✔ | 9 | | ⬜ |

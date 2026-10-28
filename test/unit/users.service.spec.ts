@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { RequestContext } from '../../src/modules/identity/auth';
-import { DatabaseService } from '../../src/shared/database/database.service';
 import { UsersService } from '../../src/modules/identity/services/users.service';
+import { DatabaseService } from '../../src/shared/database/database.service';
 
 describe('UsersService', () => {
   const tx = {
