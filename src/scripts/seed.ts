@@ -176,8 +176,8 @@ async function main() {
     }
   }
 
-  const vehicle = await db.veiculo.findUnique({
-    where: { veiculoPlaca: 'ABC1D23' },
+  const vehicle = await db.veiculo.findFirst({
+    where: { veiculoPlaca: 'ABC1D23', veiculoAtivo: true },
   });
 
   if (!vehicle) {

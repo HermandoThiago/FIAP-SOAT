@@ -135,13 +135,15 @@ model SessaoRefresh {
 model Veiculo {
   veiculoId            String   @id @default(uuid()) @map("veiculo_id") @db.Uuid
   usuarioId            String   @map("usuario_id") @db.Uuid // Proprietário (cliente)
-  veiculoPlaca         String   @unique @map("veiculo_placa") @db.VarChar(7) // Maiúsculas e sem hífen
-  veiculoChassi        String?  @unique @map("veiculo_chassi") @db.VarChar(17)
+  veiculoPlaca         String   @map("veiculo_placa") @db.VarChar(7) // Maiúsculas e sem hífen. Única entre ativos (índice parcial na migração)
+  veiculoChassi        String?  @map("veiculo_chassi") @db.VarChar(17) // Único entre ativos (índice parcial na migração)
   veiculoMarca         String   @map("veiculo_marca") @db.VarChar(40)
   veiculoModelo        String   @map("veiculo_modelo") @db.VarChar(40)
   veiculoAnoFabricacao Int      @map("veiculo_ano_fabricacao") @db.SmallInt
   veiculoCor           String   @map("veiculo_cor") @db.VarChar(30)
   veiculoKmAtual       Int?     @map("veiculo_km_atual")
+  veiculoAtivo         Boolean  @default(true) @map("veiculo_ativo") // Exclusão lógica: preserva OS e histórico
+  veiculoInativadoEm   DateTime? @map("veiculo_inativado_em") @db.Timestamptz(6)
   veiculoCriadoEm      DateTime @default(now()) @map("veiculo_criado_em") @db.Timestamptz(6)
   veiculoAtualizadoEm  DateTime @default(now()) @map("veiculo_atualizado_em") @db.Timestamptz(6)
 
@@ -149,6 +151,7 @@ model Veiculo {
   ordensServico OrdemServico[]
 
   @@index([usuarioId], map: "Veiculo_usuario_id_idx_65b6616a")
+  @@index([veiculoPlaca])
 }
 
 // =====================================================================
