@@ -10,7 +10,7 @@ import {
 } from './auth';
 import { AuthController } from './controllers';
 import { UserController } from './controllers/users.controller';
-import { AuthService } from './services';
+import { AuthService, TrackingTokenService } from './services';
 import { UsersService } from './services/users.service';
 
 const jwtSecret = process.env['JWT_SECRET'];
@@ -30,10 +30,11 @@ if (!jwtSecret || jwtSecret.length < 32) {
     }),
   ],
   controllers: [AuthController, UserController],
-  exports: [UsersService, AuthService, RequestContext],
+  exports: [UsersService, AuthService, TrackingTokenService, RequestContext],
   providers: [
     UsersService,
     AuthService,
+    TrackingTokenService,
     RequestContext,
     { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
     // Ordem importa: primeiro autentica (JwtAuthGuard), depois autoriza por perfil (RolesGuard).

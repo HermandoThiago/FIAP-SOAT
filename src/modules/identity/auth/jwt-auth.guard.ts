@@ -7,8 +7,9 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedRequest } from './auth.types';
-import { IS_PUBLIC_KEY } from './decorators';
+import { ALLOW_TRACKING_TOKEN_KEY, IS_PUBLIC_KEY } from './decorators';
 import { Role } from './roles';
+import { TRACKING_AUDIENCE } from './tracking-audience';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -32,11 +33,24 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwt.verifyAsync<{ sub: string; role: Role }>(
-        token,
-        { algorithms: ['HS256'] },
-      );
-      request.user = { userId: payload.sub, role: payload.role };
+      const payload = await this.jwt.verifyAsync<{
+        sub: string;
+        role?: Role;
+        aud?: string | string[];
+      }>(token, { algorithms: ['HS256'] });
+
+      if (payload.aud === TRACKING_AUDIENCE) {
+        // Token de acompanhamento só vale nas rotas que o aceitam explicitamente.
+        const allowed = this.reflector.getAllAndOverride<boolean>(
+          ALLOW_TRACKING_TOKEN_KEY,
+          [context.getHandler(), context.getClass()],
+        );
+        if (!allowed) throw new Error('tracking token on a non-tracking route');
+
+        request.tracking = { serviceOrderId: payload.sub };
+      } else {
+        request.user = { userId: payload.sub, role: payload.role as Role };
+      }
     } catch {
       throw new UnauthorizedException('Token de acesso inválido ou expirado');
     }

@@ -6,7 +6,10 @@ import {
 import { StatusOrdemServico } from '../../src/generated/prisma/enums';
 import { VehiclesService } from '../../src/modules/customers/services';
 import { RequestContext, Role } from '../../src/modules/identity/auth';
-import { UsersService } from '../../src/modules/identity/services';
+import {
+  TrackingTokenService,
+  UsersService,
+} from '../../src/modules/identity/services';
 import { ServiceOrdersService } from '../../src/modules/service-orders/services';
 import { DatabaseService } from '../../src/shared/database/database.service';
 
@@ -58,6 +61,7 @@ describe('ServiceOrdersService', () => {
   };
   const usersService = { findUserById: jest.fn() };
   const vehiclesService = { findVehicleById: jest.fn() };
+  const trackingTokenService = { issue: jest.fn() };
   const ctx: { user?: { userId: string; role: Role }; userId: string } = {
     userId: 'attendant-id',
   };
@@ -77,6 +81,7 @@ describe('ServiceOrdersService', () => {
       veiculoId: 'vehicle-id',
       usuarioId: 'customer-id',
     });
+    trackingTokenService.issue.mockResolvedValue('tracking-token');
     db.ordemServico.findFirst.mockResolvedValue(null);
     tx.ordemServico.create.mockResolvedValue(stored);
 
@@ -85,6 +90,7 @@ describe('ServiceOrdersService', () => {
       ctx as unknown as RequestContext,
       usersService as unknown as UsersService,
       vehiclesService as unknown as VehiclesService,
+      trackingTokenService as unknown as TrackingTokenService,
     );
   });
 
@@ -399,6 +405,49 @@ describe('ServiceOrdersService', () => {
       expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalled();
     });
 
+    it('should issue the tracking token and return the tracking link', async () => {
+      readyToSend();
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([
+        { osItemPrecoUnitario: 3500, osItemQuantidade: '2.000' },
+      ]);
+
+      const result = await service.sendQuote(serviceOrderId);
+
+      expect(trackingTokenService.issue).toHaveBeenCalledWith(serviceOrderId);
+      expect(result.tracking.url).toContain(
+        `/tracking/service-orders/${serviceOrderId}`,
+      );
+      expect(result.tracking).toHaveProperty('token', 'tracking-token');
+    });
+
+    it('should not return the token in production', async () => {
+      readyToSend();
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([
+        { osItemPrecoUnitario: 3500, osItemQuantidade: '2.000' },
+      ]);
+      const env = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'production';
+
+      try {
+        const result = await service.sendQuote(serviceOrderId);
+        expect(result.tracking).not.toHaveProperty('token');
+      } finally {
+        process.env['NODE_ENV'] = env;
+      }
+    });
+
+    it('should not issue the tracking token when there are no items', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
+      });
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([]);
+
+      await expect(service.sendQuote(serviceOrderId)).rejects.toThrow(
+        UnprocessableEntityException,
+      );
+      expect(trackingTokenService.issue).not.toHaveBeenCalled();
+    });
+
     it('should throw UnprocessableEntityException and keep the status when there are no items', async () => {
       tx.ordemServico.findUnique.mockResolvedValueOnce({
         ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
@@ -422,6 +471,91 @@ describe('ServiceOrdersService', () => {
       );
       expect(tx.ordemServicoItem.findMany).not.toHaveBeenCalled();
     });
+  });
+
+  describe('approveQuote / rejectQuote', () => {
+    const awaiting = (to: StatusOrdemServico) => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.AGUARDANDO_APROVACAO,
+      });
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+      tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
+        ...stored,
+        ordemServicoStatus: to,
+      });
+    };
+
+    it('should approve the quote, record who answered and log history as the customer', async () => {
+      awaiting(StatusOrdemServico.AGUARDANDO_EXECUCAO);
+
+      const result = await service.approveQuote(serviceOrderId, 'customer-id');
+
+      expect(result.ordemServicoStatus).toBe(
+        StatusOrdemServico.AGUARDANDO_EXECUCAO,
+      );
+      expect(tx.orcamento.updateMany).toHaveBeenCalledWith({
+        where: { ordemServicoId: serviceOrderId },
+        data: expect.objectContaining({
+          orcamentoStatus: 'APROVADO',
+          orcamentoRespondidoPor: 'customer-id',
+          orcamentoRespondidoEm: expect.any(Date) as unknown,
+        }) as unknown,
+      });
+      expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          usuarioId: 'customer-id',
+          historicoStatusNovo: StatusOrdemServico.AGUARDANDO_EXECUCAO,
+        }) as unknown,
+      });
+    });
+
+    it('should reject the quote with the reason and move the order to ORCAMENTO_RECUSADO', async () => {
+      awaiting(StatusOrdemServico.ORCAMENTO_RECUSADO);
+
+      const result = await service.rejectQuote(
+        serviceOrderId,
+        'customer-id',
+        'Muito caro',
+      );
+
+      expect(result.ordemServicoStatus).toBe(
+        StatusOrdemServico.ORCAMENTO_RECUSADO,
+      );
+      expect(tx.orcamento.updateMany).toHaveBeenCalledWith({
+        where: { ordemServicoId: serviceOrderId },
+        data: expect.objectContaining({
+          orcamentoStatus: 'REJEITADO',
+          orcamentoMotivoRejeicao: 'Muito caro',
+        }) as unknown,
+      });
+      expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          historicoObservacao: 'Muito caro',
+        }) as unknown,
+      });
+    });
+
+    it.each(
+      Object.values(StatusOrdemServico).filter(
+        (status) => status !== StatusOrdemServico.AGUARDANDO_APROVACAO,
+      ),
+    )(
+      'should throw ConflictException and keep the quote untouched when the order is %s',
+      async (status) => {
+        tx.ordemServico.findUnique.mockResolvedValue({
+          ordemServicoStatus: status,
+        });
+
+        await expect(
+          service.approveQuote(serviceOrderId, 'customer-id'),
+        ).rejects.toThrow(ConflictException);
+        await expect(
+          service.rejectQuote(serviceOrderId, 'customer-id'),
+        ).rejects.toThrow(ConflictException);
+        expect(tx.orcamento.updateMany).not.toHaveBeenCalled();
+        tx.ordemServico.findUnique.mockReset();
+      },
+    );
   });
 
   describe('cancelServiceOrder', () => {

@@ -14,7 +14,7 @@ import {
 import { DatabaseService } from '../../../shared/database/database.service';
 import { VehiclesService } from '../../customers/services';
 import { RequestContext, Role } from '../../identity/auth';
-import { UsersService } from '../../identity/services';
+import { TrackingTokenService, UsersService } from '../../identity/services';
 import {
   CancelServiceOrderDto,
   CreateServiceOrderDto,
@@ -29,6 +29,9 @@ import {
   TERMINAL_STATUSES,
 } from '../domain/policies';
 
+const TRACKING_BASE_URL =
+  process.env['TRACKING_BASE_URL'] ?? 'http://localhost:3001';
+
 @Injectable()
 export class ServiceOrdersService {
   private logger = new Logger(ServiceOrdersService.name);
@@ -39,6 +42,7 @@ export class ServiceOrdersService {
     private readonly ctx: RequestContext,
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
+    private readonly trackingTokenService: TrackingTokenService,
   ) {
     this.orm = this.prisma.db;
   }
@@ -217,9 +221,12 @@ export class ServiceOrdersService {
     );
   }
 
-  /** Envia o orçamento ao cliente (→ AGUARDANDO_APROVACAO): exige ao menos um item e total > 0 (RN-033). */
+  /**
+   * Envia o orçamento ao cliente (→ AGUARDANDO_APROVACAO): exige ao menos um item e total > 0 (RN-033).
+   * Gera o token de acompanhamento (ADR-011) e "notifica" o cliente (por ora, só log).
+   */
   async sendQuote(serviceOrderId: string) {
-    return await this.applyCommand(
+    const serviceOrder = await this.applyCommand(
       serviceOrderId,
       ServiceOrderCommand.SEND_QUOTE,
       {
@@ -241,6 +248,60 @@ export class ServiceOrdersService {
               orcamentoEnviadoEm: new Date(),
               orcamentoAtualizadoEm: new Date(),
             },
+          });
+        },
+      },
+    );
+
+    const token = await this.trackingTokenService.issue(serviceOrderId);
+    const url = `${TRACKING_BASE_URL}/tracking/service-orders/${serviceOrderId}`;
+    // Notificador: sem e-mail no MVP, o link vai para o log (o token nunca é logado).
+    this.logger.log(
+      `Orçamento da OS ${serviceOrderId} enviado ao cliente ${serviceOrder.usuarioId}: ${url}`,
+    );
+
+    return {
+      ...serviceOrder,
+      // O token só volta na resposta fora de produção; em produção iria no e-mail ao cliente.
+      tracking: {
+        url,
+        ...(process.env['NODE_ENV'] === 'production' ? {} : { token }),
+      },
+    };
+  }
+
+  /** Cliente aprova o orçamento (AGUARDANDO_APROVACAO → AGUARDANDO_EXECUCAO). */
+  async approveQuote(serviceOrderId: string, customerId: string) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.APPROVE_QUOTE,
+      {
+        actorId: customerId,
+        beforeTransition: async (tx) => {
+          await this.registerQuoteResponse(tx, serviceOrderId, customerId, {
+            orcamentoStatus: StatusOrcamento.APROVADO,
+          });
+        },
+      },
+    );
+  }
+
+  /** Cliente recusa o orçamento (AGUARDANDO_APROVACAO → ORCAMENTO_RECUSADO, terminal — ADR-010). */
+  async rejectQuote(
+    serviceOrderId: string,
+    customerId: string,
+    reason?: string,
+  ) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.REJECT_QUOTE,
+      {
+        actorId: customerId,
+        observation: reason,
+        beforeTransition: async (tx) => {
+          await this.registerQuoteResponse(tx, serviceOrderId, customerId, {
+            orcamentoStatus: StatusOrcamento.REJEITADO,
+            orcamentoMotivoRejeicao: reason ?? null,
           });
         },
       },
@@ -285,13 +346,15 @@ export class ServiceOrdersService {
     serviceOrderId: string,
     command: ServiceOrderCommand,
     options: {
+      /** Quem executa o comando; padrão é o usuário logado (o token de acompanhamento não tem usuário). */
+      actorId?: string;
       observation?: string;
       data?: { ordemServicoMotivoCancelamento?: string };
       /** Roda dentro da transação, depois de validada a transição e antes do update de status. */
       beforeTransition?: (tx: Prisma.TransactionClient) => Promise<void>;
     } = {},
   ) {
-    const userId = this.ctx.userId;
+    const userId = options.actorId ?? this.ctx.userId;
 
     const updated = await this.orm.$transaction(async (tx) => {
       const current = await tx.ordemServico.findUnique({
@@ -346,6 +409,27 @@ export class ServiceOrdersService {
       `OS ${serviceOrderId}: ${command} (${updated.ordemServicoStatus})`,
     );
     return plainToInstance(ServiceOrder, updated);
+  }
+
+  private async registerQuoteResponse(
+    tx: Prisma.TransactionClient,
+    serviceOrderId: string,
+    customerId: string,
+    data: {
+      orcamentoStatus: StatusOrcamento;
+      orcamentoMotivoRejeicao?: string | null;
+    },
+  ) {
+    const now = new Date();
+    await tx.orcamento.updateMany({
+      where: { ordemServicoId: serviceOrderId },
+      data: {
+        ...data,
+        orcamentoRespondidoEm: now,
+        orcamentoRespondidoPor: customerId,
+        orcamentoAtualizadoEm: now,
+      },
+    });
   }
 
   /** O usuário precisa existir, estar ativo e ter o perfil esperado. */
