@@ -101,8 +101,11 @@ acompanhamento **ou** login `CUSTOMER`), **C(login)** só login `CUSTOMER`, **P*
 > campos em português; `PUT /service-orders/{id}` edita só `mecanicoId`, descrição, diagnóstico e km (status nunca — ADR-010,
 > e 409 em OS encerrada); paginação `page`/`pageSize`; `number` é string do autoincrement; novo comando `start-execution`;
 > `diagnosis` e `complete` aceitam Admin e Mecânico, `deliver` Admin e Atendente, `cancel` só Admin. `GET /{id}` também
-> aceita o papel Cliente, mas só para a **própria** OS (alheia → 404). Ainda **não** implementados: itens, orçamento,
-> `quote/send`, `/tracking/**`.
+> aceita o papel Cliente, mas só para a **própria** OS (alheia → 404). Itens e orçamento (**só peças**): `POST …/items/parts`
+> `{ itemEstoqueId, osItemQuantidade }`, `DELETE …/items/parts/{osItemId}`, `GET …/quote` e `POST …/quote/send` (inclusão e
+> remoção: Admin e Mecânico; as duas devolvem o orçamento com `itens`, valores em **centavos**; itens só em
+> `RECEBIDA`/`EM_DIAGNOSTICO`; `quote/send` ainda não gera token de acompanhamento). Ainda **não** implementados: itens de
+> serviço (aguardam o módulo `/services`), `/tracking/**`, aprovação/recusa, reserva e baixa de estoque.
 
 `ServiceOrder` (completa):
 
