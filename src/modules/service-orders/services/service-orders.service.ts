@@ -6,7 +6,11 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { StatusOrdemServico } from '../../../generated/prisma/enums';
+import { Prisma } from '../../../generated/prisma/client';
+import {
+  StatusOrcamento,
+  StatusOrdemServico,
+} from '../../../generated/prisma/enums';
 import { DatabaseService } from '../../../shared/database/database.service';
 import { VehiclesService } from '../../customers/services';
 import { RequestContext, Role } from '../../identity/auth';
@@ -18,6 +22,7 @@ import {
   UpdateServiceOrderDto,
 } from '../controllers/dtos';
 import { ServiceOrder, StatusHistoryEntry } from '../domain/entities';
+import { calculateQuoteTotal } from '../domain/quote';
 import {
   ServiceOrderCommand,
   StatusTransitionPolicy,
@@ -212,6 +217,36 @@ export class ServiceOrdersService {
     );
   }
 
+  /** Envia o orçamento ao cliente (→ AGUARDANDO_APROVACAO): exige ao menos um item e total > 0 (RN-033). */
+  async sendQuote(serviceOrderId: string) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.SEND_QUOTE,
+      {
+        beforeTransition: async (tx) => {
+          const items = await tx.ordemServicoItem.findMany({
+            where: { ordemServicoId: serviceOrderId },
+          });
+          if (calculateQuoteTotal(items) <= 0) {
+            throw new UnprocessableEntityException(
+              'O orçamento precisa de ao menos um item com valor maior que zero',
+            );
+          }
+
+          await tx.orcamento.updateMany({
+            where: { ordemServicoId: serviceOrderId },
+            data: {
+              orcamentoStatus: StatusOrcamento.ENVIADO,
+              orcamentoValorTotal: calculateQuoteTotal(items),
+              orcamentoEnviadoEm: new Date(),
+              orcamentoAtualizadoEm: new Date(),
+            },
+          });
+        },
+      },
+    );
+  }
+
   async startExecution(serviceOrderId: string) {
     return await this.applyCommand(
       serviceOrderId,
@@ -252,6 +287,8 @@ export class ServiceOrdersService {
     options: {
       observation?: string;
       data?: { ordemServicoMotivoCancelamento?: string };
+      /** Roda dentro da transação, depois de validada a transição e antes do update de status. */
+      beforeTransition?: (tx: Prisma.TransactionClient) => Promise<void>;
     } = {},
   ) {
     const userId = this.ctx.userId;
@@ -273,6 +310,8 @@ export class ServiceOrdersService {
           `A ordem de serviço em ${from} não aceita a operação ${command}`,
         );
       }
+
+      await options.beforeTransition?.(tx);
 
       const { count } = await tx.ordemServico.updateMany({
         where: { ordemServicoId: serviceOrderId, ordemServicoStatus: from },

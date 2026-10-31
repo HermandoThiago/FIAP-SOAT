@@ -53,11 +53,21 @@ export const TERMINAL_STATUSES: readonly Status[] = [
   Status.CANCELADA,
 ];
 
+/** Itens (e o orçamento derivado deles) só mudam antes do envio do orçamento (PRD-003 RN-031). */
+const ITEM_EDITABLE_STATUSES: readonly Status[] = [
+  Status.RECEBIDA,
+  Status.EM_DIAGNOSTICO,
+];
+
 export const StatusTransitionPolicy = {
   /** Status de destino do comando, ou `null` se o status atual não o permite. */
   resolve(current: Status, command: ServiceOrderCommand): Status | null {
     const { from, to } = TRANSITIONS[command];
     return from.includes(current) ? to : null;
+  },
+
+  canEditItems(status: Status): boolean {
+    return ITEM_EDITABLE_STATUSES.includes(status);
   },
 
   isTerminal(status: Status): boolean {

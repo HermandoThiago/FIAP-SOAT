@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -21,8 +22,9 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Role, Roles } from '../../identity/auth';
-import { ServiceOrdersService } from '../services';
+import { ServiceOrderItemsService, ServiceOrdersService } from '../services';
 import {
+  AddPartItemDto,
   CancelServiceOrderDto,
   CreateServiceOrderDto,
   ListServiceOrdersQueryDto,
@@ -33,7 +35,10 @@ import {
 @ApiBearerAuth()
 @Controller('service-orders')
 export class ServiceOrdersController {
-  constructor(private readonly serviceOrdersService: ServiceOrdersService) {}
+  constructor(
+    private readonly serviceOrdersService: ServiceOrdersService,
+    private readonly itemsService: ServiceOrderItemsService,
+  ) {}
 
   @ApiOperation({
     description:
@@ -185,5 +190,74 @@ export class ServiceOrdersController {
     @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
   ) {
     return await this.serviceOrdersService.deliverServiceOrder(serviceOrderId);
+  }
+
+  @ApiOperation({
+    description:
+      'Inclui peça ou insumo na OS (RECEBIDA/EM_DIAGNOSTICO) e recalcula o orçamento',
+  })
+  @ApiCreatedResponse({ description: 'Item incluído; devolve o orçamento' })
+  @ApiNotFoundResponse({ description: 'OS ou peça não encontrada' })
+  @ApiConflictResponse({
+    description: 'Status da OS não permite alterar itens',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Estoque insuficiente ou peça inativa',
+  })
+  @HttpCode(201)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/items/parts')
+  async addPartItem(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+    @Body() payload: AddPartItemDto,
+  ) {
+    return await this.itemsService.addPartItem(serviceOrderId, payload);
+  }
+
+  @ApiOperation({ description: 'Remove um item da OS e recalcula o orçamento' })
+  @ApiNotFoundResponse({ description: 'OS ou item não encontrado' })
+  @ApiConflictResponse({
+    description: 'Status da OS não permite alterar itens',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Item removido; devolve o orçamento',
+  })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Delete(':serviceOrderId/items/parts/:osItemId')
+  async removePartItem(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+    @Param('osItemId', ParseUUIDPipe) osItemId: string,
+  ) {
+    return await this.itemsService.removePartItem(serviceOrderId, osItemId);
+  }
+
+  @ApiOperation({ description: 'Orçamento da OS, derivado dos itens' })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiResponse({ status: 200, description: 'Orçamento atual' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.ATTENDANT, Role.MECHANIC)
+  @Get(':serviceOrderId/quote')
+  async findQuote(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.itemsService.findQuote(serviceOrderId);
+  }
+
+  @ApiOperation({
+    description:
+      'Envia o orçamento ao cliente (EM_DIAGNOSTICO → AGUARDANDO_APROVACAO)',
+  })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiConflictResponse({ description: 'Transição de status inválida' })
+  @ApiUnprocessableEntityResponse({ description: 'Orçamento sem itens' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/quote/send')
+  async sendQuote(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.sendQuote(serviceOrderId);
   }
 }

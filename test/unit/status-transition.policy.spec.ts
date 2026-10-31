@@ -58,4 +58,13 @@ describe('StatusTransitionPolicy', () => {
       }
     },
   );
+
+  it.each(Object.values(Status))(
+    'should allow editing items in %s only before the quote is sent',
+    (status) => {
+      expect(StatusTransitionPolicy.canEditItems(status)).toBe(
+        status === Status.RECEBIDA || status === Status.EM_DIAGNOSTICO,
+      );
+    },
+  );
 });

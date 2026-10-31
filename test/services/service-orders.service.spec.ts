@@ -43,6 +43,8 @@ describe('ServiceOrdersService', () => {
       updateMany: jest.fn(),
     },
     ordemServicoStatusHistorico: { create: jest.fn() },
+    ordemServicoItem: { findMany: jest.fn() },
+    orcamento: { updateMany: jest.fn() },
   };
   const db = {
     ordemServico: {
@@ -361,6 +363,64 @@ describe('ServiceOrdersService', () => {
         'alterada por outra operação',
       );
       expect(tx.ordemServicoStatusHistorico.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('sendQuote', () => {
+    const readyToSend = () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
+      });
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+      tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
+        ...stored,
+        ordemServicoStatus: StatusOrdemServico.AGUARDANDO_APROVACAO,
+      });
+    };
+
+    it('should mark the quote as sent and move the order to AGUARDANDO_APROVACAO', async () => {
+      readyToSend();
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([
+        { osItemPrecoUnitario: 3500, osItemQuantidade: '2.000' },
+      ]);
+
+      const result = await service.sendQuote(serviceOrderId);
+
+      expect(result.ordemServicoStatus).toBe(
+        StatusOrdemServico.AGUARDANDO_APROVACAO,
+      );
+      expect(tx.orcamento.updateMany).toHaveBeenCalledWith({
+        where: { ordemServicoId: serviceOrderId },
+        data: expect.objectContaining({
+          orcamentoStatus: 'ENVIADO',
+          orcamentoValorTotal: 7000,
+        }) as unknown,
+      });
+      expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalled();
+    });
+
+    it('should throw UnprocessableEntityException and keep the status when there are no items', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
+      });
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([]);
+
+      await expect(service.sendQuote(serviceOrderId)).rejects.toThrow(
+        UnprocessableEntityException,
+      );
+      expect(tx.ordemServico.updateMany).not.toHaveBeenCalled();
+      expect(tx.ordemServicoStatusHistorico.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw ConflictException before checking items when the order is not in diagnosis', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.RECEBIDA,
+      });
+
+      await expect(service.sendQuote(serviceOrderId)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(tx.ordemServicoItem.findMany).not.toHaveBeenCalled();
     });
   });
 

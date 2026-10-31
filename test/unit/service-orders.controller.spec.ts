@@ -2,7 +2,10 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ROLES_KEY, Role } from '../../src/modules/identity/auth';
 import { ServiceOrdersController } from '../../src/modules/service-orders/controllers';
-import { ServiceOrdersService } from '../../src/modules/service-orders/services';
+import {
+  ServiceOrderItemsService,
+  ServiceOrdersService,
+} from '../../src/modules/service-orders/services';
 
 describe('ServiceOrdersController', () => {
   let controller: ServiceOrdersController;
@@ -18,6 +21,12 @@ describe('ServiceOrdersController', () => {
     completeServiceOrder: jest.fn(),
     deliverServiceOrder: jest.fn(),
     findStatusHistory: jest.fn(),
+    sendQuote: jest.fn(),
+  };
+  const itemsService = {
+    addPartItem: jest.fn(),
+    removePartItem: jest.fn(),
+    findQuote: jest.fn(),
   };
   const id = '6f1c1b0e-7c7e-4f0e-9b43-1f4b3d1c8a11';
 
@@ -25,7 +34,10 @@ describe('ServiceOrdersController', () => {
     jest.resetAllMocks();
     const module = await Test.createTestingModule({
       controllers: [ServiceOrdersController],
-      providers: [{ provide: ServiceOrdersService, useValue: service }],
+      providers: [
+        { provide: ServiceOrdersService, useValue: service },
+        { provide: ServiceOrderItemsService, useValue: itemsService },
+      ],
     }).compile();
     controller = module.get(ServiceOrdersController);
   });
@@ -103,5 +115,37 @@ describe('ServiceOrdersController', () => {
       Role.ATTENDANT,
     ]);
     expect(rolesOf(proto.findStatusHistory)).not.toContain(Role.CUSTOMER);
+  });
+
+  it('should delegate the items and quote routes', async () => {
+    const part = { itemEstoqueId: 'p', osItemQuantidade: 1 } as never;
+    itemsService.addPartItem.mockResolvedValue('added');
+    itemsService.removePartItem.mockResolvedValue('removed');
+    itemsService.findQuote.mockResolvedValue('quote');
+    service.sendQuote.mockResolvedValue('sent');
+
+    await expect(controller.addPartItem(id, part)).resolves.toBe('added');
+    await expect(controller.removePartItem(id, 'item')).resolves.toBe(
+      'removed',
+    );
+    await expect(controller.findQuote(id)).resolves.toBe('quote');
+    await expect(controller.sendQuote(id)).resolves.toBe('sent');
+
+    expect(itemsService.addPartItem).toHaveBeenCalledWith(id, part);
+    expect(itemsService.removePartItem).toHaveBeenCalledWith(id, 'item');
+  });
+
+  it('should restrict the items and quote routes to the roles of the contract', () => {
+    const proto = ServiceOrdersController.prototype;
+    const mechanic = [Role.ADMIN, Role.MECHANIC];
+
+    expect(rolesOf(proto.addPartItem)).toEqual(mechanic);
+    expect(rolesOf(proto.removePartItem)).toEqual(mechanic);
+    expect(rolesOf(proto.sendQuote)).toEqual(mechanic);
+    expect(rolesOf(proto.findQuote)).toEqual([
+      Role.ADMIN,
+      Role.ATTENDANT,
+      Role.MECHANIC,
+    ]);
   });
 });
