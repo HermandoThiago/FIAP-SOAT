@@ -214,7 +214,7 @@ model MovimentacaoEstoque {
 // =====================================================================
 model OrdemServico {
   ordemServicoId                 String             @id @default(uuid()) @map("ordem_servico_id") @db.Uuid
-  ordemServicoNumero             BigInt             @unique @map("ordem_servico_numero") // Número sequencial amigável para o cliente
+  ordemServicoNumero             BigInt             @unique @default(autoincrement()) @map("ordem_servico_numero") // Número sequencial amigável para o cliente
   usuarioId                      String             @map("usuario_id") @db.Uuid // Cliente
   veiculoId                      String             @map("veiculo_id") @db.Uuid
   atendenteId                    String             @map("atendente_id") @db.Uuid // Funcionário que abriu a OS
