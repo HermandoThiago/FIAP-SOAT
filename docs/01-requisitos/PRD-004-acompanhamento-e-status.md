@@ -61,6 +61,13 @@ Tabela de transições (fonte da verdade para o código e para os testes):
 Qualquer outra combinação (inclusive qualquer comando em Entregue ou Cancelada) → **409 Conflict** com mensagem
 "transição inválida de X para Y".
 
+> **Implementação atual (31/10/2026)** — o código usa 9 status (`StatusOrdemServico`): `RECEBIDA`, `EM_DIAGNOSTICO`,
+> `AGUARDANDO_APROVACAO`, `AGUARDANDO_EXECUCAO`, `EM_EXECUCAO`, `FINALIZADA`, `ENTREGUE`, `ORCAMENTO_RECUSADO`, `CANCELADA`.
+> Diferenças em relação à tabela acima: aprovar o orçamento leva a `AGUARDANDO_EXECUCAO` (e o comando `startExecution`,
+> pelo Mecânico, leva a `EM_EXECUCAO`); recusar o orçamento leva a `ORCAMENTO_RECUSADO`, não a `CANCELADA`. `Cancelar`,
+> `Finalizar` e `Entregar` seguem a tabela. Fonte no código: `service-orders/domain/policies/status-transition.policy.ts`,
+> testada em todas as combinações status × comando. Registro em `docs/02-adr/decisoes-leves.md` (2026-10-31).
+
 ## 3. Requisitos funcionais
 
 | ID | Requisito | Prioridade |

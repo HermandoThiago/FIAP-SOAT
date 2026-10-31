@@ -94,6 +94,16 @@ acompanhamento **ou** login `CUSTOMER`), **C(login)** só login `CUSTOMER`, **P*
 | POST | `/service-orders/{id}/deliver` | A,G | — | `200` (→ `DELIVERED`) · `409` |
 | POST | `/service-orders/{id}/cancel` | G | `{ "reason" }` | `200` (→ `CANCELLED`; só em `RECEIVED`/`IN_DIAGNOSIS`/`AWAITING_APPROVAL` — ADR-010) · `409` |
 
+> **Estado da implementação (31/10/2026)** — rotas já no código: `POST/GET /service-orders`, `GET/PUT /service-orders/{id}`,
+> `GET …/status-history`, `POST …/diagnosis`, `…/start-execution`, `…/complete`, `…/deliver`, `…/cancel`. Divergências do
+> contrato acima (registradas em `docs/02-adr/decisoes-leves.md`): payload de criação `{ clientId, veiculoId, mecanicoId,
+> ordemServicoDescricaoProblema?, ordemServicoKmEntrada? }` (sem `customerDocument`/`licensePlate`/`requestedServices`);
+> campos em português; `PUT /service-orders/{id}` edita só `mecanicoId`, descrição, diagnóstico e km (status nunca — ADR-010,
+> e 409 em OS encerrada); paginação `page`/`pageSize`; `number` é string do autoincrement; novo comando `start-execution`;
+> `diagnosis` e `complete` aceitam Admin e Mecânico, `deliver` Admin e Atendente, `cancel` só Admin. `GET /{id}` também
+> aceita o papel Cliente, mas só para a **própria** OS (alheia → 404). Ainda **não** implementados: itens, orçamento,
+> `quote/send`, `/tracking/**`.
+
 `ServiceOrder` (completa):
 
 ```json

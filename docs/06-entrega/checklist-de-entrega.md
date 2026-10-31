@@ -11,23 +11,23 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 
 | # | Requisito (enunciado) | Evidência no código | Teste | Swagger | Bloco do vídeo | Dono | Status |
 |---|---|---|---|---|---|---|---|
-| F1 | Identificação do cliente por CPF/CNPJ | `POST /service-orders` aceita `customerDocument`; VO `Document` | unit + integração | ✔ | 6 | | ⬜ |
+| F1 | Identificação do cliente por CPF/CNPJ | `POST /service-orders` identifica o cliente por `clientId` (id do usuário com perfil Cliente) — **pendente** aceitar `customerDocument`/CPF-CNPJ; validador `document.validator` já existe em `identity` | unit ✔ · integração ⬜ | ✔ | 6 | | 🟡 |
 | F2 | Cadastro de veículo (placa, marca, modelo, ano) | `POST /vehicles`; VO `LicensePlate` | unit + integração | ✔ | 6 | | ⬜ |
 | F3 | Inclusão dos serviços solicitados | `POST /service-orders/{id}/items/services` | integração | ✔ | 7 | | ⬜ |
 | F4 | Inclusão de peças e insumos | `POST /service-orders/{id}/items/parts` (verifica disponibilidade; 422 sem estoque) | integração | ✔ | 7 | | ⬜ |
 | F5 | Geração automática do orçamento | `ServiceOrder.recalculateQuote()` | unit | ✔ | 8 | | ⬜ |
 | F6 | Envio ou disponibilização do orçamento para aprovação | `POST …/quote/send` + notificador (log) + token de acompanhamento | integração | ✔ | 8 | | ⬜ |
 | F7 | **Registro da aprovação ou rejeição do orçamento** | `POST /tracking/…/quote/approve` (→ `IN_PROGRESS`) · `POST /tracking/…/quote/reject` (→ `CANCELLED`, ADR-010); `quote.status`, `respondedAt`, histórico | integração | ✔ | 8 | | ⬜ |
-| F8 | 6 status da OS | enum `ServiceOrderStatus` (6 do enunciado + `CANCELLED`, ADR-010) + `StatusTransitionPolicy` | unit parametrizado | — | 9 | | ⬜ |
-| F9 | Controlar as alterações de status e aplicar as regras de transição (automáticas conforme ações) | transições dentro dos comandos; 409 em transição inválida; histórico | unit + integração | ✔ | 9 | | ⬜ |
+| F8 | 6 status da OS | enum `StatusOrdemServico` no Prisma (**9 valores**: os 6 do enunciado + `AGUARDANDO_EXECUCAO`, `ORCAMENTO_RECUSADO` e `CANCELADA` — divergência da ADR-010 registrada em `decisoes-leves.md`) + `StatusTransitionPolicy` (`service-orders/domain/policies`) | unit parametrizado ✔ (`status-transition.policy.spec.ts`, status × comando) | — | 9 | | 🟡 |
+| F9 | Controlar as alterações de status e aplicar as regras de transição (automáticas conforme ações) | `ServiceOrdersService.applyCommand` (política + update condicional + histórico na mesma transação; 409 em transição inválida). Rotas prontas: `diagnosis`, `start-execution`, `complete`, `deliver`, `cancel`. **Pendente:** `quote/send`, aprovar/recusar (`/tracking`), efeitos de estoque | unit ✔ · integração ⬜ | ✔ | 9 | | 🟡 |
 | F10 | Consulta do cliente via API | `GET /tracking/service-orders/{id}` (token de acompanhamento ou login `CUSTOMER` — ADR-011) | integração | ✔ | 6/8 | | ⬜ |
 | F11 | CRUD de clientes | `/customers` | integração | ✔ | 6 | | ⬜ |
 | F12 | CRUD de veículos | `/vehicles` | integração | ✔ | 6 | | ⬜ |
 | F13 | CRUD de serviços | `/services` | integração | ✔ | 7 | | ⬜ |
 | F14 | CRUD de peças e insumos | `/parts` — em andamento na `feat/crud_pecas`: CRUD em `/itens` (`ItemController`/`ItemService`, módulo `catalog`); **pendente** alinhar rota/nomes ao contrato e glossário (`/parts`, `Part`/`PartsService`), movimentações e teste de integração | unit ✔ · integração ⬜ | ✔ | 7 | | 🟡 |
 | F15 | Controle de estoque | movimentações (`/parts/{id}/stock-movements`) + reserva na aprovação e baixa na finalização (ADR-012); `stockQuantity`/`reservedQuantity`/`availableQuantity` | unit + integração | ✔ | 7/8/9 | | ⬜ |
-| F16 | Listagem de OS | `GET /service-orders` (filtros, paginação) | integração | ✔ | 9 | | ⬜ |
-| F17 | Detalhamento de OS | `GET /service-orders/{id}` + `/status-history` | integração | ✔ | 9 | | ⬜ |
+| F16 | Listagem de OS | `GET /service-orders` (filtros `status`, `clientId`, `veiculoId`, `from`, `to`; paginação `page`/`pageSize`) | unit ✔ · integração ⬜ | ✔ | 9 | | 🟡 |
+| F17 | Detalhamento de OS | `GET /service-orders/{id}` + `/status-history` prontos (resposta ainda sem itens, orçamento e marcos — dependem da próxima etapa) | unit ✔ · integração ⬜ | ✔ | 9 | | 🟡 |
 | F18 | Monitoramento ou cálculo do tempo médio de execução | `GET /metrics/average-execution-time` | integração (seed) | ✔ | 9 | | ⬜ |
 
 ## 2. Requisitos técnicos obrigatórios (enunciado §6)
@@ -40,7 +40,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | T4 | APIs RESTful + Swagger/OpenAPI | `/docs` no ar; `openapi.json` gerado pelo código (artefato do CI — ADR-005) | | ⬜ |
 | T5 | Autenticação JWT para APIs administrativas | guard JWT HS256 + `/auth/login`, `/auth/refresh` (rotação de refresh token) e `/auth/logout`; papéis via `RolesGuard`; `DELETE /users/{id}` = exclusão lógica (`usuarioAtivo`), que bloqueia login/refresh e preserva o histórico (ADR-004). Pendente: teste de integração 401/403 | | 🟡 |
 | T6 | Validação de CPF ou CNPJ · validação da placa | VOs `Document` e `LicensePlate` + 422 | unit exaustivo | ⬜ |
-| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit` (controllers de auth e users) e `test/services` (`AuthService`, `UsersService`) já existem; faltam `test/integration` e `test/bdd` — CI verde | | 🟡 |
+| T7 | Testes unitários · testes de integração dos fluxos principais | `test/unit` e `test/services` já cobrem auth, users, vehicles, itens e **service-orders** (service, controller e política de status: ≈ 270 testes); faltam `test/integration` e `test/bdd` — CI verde | | 🟡 |
 | T8 | **Evidência** de cobertura mínima de 80 % nos domínios críticos | `docs/06-entrega/evidencias/cobertura.md` (percentual por módulo) + gate no CI | | ⬜ |
 | T9 | Instruções para execução local (README completo) | README com os 13 itens do enunciado; outro membro executa só pelo README | Hermando | ⬜ |
 | T10 | **Tratamento adequado das transações** nos principais fluxos | `prisma.$transaction` em aprovar (status + reserva) e finalizar (status + baixa); teste de integração de rollback | Diego | ⬜ |
