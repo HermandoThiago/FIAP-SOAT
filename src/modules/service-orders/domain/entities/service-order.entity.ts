@@ -1,13 +1,20 @@
-import { Exclude } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   OrdemServico,
   StatusOrdemServico,
 } from '../../../../generated/prisma/client';
 
-export class ServiceOrder implements OrdemServico {
+// `ordemServicoNumero` vira string na resposta: JSON não serializa BigInt.
+export class ServiceOrder implements Omit<OrdemServico, 'ordemServicoNumero'> {
   ordemServicoId: string;
-  ordemServicoNumero: bigint;
+
+  @Transform(({ value }: { value: unknown }) => String(value))
+  ordemServicoNumero: string;
+
+  usuarioId: string;
   veiculoId: string;
+  atendenteId: string;
+  mecanicoId: string;
 
   ordemServicoStatus: StatusOrdemServico;
   ordemServicoDescricaoProblema: string | null;
@@ -16,13 +23,4 @@ export class ServiceOrder implements OrdemServico {
   ordemServicoMotivoCancelamento: string | null;
   ordemServicoCriadaEm: Date;
   ordemServicoAtualizadaEm: Date;
-
-  @Exclude()
-  usuarioId: string;
-
-  @Exclude()
-  atendenteId: string;
-
-  @Exclude()
-  mecanicoId: string;
 }

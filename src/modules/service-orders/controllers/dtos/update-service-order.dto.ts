@@ -1,22 +1,41 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { StatusOrdemServico } from '../../../../generated/prisma/enums';
-import { CreateServiceOrderDto } from './create-service-order.dto';
+import { Transform } from 'class-transformer';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
-export class UpdateServiceOrder extends PartialType(CreateServiceOrderDto) {
-  @ApiProperty()
-  @IsEnum(StatusOrdemServico)
+const trim = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.trim() : value;
+
+/** O status não é editável aqui: ele muda só por comandos de negócio (ADR-010). */
+export class UpdateServiceOrderDto {
+  @ApiProperty({ required: false, description: 'Novo mecânico responsável' })
   @IsOptional()
-  private ordemServicoStatus?: StatusOrdemServico;
+  @IsUUID()
+  readonly mecanicoId?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @Transform(trim)
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  readonly ordemServicoMotivoCancelamento?: string;
+  @MaxLength(1000)
+  readonly ordemServicoDescricaoProblema?: string;
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ required: false })
+  @Transform(trim)
   @IsOptional()
+  @IsString()
+  @MaxLength(2000)
   readonly ordemServicoDiagnostico?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly ordemServicoKmEntrada?: number;
 }
