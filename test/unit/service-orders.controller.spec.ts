@@ -13,6 +13,11 @@ describe('ServiceOrdersController', () => {
     findServiceOrderById: jest.fn(),
     updateServiceOrder: jest.fn(),
     cancelServiceOrder: jest.fn(),
+    startDiagnosis: jest.fn(),
+    startExecution: jest.fn(),
+    completeServiceOrder: jest.fn(),
+    deliverServiceOrder: jest.fn(),
+    findStatusHistory: jest.fn(),
   };
   const id = '6f1c1b0e-7c7e-4f0e-9b43-1f4b3d1c8a11';
 
@@ -68,5 +73,35 @@ describe('ServiceOrdersController', () => {
     expect(rolesOf(proto.findServiceOrderById)).toContain(Role.CUSTOMER);
     expect(rolesOf(proto.updateServiceOrderById)).not.toContain(Role.CUSTOMER);
     expect(rolesOf(proto.cancelServiceOrderById)).toEqual([Role.ADMIN]);
+  });
+
+  it.each([
+    ['startDiagnosis', 'startDiagnosis'],
+    ['startExecution', 'startExecution'],
+    ['completeServiceOrder', 'completeServiceOrder'],
+    ['deliverServiceOrder', 'deliverServiceOrder'],
+    ['findStatusHistory', 'findStatusHistory'],
+  ] as const)(
+    'should delegate %s to the service',
+    async (method, serviceMethod) => {
+      service[serviceMethod].mockResolvedValue('result');
+
+      await expect(controller[method](id)).resolves.toBe('result');
+      expect(service[serviceMethod]).toHaveBeenCalledWith(id);
+    },
+  );
+
+  it('should restrict the command routes to the roles of the contract', () => {
+    const proto = ServiceOrdersController.prototype;
+    const mechanic = [Role.ADMIN, Role.MECHANIC];
+
+    expect(rolesOf(proto.startDiagnosis)).toEqual(mechanic);
+    expect(rolesOf(proto.startExecution)).toEqual(mechanic);
+    expect(rolesOf(proto.completeServiceOrder)).toEqual(mechanic);
+    expect(rolesOf(proto.deliverServiceOrder)).toEqual([
+      Role.ADMIN,
+      Role.ATTENDANT,
+    ]);
+    expect(rolesOf(proto.findStatusHistory)).not.toContain(Role.CUSTOMER);
   });
 });

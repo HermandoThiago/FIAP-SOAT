@@ -122,4 +122,68 @@ export class ServiceOrdersController {
       payload,
     );
   }
+
+  @ApiOperation({ description: 'Lista o histórico de status da OS' })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiResponse({ status: 200, description: 'Histórico em ordem cronológica' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.ATTENDANT, Role.MECHANIC)
+  @Get(':serviceOrderId/status-history')
+  async findStatusHistory(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.findStatusHistory(serviceOrderId);
+  }
+
+  @ApiOperation({
+    description: 'Inicia o diagnóstico (RECEBIDA → EM_DIAGNOSTICO)',
+  })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiConflictResponse({ description: 'Transição de status inválida' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/diagnosis')
+  async startDiagnosis(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.startDiagnosis(serviceOrderId);
+  }
+
+  @ApiOperation({
+    description: 'Inicia a execução (AGUARDANDO_EXECUCAO → EM_EXECUCAO)',
+  })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiConflictResponse({ description: 'Transição de status inválida' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/start-execution')
+  async startExecution(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.startExecution(serviceOrderId);
+  }
+
+  @ApiOperation({ description: 'Finaliza a OS (EM_EXECUCAO → FINALIZADA)' })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiConflictResponse({ description: 'Transição de status inválida' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/complete')
+  async completeServiceOrder(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.completeServiceOrder(serviceOrderId);
+  }
+
+  @ApiOperation({ description: 'Entrega o veículo (FINALIZADA → ENTREGUE)' })
+  @ApiNotFoundResponse({ description: 'Ordem de serviço não encontrada' })
+  @ApiConflictResponse({ description: 'Transição de status inválida' })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.ATTENDANT)
+  @Post(':serviceOrderId/deliver')
+  async deliverServiceOrder(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+  ) {
+    return await this.serviceOrdersService.deliverServiceOrder(serviceOrderId);
+  }
 }

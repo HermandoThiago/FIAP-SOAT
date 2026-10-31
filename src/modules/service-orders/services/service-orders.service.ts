@@ -17,21 +17,12 @@ import {
   ListServiceOrdersQueryDto,
   UpdateServiceOrderDto,
 } from '../controllers/dtos';
-import { ServiceOrder } from '../domain/entities';
-
-// OS nesses status não estão mais "em aberto" (PRD-001 RN-007).
-const CLOSED_STATUSES: StatusOrdemServico[] = [
-  StatusOrdemServico.ENTREGUE,
-  StatusOrdemServico.CANCELADA,
-  StatusOrdemServico.ORCAMENTO_RECUSADO,
-];
-
-// O cancelamento só vale antes da aprovação do orçamento (ADR-010).
-const CANCELLABLE_STATUSES: StatusOrdemServico[] = [
-  StatusOrdemServico.RECEBIDA,
-  StatusOrdemServico.EM_DIAGNOSTICO,
-  StatusOrdemServico.AGUARDANDO_APROVACAO,
-];
+import { ServiceOrder, StatusHistoryEntry } from '../domain/entities';
+import {
+  ServiceOrderCommand,
+  StatusTransitionPolicy,
+  TERMINAL_STATUSES,
+} from '../domain/policies';
 
 @Injectable()
 export class ServiceOrdersService {
@@ -73,7 +64,7 @@ export class ServiceOrdersService {
     const open = await this.orm.ordemServico.findFirst({
       where: {
         veiculoId: payload.veiculoId,
-        ordemServicoStatus: { notIn: CLOSED_STATUSES },
+        ordemServicoStatus: { notIn: [...TERMINAL_STATUSES] },
       },
       select: { ordemServicoId: true },
     });
@@ -178,7 +169,7 @@ export class ServiceOrdersService {
   ) {
     const current = await this.findServiceOrderById(serviceOrderId);
 
-    if (CLOSED_STATUSES.includes(current.ordemServicoStatus)) {
+    if (StatusTransitionPolicy.isTerminal(current.ordemServicoStatus)) {
       throw new ConflictException(
         'Ordem de serviço encerrada não pode ser alterada',
       );
@@ -208,47 +199,114 @@ export class ServiceOrdersService {
     serviceOrderId: string,
     { reason }: CancelServiceOrderDto,
   ) {
+    return await this.applyCommand(serviceOrderId, ServiceOrderCommand.CANCEL, {
+      observation: reason,
+      data: { ordemServicoMotivoCancelamento: reason },
+    });
+  }
+
+  async startDiagnosis(serviceOrderId: string) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.START_DIAGNOSIS,
+    );
+  }
+
+  async startExecution(serviceOrderId: string) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.START_EXECUTION,
+    );
+  }
+
+  async completeServiceOrder(serviceOrderId: string) {
+    return await this.applyCommand(
+      serviceOrderId,
+      ServiceOrderCommand.COMPLETE,
+    );
+  }
+
+  async deliverServiceOrder(serviceOrderId: string) {
+    return await this.applyCommand(serviceOrderId, ServiceOrderCommand.DELIVER);
+  }
+
+  async findStatusHistory(serviceOrderId: string) {
+    await this.findServiceOrderById(serviceOrderId);
+
+    const entries = await this.orm.ordemServicoStatusHistorico.findMany({
+      where: { ordemServicoId: serviceOrderId },
+      orderBy: [{ historicoCriadoEm: 'asc' }, { historicoId: 'asc' }],
+    });
+
+    return plainToInstance(StatusHistoryEntry, entries);
+  }
+
+  /**
+   * Único ponto onde o status muda: valida a transição na política, atualiza e grava o histórico
+   * na mesma transação (ADR-010). O `updateMany` condicionado ao status lido evita que dois comandos
+   * simultâneos passem pela mesma validação.
+   */
+  private async applyCommand(
+    serviceOrderId: string,
+    command: ServiceOrderCommand,
+    options: {
+      observation?: string;
+      data?: { ordemServicoMotivoCancelamento?: string };
+    } = {},
+  ) {
     const userId = this.ctx.userId;
 
-    const cancelled = await this.orm.$transaction(async (tx) => {
+    const updated = await this.orm.$transaction(async (tx) => {
       const current = await tx.ordemServico.findUnique({
         where: { ordemServicoId: serviceOrderId },
         select: { ordemServicoStatus: true },
       });
 
-      if (!current)
+      if (!current) {
         throw new NotFoundException('Ordem de serviço não encontrada');
+      }
 
-      if (!CANCELLABLE_STATUSES.includes(current.ordemServicoStatus)) {
+      const from = current.ordemServicoStatus;
+      const to = StatusTransitionPolicy.resolve(from, command);
+      if (!to) {
         throw new ConflictException(
-          `Ordem de serviço em ${current.ordemServicoStatus} não pode ser cancelada`,
+          `A ordem de serviço em ${from} não aceita a operação ${command}`,
         );
       }
 
-      const serviceOrder = await tx.ordemServico.update({
-        where: { ordemServicoId: serviceOrderId },
+      const { count } = await tx.ordemServico.updateMany({
+        where: { ordemServicoId: serviceOrderId, ordemServicoStatus: from },
         data: {
-          ordemServicoStatus: StatusOrdemServico.CANCELADA,
-          ordemServicoMotivoCancelamento: reason,
+          ...options.data,
+          ordemServicoStatus: to,
           ordemServicoAtualizadaEm: new Date(),
         },
       });
+      if (count === 0) {
+        throw new ConflictException(
+          'A ordem de serviço foi alterada por outra operação, tente novamente',
+        );
+      }
 
       await tx.ordemServicoStatusHistorico.create({
         data: {
           ordemServicoId: serviceOrderId,
-          historicoStatusAnterior: current.ordemServicoStatus,
-          historicoStatusNovo: StatusOrdemServico.CANCELADA,
+          historicoStatusAnterior: from,
+          historicoStatusNovo: to,
           usuarioId: userId,
-          historicoObservacao: reason,
+          historicoObservacao: options.observation,
         },
       });
 
-      return serviceOrder;
+      return await tx.ordemServico.findUniqueOrThrow({
+        where: { ordemServicoId: serviceOrderId },
+      });
     });
 
-    this.logger.log(`OS ${serviceOrderId} cancelada`);
-    return plainToInstance(ServiceOrder, cancelled);
+    this.logger.log(
+      `OS ${serviceOrderId}: ${command} (${updated.ordemServicoStatus})`,
+    );
+    return plainToInstance(ServiceOrder, updated);
   }
 
   /** O usuário precisa existir, estar ativo e ter o perfil esperado. */

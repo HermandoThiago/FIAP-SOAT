@@ -39,7 +39,8 @@ describe('ServiceOrdersService', () => {
     ordemServico: {
       create: jest.fn(),
       findUnique: jest.fn(),
-      update: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
+      updateMany: jest.fn(),
     },
     ordemServicoStatusHistorico: { create: jest.fn() },
   };
@@ -50,6 +51,7 @@ describe('ServiceOrdersService', () => {
       count: jest.fn(),
       update: jest.fn(),
     },
+    ordemServicoStatusHistorico: { findMany: jest.fn() },
     $transaction: jest.fn((fn: (t: typeof tx) => unknown) => fn(tx)),
   };
   const usersService = { findUserById: jest.fn() };
@@ -280,18 +282,101 @@ describe('ServiceOrdersService', () => {
     });
   });
 
+  describe('commands', () => {
+    const run = (status: StatusOrdemServico) => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: status,
+      });
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+    };
+
+    it.each([
+      ['startDiagnosis', 'RECEBIDA', 'EM_DIAGNOSTICO'],
+      ['startExecution', 'AGUARDANDO_EXECUCAO', 'EM_EXECUCAO'],
+      ['completeServiceOrder', 'EM_EXECUCAO', 'FINALIZADA'],
+      ['deliverServiceOrder', 'FINALIZADA', 'ENTREGUE'],
+    ] as const)(
+      'should %s from %s to %s and record the history',
+      async (method, from, to) => {
+        run(from);
+        tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
+          ...stored,
+          ordemServicoStatus: to,
+        });
+
+        const result = await service[method](serviceOrderId);
+
+        expect(result.ordemServicoStatus).toBe(to);
+        expect(tx.ordemServico.updateMany).toHaveBeenCalledWith({
+          where: { ordemServicoId: serviceOrderId, ordemServicoStatus: from },
+          data: expect.objectContaining({ ordemServicoStatus: to }) as unknown,
+        });
+        expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalledWith({
+          data: {
+            ordemServicoId: serviceOrderId,
+            historicoStatusAnterior: from,
+            historicoStatusNovo: to,
+            usuarioId: 'attendant-id',
+            historicoObservacao: undefined,
+          },
+        });
+      },
+    );
+
+    it.each([
+      ['startDiagnosis', 'EM_DIAGNOSTICO'],
+      ['startExecution', 'RECEBIDA'],
+      ['completeServiceOrder', 'AGUARDANDO_EXECUCAO'],
+      ['deliverServiceOrder', 'EM_EXECUCAO'],
+    ] as const)(
+      'should throw ConflictException on %s when the order is %s',
+      async (method, status) => {
+        tx.ordemServico.findUnique.mockResolvedValueOnce({
+          ordemServicoStatus: status,
+        });
+
+        await expect(service[method](serviceOrderId)).rejects.toThrow(
+          ConflictException,
+        );
+        expect(tx.ordemServico.updateMany).not.toHaveBeenCalled();
+        expect(tx.ordemServicoStatusHistorico.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it('should throw NotFoundException when the order does not exist', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce(null);
+
+      await expect(service.startDiagnosis(serviceOrderId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw ConflictException when another command changed the status first', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.RECEBIDA,
+      });
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 0 });
+
+      await expect(service.startDiagnosis(serviceOrderId)).rejects.toThrow(
+        'alterada por outra operação',
+      );
+      expect(tx.ordemServicoStatusHistorico.create).not.toHaveBeenCalled();
+    });
+  });
+
   describe('cancelServiceOrder', () => {
     it.each([
       StatusOrdemServico.RECEBIDA,
       StatusOrdemServico.EM_DIAGNOSTICO,
       StatusOrdemServico.AGUARDANDO_APROVACAO,
     ])(
-      'should cancel and record history when the order is %s',
+      'should cancel with reason and history when the order is %s',
       async (status) => {
         tx.ordemServico.findUnique.mockResolvedValueOnce({
           ordemServicoStatus: status,
         });
-        tx.ordemServico.update.mockResolvedValueOnce({
+        tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+        tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
           ...stored,
           ordemServicoStatus: StatusOrdemServico.CANCELADA,
         });
@@ -301,6 +386,13 @@ describe('ServiceOrdersService', () => {
         });
 
         expect(result.ordemServicoStatus).toBe(StatusOrdemServico.CANCELADA);
+        expect(tx.ordemServico.updateMany).toHaveBeenCalledWith({
+          where: { ordemServicoId: serviceOrderId, ordemServicoStatus: status },
+          data: expect.objectContaining({
+            ordemServicoStatus: StatusOrdemServico.CANCELADA,
+            ordemServicoMotivoCancelamento: 'Desistência',
+          }) as unknown,
+        });
         expect(tx.ordemServicoStatusHistorico.create).toHaveBeenCalledWith({
           data: {
             ordemServicoId: serviceOrderId,
@@ -330,7 +422,7 @@ describe('ServiceOrdersService', () => {
         await expect(
           service.cancelServiceOrder(serviceOrderId, { reason: 'x' }),
         ).rejects.toThrow(ConflictException);
-        expect(tx.ordemServico.update).not.toHaveBeenCalled();
+        expect(tx.ordemServico.updateMany).not.toHaveBeenCalled();
       },
     );
 
@@ -340,6 +432,32 @@ describe('ServiceOrdersService', () => {
       await expect(
         service.cancelServiceOrder(serviceOrderId, { reason: 'x' }),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findStatusHistory', () => {
+    it('should return the history in chronological order', async () => {
+      db.ordemServico.findFirst.mockResolvedValueOnce(stored);
+      db.ordemServicoStatusHistorico.findMany.mockResolvedValueOnce([
+        { historicoId: 'h1', historicoStatusNovo: 'RECEBIDA' },
+      ]);
+
+      const result = await service.findStatusHistory(serviceOrderId);
+
+      expect(result).toHaveLength(1);
+      expect(db.ordemServicoStatusHistorico.findMany).toHaveBeenCalledWith({
+        where: { ordemServicoId: serviceOrderId },
+        orderBy: [{ historicoCriadoEm: 'asc' }, { historicoId: 'asc' }],
+      });
+    });
+
+    it('should throw NotFoundException when the order does not exist', async () => {
+      db.ordemServico.findFirst.mockResolvedValueOnce(null);
+
+      await expect(service.findStatusHistory(serviceOrderId)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(db.ordemServicoStatusHistorico.findMany).not.toHaveBeenCalled();
     });
   });
 });
