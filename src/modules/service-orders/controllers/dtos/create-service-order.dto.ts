@@ -9,15 +9,35 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { IsValidDocument } from '../../../identity/dtos';
+
+const onlyDigits = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.replace(/\D/g, '') : value;
 
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
 export class CreateServiceOrderDto {
-  @ApiProperty({ description: 'Id do cliente (usuário com perfil Cliente)' })
+  @ApiProperty({
+    required: false,
+    description:
+      'Id do cliente (usuário com perfil Cliente). Informe este campo ou `customerDocument`',
+  })
+  @IsOptional()
   @IsUUID()
-  @IsNotEmpty()
-  readonly clientId: string;
+  readonly clientId?: string;
+
+  @ApiProperty({
+    required: false,
+    example: '52998224725',
+    description:
+      'CPF ou CNPJ do cliente (a pontuação é ignorada). Informe este campo ou `clientId`',
+  })
+  @Transform(onlyDigits)
+  @IsOptional()
+  @IsString()
+  @IsValidDocument()
+  readonly customerDocument?: string;
 
   @ApiProperty({ description: 'Id do veículo (deve pertencer ao cliente)' })
   @IsUUID()

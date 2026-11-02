@@ -13,7 +13,7 @@ describe('ServiceOrdersController', () => {
   const service = {
     createServiceOrder: jest.fn(),
     findAll: jest.fn(),
-    findServiceOrderById: jest.fn(),
+    findServiceOrderDetail: jest.fn(),
     updateServiceOrder: jest.fn(),
     cancelServiceOrder: jest.fn(),
     startDiagnosis: jest.fn(),
@@ -26,6 +26,8 @@ describe('ServiceOrdersController', () => {
   const itemsService = {
     addPartItem: jest.fn(),
     removePartItem: jest.fn(),
+    addServiceItem: jest.fn(),
+    removeServiceItem: jest.fn(),
     findQuote: jest.fn(),
   };
   const id = '6f1c1b0e-7c7e-4f0e-9b43-1f4b3d1c8a11';
@@ -48,7 +50,7 @@ describe('ServiceOrdersController', () => {
   it('should delegate each route to ServiceOrdersService', async () => {
     service.createServiceOrder.mockResolvedValue('created');
     service.findAll.mockResolvedValue('list');
-    service.findServiceOrderById.mockResolvedValue('one');
+    service.findServiceOrderDetail.mockResolvedValue('one');
     service.updateServiceOrder.mockResolvedValue('updated');
     service.cancelServiceOrder.mockResolvedValue('cancelled');
 
@@ -135,12 +137,28 @@ describe('ServiceOrdersController', () => {
     expect(itemsService.removePartItem).toHaveBeenCalledWith(id, 'item');
   });
 
+  it('should delegate the service items routes', async () => {
+    const payload = { servicoId: 's', osServicoQuantidade: 1 } as never;
+    itemsService.addServiceItem.mockResolvedValue('added');
+    itemsService.removeServiceItem.mockResolvedValue('removed');
+
+    await expect(controller.addServiceItem(id, payload)).resolves.toBe('added');
+    await expect(controller.removeServiceItem(id, 'svc')).resolves.toBe(
+      'removed',
+    );
+
+    expect(itemsService.addServiceItem).toHaveBeenCalledWith(id, payload);
+    expect(itemsService.removeServiceItem).toHaveBeenCalledWith(id, 'svc');
+  });
+
   it('should restrict the items and quote routes to the roles of the contract', () => {
     const proto = ServiceOrdersController.prototype;
     const mechanic = [Role.ADMIN, Role.MECHANIC];
 
     expect(rolesOf(proto.addPartItem)).toEqual(mechanic);
     expect(rolesOf(proto.removePartItem)).toEqual(mechanic);
+    expect(rolesOf(proto.addServiceItem)).toEqual(mechanic);
+    expect(rolesOf(proto.removeServiceItem)).toEqual(mechanic);
     expect(rolesOf(proto.sendQuote)).toEqual(mechanic);
     expect(rolesOf(proto.findQuote)).toEqual([
       Role.ADMIN,

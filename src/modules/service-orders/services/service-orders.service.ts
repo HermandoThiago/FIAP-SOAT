@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -12,7 +13,8 @@ import {
   StatusOrdemServico,
 } from '../../../generated/prisma/enums';
 import { DatabaseService } from '../../../shared/database/database.service';
-import { VehiclesService } from '../../customers/services';
+import { StockService } from '../../catalog/services';
+import { CustomersService, VehiclesService } from '../../customers/services';
 import { RequestContext, Role } from '../../identity/auth';
 import { TrackingTokenService, UsersService } from '../../identity/services';
 import {
@@ -22,7 +24,8 @@ import {
   UpdateServiceOrderDto,
 } from '../controllers/dtos';
 import { ServiceOrder, StatusHistoryEntry } from '../domain/entities';
-import { calculateQuoteTotal } from '../domain/quote';
+import { buildMilestones } from '../domain/milestones';
+import { buildQuote, calculateQuoteTotal } from '../domain/quote';
 import {
   ServiceOrderCommand,
   StatusTransitionPolicy,
@@ -43,6 +46,8 @@ export class ServiceOrdersService {
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly trackingTokenService: TrackingTokenService,
+    private readonly customersService: CustomersService,
+    private readonly stockService: StockService,
   ) {
     this.orm = this.prisma.db;
   }
@@ -50,12 +55,7 @@ export class ServiceOrdersService {
   async createServiceOrder(payload: CreateServiceOrderDto) {
     const attendantId = this.ctx.userId;
 
-    await this.ensureUserWithRole(
-      payload.clientId,
-      Role.CUSTOMER,
-      'Cliente não encontrado',
-      'O cliente da OS deve ter o perfil Cliente',
-    );
+    const clientId = await this.resolveClientId(payload);
     await this.ensureUserWithRole(
       payload.mecanicoId,
       Role.MECHANIC,
@@ -66,7 +66,7 @@ export class ServiceOrdersService {
     const vehicle = await this.vehiclesService.findVehicleById(
       payload.veiculoId,
     );
-    if (vehicle.usuarioId !== payload.clientId) {
+    if (vehicle.usuarioId !== clientId) {
       throw new ConflictException('O veículo não pertence ao cliente');
     }
 
@@ -86,7 +86,7 @@ export class ServiceOrdersService {
     const created = await this.orm.$transaction(async (tx) => {
       const serviceOrder = await tx.ordemServico.create({
         data: {
-          usuarioId: payload.clientId,
+          usuarioId: clientId,
           veiculoId: payload.veiculoId,
           mecanicoId: payload.mecanicoId,
           atendenteId: attendantId,
@@ -129,6 +129,69 @@ export class ServiceOrdersService {
     }
 
     return plainToInstance(ServiceOrder, serviceOrder);
+  }
+
+  /** Detalhamento (PRD-006): OS + cliente, veículo, mecânico, serviços, peças, orçamento e marcos. */
+  async findServiceOrderDetail(serviceOrderId: string) {
+    const serviceOrder = await this.orm.ordemServico.findFirst({
+      where: {
+        ordemServicoId: serviceOrderId,
+        // Cliente só enxerga as próprias OS; a alheia responde 404 (CLAUDE.md, regra 8).
+        ...(this.ctx.user?.role === Role.CUSTOMER
+          ? { usuarioId: this.ctx.userId }
+          : {}),
+      },
+      include: {
+        cliente: { select: { usuarioId: true, usuarioNome: true } },
+        mecanico: { select: { usuarioId: true, usuarioNome: true } },
+        veiculo: {
+          select: {
+            veiculoId: true,
+            veiculoPlaca: true,
+            veiculoMarca: true,
+            veiculoModelo: true,
+          },
+        },
+        historicoStatus: {
+          select: { historicoStatusNovo: true, historicoCriadoEm: true },
+        },
+        orcamentos: { orderBy: { orcamentoVersao: 'desc' }, take: 1 },
+        itens: {
+          include: { itemEstoque: { select: { itemEstoqueNome: true } } },
+        },
+        servicos: { include: { servico: { select: { servicoNome: true } } } },
+      },
+    });
+
+    if (!serviceOrder) {
+      this.logger.error(`OS ${serviceOrderId} não encontrada`);
+      throw new NotFoundException('Ordem de serviço não encontrada');
+    }
+
+    const {
+      cliente,
+      mecanico,
+      veiculo,
+      historicoStatus,
+      orcamentos,
+      itens,
+      servicos,
+      ...order
+    } = serviceOrder;
+
+    return {
+      ...plainToInstance(ServiceOrder, order),
+      cliente,
+      mecanico,
+      veiculo,
+      orcamento: buildQuote(
+        serviceOrderId,
+        orcamentos[0] ?? null,
+        itens,
+        servicos,
+      ),
+      marcos: buildMilestones(historicoStatus),
+    };
   }
 
   async findAll({
@@ -234,7 +297,11 @@ export class ServiceOrdersService {
           const items = await tx.ordemServicoItem.findMany({
             where: { ordemServicoId: serviceOrderId },
           });
-          if (calculateQuoteTotal(items) <= 0) {
+          const services = await tx.ordemServicoServico.findMany({
+            where: { ordemServicoId: serviceOrderId },
+          });
+          const total = calculateQuoteTotal(items, services);
+          if (total <= 0) {
             throw new UnprocessableEntityException(
               'O orçamento precisa de ao menos um item com valor maior que zero',
             );
@@ -244,7 +311,7 @@ export class ServiceOrdersService {
             where: { ordemServicoId: serviceOrderId },
             data: {
               orcamentoStatus: StatusOrcamento.ENVIADO,
-              orcamentoValorTotal: calculateQuoteTotal(items),
+              orcamentoValorTotal: total,
               orcamentoEnviadoEm: new Date(),
               orcamentoAtualizadoEm: new Date(),
             },
@@ -281,6 +348,13 @@ export class ServiceOrdersService {
           await this.registerQuoteResponse(tx, serviceOrderId, customerId, {
             orcamentoStatus: StatusOrcamento.APROVADO,
           });
+          // ADR-012: a reserva acontece na mesma transação da aprovação; sem saldo, nada muda (422).
+          await this.stockService.reserveForServiceOrder(
+            tx,
+            serviceOrderId,
+            customerId,
+            await this.partLines(tx, serviceOrderId),
+          );
         },
       },
     );
@@ -316,9 +390,21 @@ export class ServiceOrdersService {
   }
 
   async completeServiceOrder(serviceOrderId: string) {
+    const userId = this.ctx.userId;
     return await this.applyCommand(
       serviceOrderId,
       ServiceOrderCommand.COMPLETE,
+      {
+        // ADR-012: a baixa do estoque reservado acontece na mesma transação da finalização.
+        beforeTransition: async (tx) => {
+          await this.stockService.withdrawReservedForServiceOrder(
+            tx,
+            serviceOrderId,
+            userId,
+            await this.partLines(tx, serviceOrderId),
+          );
+        },
+      },
     );
   }
 
@@ -409,6 +495,49 @@ export class ServiceOrdersService {
       `OS ${serviceOrderId}: ${command} (${updated.ordemServicoStatus})`,
     );
     return plainToInstance(ServiceOrder, updated);
+  }
+
+  /** Peças e insumos da OS (os serviços não movimentam estoque). */
+  private async partLines(
+    tx: Prisma.TransactionClient,
+    serviceOrderId: string,
+  ) {
+    const items = await tx.ordemServicoItem.findMany({
+      where: { ordemServicoId: serviceOrderId },
+      select: { itemEstoqueId: true, osItemQuantidade: true },
+    });
+    return items.map((item) => ({
+      itemEstoqueId: item.itemEstoqueId,
+      quantidade: Number(item.osItemQuantidade),
+    }));
+  }
+
+  /** O cliente vem por `clientId` ou por CPF/CNPJ; se vierem os dois, precisam ser a mesma pessoa. */
+  private async resolveClientId(payload: CreateServiceOrderDto) {
+    if (!payload.clientId && !payload.customerDocument) {
+      throw new BadRequestException('Informe clientId ou customerDocument');
+    }
+
+    let clientId = payload.clientId;
+    if (payload.customerDocument) {
+      const customer = await this.customersService.findCustomerByDocument(
+        payload.customerDocument,
+      );
+      if (clientId && clientId !== customer.usuarioId) {
+        throw new UnprocessableEntityException(
+          'clientId e customerDocument se referem a clientes diferentes',
+        );
+      }
+      clientId = customer.usuarioId;
+    }
+
+    await this.ensureUserWithRole(
+      clientId!,
+      Role.CUSTOMER,
+      'Cliente não encontrado',
+      'O cliente da OS deve ter o perfil Cliente',
+    );
+    return clientId!;
   }
 
   private async registerQuoteResponse(

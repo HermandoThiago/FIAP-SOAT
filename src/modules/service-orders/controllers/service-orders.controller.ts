@@ -25,6 +25,7 @@ import { Role, Roles } from '../../identity/auth';
 import { ServiceOrderItemsService, ServiceOrdersService } from '../services';
 import {
   AddPartItemDto,
+  AddServiceItemDto,
   CancelServiceOrderDto,
   CreateServiceOrderDto,
   ListServiceOrdersQueryDto,
@@ -52,7 +53,10 @@ export class ServiceOrdersController {
     return await this.serviceOrdersService.findAll(query);
   }
 
-  @ApiOperation({ description: 'Busca Ordem de Serviço pelo ID' })
+  @ApiOperation({
+    description:
+      'Detalha a OS: cliente, veículo, mecânico, serviços, peças, orçamento e marcos (datas de cada etapa)',
+  })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @ApiNotFoundResponse({
     description: 'Ordem de serviço não encontrada (ou de outro cliente)',
@@ -63,7 +67,9 @@ export class ServiceOrdersController {
   async findServiceOrderById(
     @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
   ) {
-    return await this.serviceOrdersService.findServiceOrderById(serviceOrderId);
+    return await this.serviceOrdersService.findServiceOrderDetail(
+      serviceOrderId,
+    );
   }
 
   @ApiOperation({ description: 'Cria ordem de serviço (status RECEBIDA)' })
@@ -212,6 +218,49 @@ export class ServiceOrdersController {
     @Body() payload: AddPartItemDto,
   ) {
     return await this.itemsService.addPartItem(serviceOrderId, payload);
+  }
+
+  @ApiOperation({
+    description:
+      'Inclui serviço do catálogo na OS (RECEBIDA/EM_DIAGNOSTICO) e recalcula o orçamento',
+  })
+  @ApiCreatedResponse({ description: 'Serviço incluído; devolve o orçamento' })
+  @ApiNotFoundResponse({ description: 'OS ou serviço não encontrado' })
+  @ApiConflictResponse({
+    description: 'Status da OS não permite alterar itens',
+  })
+  @HttpCode(201)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Post(':serviceOrderId/items/services')
+  async addServiceItem(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+    @Body() payload: AddServiceItemDto,
+  ) {
+    return await this.itemsService.addServiceItem(serviceOrderId, payload);
+  }
+
+  @ApiOperation({
+    description: 'Remove um serviço da OS e recalcula o orçamento',
+  })
+  @ApiNotFoundResponse({ description: 'OS ou serviço não encontrado na OS' })
+  @ApiConflictResponse({
+    description: 'Status da OS não permite alterar itens',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Serviço removido; devolve o orçamento',
+  })
+  @HttpCode(200)
+  @Roles(Role.ADMIN, Role.MECHANIC)
+  @Delete(':serviceOrderId/items/services/:osServicoId')
+  async removeServiceItem(
+    @Param('serviceOrderId', ParseUUIDPipe) serviceOrderId: string,
+    @Param('osServicoId', ParseUUIDPipe) osServicoId: string,
+  ) {
+    return await this.itemsService.removeServiceItem(
+      serviceOrderId,
+      osServicoId,
+    );
   }
 
   @ApiOperation({ description: 'Remove um item da OS e recalcula o orçamento' })

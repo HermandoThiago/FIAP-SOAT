@@ -1,10 +1,15 @@
 import {
+  BadRequestException,
   ConflictException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { StatusOrdemServico } from '../../src/generated/prisma/enums';
-import { VehiclesService } from '../../src/modules/customers/services';
+import { StockService } from '../../src/modules/catalog/services';
+import {
+  CustomersService,
+  VehiclesService,
+} from '../../src/modules/customers/services';
 import { RequestContext, Role } from '../../src/modules/identity/auth';
 import {
   TrackingTokenService,
@@ -47,6 +52,7 @@ describe('ServiceOrdersService', () => {
     },
     ordemServicoStatusHistorico: { create: jest.fn() },
     ordemServicoItem: { findMany: jest.fn() },
+    ordemServicoServico: { findMany: jest.fn() },
     orcamento: { updateMany: jest.fn() },
   };
   const db = {
@@ -62,6 +68,11 @@ describe('ServiceOrdersService', () => {
   const usersService = { findUserById: jest.fn() };
   const vehiclesService = { findVehicleById: jest.fn() };
   const trackingTokenService = { issue: jest.fn() };
+  const customersService = { findCustomerByDocument: jest.fn() };
+  const stockService = {
+    reserveForServiceOrder: jest.fn(),
+    withdrawReservedForServiceOrder: jest.fn(),
+  };
   const ctx: { user?: { userId: string; role: Role }; userId: string } = {
     userId: 'attendant-id',
   };
@@ -82,6 +93,10 @@ describe('ServiceOrdersService', () => {
       usuarioId: 'customer-id',
     });
     trackingTokenService.issue.mockResolvedValue('tracking-token');
+    tx.ordemServicoItem.findMany.mockResolvedValue([]);
+    tx.ordemServicoServico.findMany.mockResolvedValue([]);
+    stockService.reserveForServiceOrder.mockResolvedValue(undefined);
+    stockService.withdrawReservedForServiceOrder.mockResolvedValue(undefined);
     db.ordemServico.findFirst.mockResolvedValue(null);
     tx.ordemServico.create.mockResolvedValue(stored);
 
@@ -91,6 +106,8 @@ describe('ServiceOrdersService', () => {
       usersService as unknown as UsersService,
       vehiclesService as unknown as VehiclesService,
       trackingTokenService as unknown as TrackingTokenService,
+      customersService as unknown as CustomersService,
+      stockService as unknown as StockService,
     );
   });
 
@@ -373,6 +390,34 @@ describe('ServiceOrdersService', () => {
   });
 
   describe('sendQuote', () => {
+    beforeEach(() => {
+      tx.ordemServicoServico.findMany.mockResolvedValue([]);
+    });
+
+    it('should accept a quote that has only services', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
+      });
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+      tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
+        ...stored,
+        ordemServicoStatus: StatusOrdemServico.AGUARDANDO_APROVACAO,
+      });
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([]);
+      tx.ordemServicoServico.findMany.mockResolvedValueOnce([
+        { osServicoPrecoUnitario: 15000, osServicoQuantidade: 1 },
+      ]);
+
+      await service.sendQuote(serviceOrderId);
+
+      expect(tx.orcamento.updateMany).toHaveBeenCalledWith({
+        where: { ordemServicoId: serviceOrderId },
+        data: expect.objectContaining({
+          orcamentoValorTotal: 15000,
+        }) as unknown,
+      });
+    });
+
     const readyToSend = () => {
       tx.ordemServico.findUnique.mockResolvedValueOnce({
         ordemServicoStatus: StatusOrdemServico.EM_DIAGNOSTICO,
@@ -556,6 +601,302 @@ describe('ServiceOrdersService', () => {
         tx.ordemServico.findUnique.mockReset();
       },
     );
+  });
+
+  describe('estoque na aprovação e na finalização (ADR-012)', () => {
+    // `failsBeforeUpdate`: a transação aborta antes do UPDATE, então não enfileira o que não será lido
+    // (valores `Once` não consumidos vazariam para os testes seguintes).
+    const moveTo = (
+      from: StatusOrdemServico,
+      to: StatusOrdemServico,
+      failsBeforeUpdate = false,
+    ) => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: from,
+      });
+      if (failsBeforeUpdate) return;
+      tx.ordemServico.updateMany.mockResolvedValueOnce({ count: 1 });
+      tx.ordemServico.findUniqueOrThrow.mockResolvedValueOnce({
+        ...stored,
+        ordemServicoStatus: to,
+      });
+    };
+    const partsOfTheOrder = () =>
+      tx.ordemServicoItem.findMany.mockResolvedValueOnce([
+        { itemEstoqueId: 'part-1', osItemQuantidade: '2.000' },
+        { itemEstoqueId: 'part-2', osItemQuantidade: '0.500' },
+      ]);
+
+    it('should reserve the parts of the order, as the customer, when the quote is approved', async () => {
+      moveTo(
+        StatusOrdemServico.AGUARDANDO_APROVACAO,
+        StatusOrdemServico.AGUARDANDO_EXECUCAO,
+      );
+      partsOfTheOrder();
+
+      await service.approveQuote(serviceOrderId, 'customer-id');
+
+      expect(stockService.reserveForServiceOrder).toHaveBeenCalledWith(
+        tx,
+        serviceOrderId,
+        'customer-id',
+        [
+          { itemEstoqueId: 'part-1', quantidade: 2 },
+          { itemEstoqueId: 'part-2', quantidade: 0.5 },
+        ],
+      );
+    });
+
+    it('should leave the order untouched when the reservation fails for lack of stock', async () => {
+      moveTo(
+        StatusOrdemServico.AGUARDANDO_APROVACAO,
+        StatusOrdemServico.AGUARDANDO_EXECUCAO,
+        true,
+      );
+      partsOfTheOrder();
+      stockService.reserveForServiceOrder.mockRejectedValueOnce(
+        new UnprocessableEntityException('Estoque insuficiente para Filtro'),
+      );
+
+      await expect(
+        service.approveQuote(serviceOrderId, 'customer-id'),
+      ).rejects.toThrow('Estoque insuficiente');
+
+      // a falha acontece antes do UPDATE de status e do histórico (e a transação inteira é desfeita)
+      expect(tx.ordemServico.updateMany).not.toHaveBeenCalled();
+      expect(tx.ordemServicoStatusHistorico.create).not.toHaveBeenCalled();
+    });
+
+    it('should not touch the stock when the quote is rejected', async () => {
+      moveTo(
+        StatusOrdemServico.AGUARDANDO_APROVACAO,
+        StatusOrdemServico.ORCAMENTO_RECUSADO,
+      );
+
+      await service.rejectQuote(serviceOrderId, 'customer-id', 'Caro');
+
+      expect(stockService.reserveForServiceOrder).not.toHaveBeenCalled();
+    });
+
+    it('should withdraw the reserved parts, as the logged user, when the order is completed', async () => {
+      moveTo(StatusOrdemServico.EM_EXECUCAO, StatusOrdemServico.FINALIZADA);
+      partsOfTheOrder();
+
+      await service.completeServiceOrder(serviceOrderId);
+
+      expect(stockService.withdrawReservedForServiceOrder).toHaveBeenCalledWith(
+        tx,
+        serviceOrderId,
+        'attendant-id',
+        [
+          { itemEstoqueId: 'part-1', quantidade: 2 },
+          { itemEstoqueId: 'part-2', quantidade: 0.5 },
+        ],
+      );
+    });
+
+    it('should not complete the order when the withdrawal fails', async () => {
+      moveTo(
+        StatusOrdemServico.EM_EXECUCAO,
+        StatusOrdemServico.FINALIZADA,
+        true,
+      );
+      stockService.withdrawReservedForServiceOrder.mockRejectedValueOnce(
+        new UnprocessableEntityException('inconsistente'),
+      );
+
+      await expect(
+        service.completeServiceOrder(serviceOrderId),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+      expect(tx.ordemServico.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('should not touch the stock when the transition is not allowed', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce({
+        ordemServicoStatus: StatusOrdemServico.AGUARDANDO_EXECUCAO,
+      });
+
+      await expect(
+        service.completeServiceOrder(serviceOrderId),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(
+        stockService.withdrawReservedForServiceOrder,
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createServiceOrder: cliente por CPF/CNPJ (F1)', () => {
+    it('should resolve the customer by document when clientId is not informed', async () => {
+      customersService.findCustomerByDocument.mockResolvedValue({
+        usuarioId: 'customer-id',
+      });
+
+      await service.createServiceOrder({
+        veiculoId: 'vehicle-id',
+        mecanicoId: 'mechanic-id',
+        customerDocument: '52998224725',
+      });
+
+      expect(customersService.findCustomerByDocument).toHaveBeenCalledWith(
+        '52998224725',
+      );
+      expect(tx.ordemServico.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ usuarioId: 'customer-id' }) as unknown,
+      });
+    });
+
+    it('should accept both when they point to the same customer', async () => {
+      customersService.findCustomerByDocument.mockResolvedValue({
+        usuarioId: 'customer-id',
+      });
+
+      await expect(
+        service.createServiceOrder({
+          ...payload,
+          customerDocument: '52998224725',
+        }),
+      ).resolves.toBeDefined();
+    });
+
+    it('should throw 422 when clientId and the document belong to different customers', async () => {
+      customersService.findCustomerByDocument.mockResolvedValue({
+        usuarioId: 'someone-else',
+      });
+
+      await expect(
+        service.createServiceOrder({
+          ...payload,
+          customerDocument: '52998224725',
+        }),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+      expect(tx.ordemServico.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when no customer has the document', async () => {
+      customersService.findCustomerByDocument.mockRejectedValue(
+        new NotFoundException('Cliente não encontrado'),
+      );
+
+      await expect(
+        service.createServiceOrder({
+          veiculoId: 'vehicle-id',
+          mecanicoId: 'mechanic-id',
+          customerDocument: '52998224725',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('should throw 400 when neither clientId nor customerDocument is informed', async () => {
+      await expect(
+        service.createServiceOrder({
+          veiculoId: 'vehicle-id',
+          mecanicoId: 'mechanic-id',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('findServiceOrderDetail (F17)', () => {
+    const at = new Date('2026-11-01T10:00:00Z');
+    const detailRow = {
+      ...stored,
+      cliente: { usuarioId: 'customer-id', usuarioNome: 'Maria' },
+      mecanico: { usuarioId: 'mechanic-id', usuarioNome: 'João' },
+      veiculo: {
+        veiculoId: 'vehicle-id',
+        veiculoPlaca: 'ABC1D23',
+        veiculoMarca: 'Fiat',
+        veiculoModelo: 'Argo',
+      },
+      historicoStatus: [
+        {
+          historicoStatusNovo: StatusOrdemServico.RECEBIDA,
+          historicoCriadoEm: at,
+        },
+      ],
+      orcamentos: [
+        {
+          orcamentoVersao: 1,
+          orcamentoStatus: 'RASCUNHO',
+          orcamentoEnviadoEm: null,
+        },
+      ],
+      itens: [
+        {
+          osItemId: 'item-1',
+          itemEstoqueId: 'part-1',
+          osItemQuantidade: '2.000',
+          osItemPrecoUnitario: 3500,
+          itemEstoque: { itemEstoqueNome: 'Filtro de óleo' },
+        },
+      ],
+      servicos: [
+        {
+          osServicoId: 'svc-1',
+          servicoId: 'service-1',
+          osServicoQuantidade: 1,
+          osServicoPrecoUnitario: 15000,
+          servico: { servicoNome: 'Troca de óleo' },
+        },
+      ],
+    };
+
+    it('should return the order with customer, vehicle, mechanic, quote and milestones', async () => {
+      db.ordemServico.findFirst.mockResolvedValueOnce(detailRow);
+
+      const result = await service.findServiceOrderDetail(serviceOrderId);
+
+      expect(result.ordemServicoNumero).toBe('7');
+      expect(result.cliente.usuarioNome).toBe('Maria');
+      expect(result.veiculo.veiculoPlaca).toBe('ABC1D23');
+      expect(result.mecanico.usuarioNome).toBe('João');
+      expect(result.orcamento.orcamentoValorTotal).toBe(7000 + 15000);
+      expect(result.orcamento.itens).toHaveLength(1);
+      expect(result.orcamento.servicos).toHaveLength(1);
+      expect(result.marcos.recebidaEm).toEqual(at);
+      expect(result.marcos.entregueEm).toBeNull();
+      // o histórico e os itens brutos não vazam para a resposta
+      expect(result).not.toHaveProperty('historicoStatus');
+      expect(result).not.toHaveProperty('itens');
+    });
+
+    it('should show an empty draft when the order has no quote yet', async () => {
+      db.ordemServico.findFirst.mockResolvedValueOnce({
+        ...detailRow,
+        orcamentos: [],
+        itens: [],
+        servicos: [],
+      });
+
+      const result = await service.findServiceOrderDetail(serviceOrderId);
+
+      expect(result.orcamento.orcamentoStatus).toBe('RASCUNHO');
+      expect(result.orcamento.orcamentoValorTotal).toBe(0);
+    });
+
+    it('should scope the search to the customer when the user is a customer', async () => {
+      ctx.user = { userId: 'customer-id', role: Role.CUSTOMER };
+      ctx.userId = 'customer-id';
+      db.ordemServico.findFirst.mockResolvedValueOnce(null);
+
+      await expect(
+        service.findServiceOrderDetail(serviceOrderId),
+      ).rejects.toThrow(NotFoundException);
+      expect(db.ordemServico.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { ordemServicoId: serviceOrderId, usuarioId: 'customer-id' },
+        }),
+      );
+      ctx.userId = 'attendant-id';
+    });
+
+    it('should throw NotFoundException when the order does not exist', async () => {
+      db.ordemServico.findFirst.mockResolvedValueOnce(null);
+
+      await expect(
+        service.findServiceOrderDetail(serviceOrderId),
+      ).rejects.toThrow('Ordem de serviço não encontrada');
+    });
   });
 
   describe('cancelServiceOrder', () => {
