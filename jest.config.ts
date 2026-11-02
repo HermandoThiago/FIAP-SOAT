@@ -23,11 +23,27 @@ const config: Config = {
     ...pathsToModuleNameMapper(paths, { prefix: '<rootDir>/' }),
   },
   collectCoverageFrom: [
-    'src/**/*.(t|j)s',
-    'libs/**/*.(t|j)s',
-    'apps/**/*.(t|j)s',
+    'src/**/*.ts',
+    '!src/generated/**', // client gerado pelo Prisma
+    '!src/scripts/**', // seed
+    '!src/main.ts',
+    '!src/**/*.module.ts',
+    '!src/**/index.ts',
+    '!src/**/domain/entities/**', // classes de dados só com decorators: sem comportamento a cobrir
   ],
   coverageDirectory: './coverage',
+  coverageReporters: ['text', 'text-summary', 'lcov'],
+  // Gate do CLAUDE.md: >= 80 % (linhas e branches) em domain/ + services/ dos módulos críticos
+  coverageThreshold: {
+    global: { lines: 80, branches: 80 },
+    ...Object.fromEntries(
+      [
+        'service-orders/domain',
+        'service-orders/services',
+        'catalog/services',
+      ].map((dir) => [`./src/modules/${dir}/`, { lines: 80, branches: 80 }]),
+    ),
+  },
   testEnvironment: 'node',
 };
 
