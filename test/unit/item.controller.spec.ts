@@ -7,7 +7,7 @@ import {
   ListItensQueryDto,
   UpdateItemDto,
 } from '../../src/modules/catalog/controllers/dtos';
-import { ItemService } from '../../src/modules/catalog/services';
+import { ItemService, StockService } from '../../src/modules/catalog/services';
 import {
   TipoItemEstoque,
   UnidadeMedida,
@@ -23,6 +23,10 @@ describe('ItemController', () => {
     updateItem: jest.fn(),
     deleteById: jest.fn(),
   };
+  const stockService = {
+    registerMovement: jest.fn(),
+    findMovements: jest.fn(),
+  };
   const itemId = 'a3f1c1b0-7c7e-4f0e-9b43-1f4b3d1c8a11';
 
   beforeEach(async () => {
@@ -30,7 +34,10 @@ describe('ItemController', () => {
 
     const module = await Test.createTestingModule({
       controllers: [ItemController],
-      providers: [{ provide: ItemService, useValue: itemService }],
+      providers: [
+        { provide: ItemService, useValue: itemService },
+        { provide: StockService, useValue: stockService },
+      ],
     }).compile();
 
     controller = module.get(ItemController);
@@ -113,6 +120,34 @@ describe('ItemController', () => {
 
       await expect(controller.deleteItem(itemId)).resolves.toBeUndefined();
       expect(itemService.deleteById).toHaveBeenCalledWith(itemId);
+    });
+  });
+
+  describe('stock movements', () => {
+    it('should delegate the manual movement to StockService', async () => {
+      const payload = {
+        movimentacaoTipo: 'ENTRADA',
+        movimentacaoQuantidade: 5,
+      } as never;
+      stockService.registerMovement.mockResolvedValue('registered');
+
+      await expect(controller.registerMovement(itemId, payload)).resolves.toBe(
+        'registered',
+      );
+      expect(stockService.registerMovement).toHaveBeenCalledWith(
+        itemId,
+        payload,
+      );
+    });
+
+    it('should delegate the history query to StockService', async () => {
+      const query = { page: 1, pageSize: 20 } as never;
+      stockService.findMovements.mockResolvedValue('history');
+
+      await expect(controller.findMovements(itemId, query)).resolves.toBe(
+        'history',
+      );
+      expect(stockService.findMovements).toHaveBeenCalledWith(itemId, query);
     });
   });
 });

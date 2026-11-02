@@ -2,9 +2,9 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ItemService } from '../../src/modules/catalog/services/item.service';
+import { StockService } from '../../src/modules/catalog/services/stock.service';
 import { ItemEstoque } from '../../src/modules/catalog/domain/entities';
 import { CreateItemEstoqueDto } from '../../src/modules/catalog/controllers/dtos';
 import { RequestContext } from '../../src/modules/identity/auth';
@@ -23,7 +23,9 @@ describe('ItemService', () => {
       count: jest.fn(),
       update: jest.fn(),
     },
+    $transaction: jest.fn(),
   };
+  const stockService = { recordInitialBalance: jest.fn() };
   let service: ItemService;
 
   const row = (overrides: Record<string, unknown> = {}) => ({
@@ -44,9 +46,14 @@ describe('ItemService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    // a transação usa o próprio `db` como client transacional
+    db.$transaction.mockImplementation((fn: (t: typeof db) => unknown) =>
+      fn(db),
+    );
     service = new ItemService(
       { db } as unknown as DatabaseService,
       {} as RequestContext,
+      stockService as unknown as StockService,
     );
   });
 
@@ -76,6 +83,28 @@ describe('ItemService', () => {
       });
       expect(result.itemEstoqueId).toBe('item-id');
       expect(result).toBeInstanceOf(ItemEstoque);
+    });
+
+    it('should record the initial balance as an ENTRADA movement in the same transaction', async () => {
+      db.itemEstoque.findUnique.mockResolvedValue(null);
+      db.itemEstoque.create.mockResolvedValue(row());
+
+      await service.createItem(payload);
+
+      expect(db.$transaction).toHaveBeenCalledTimes(1);
+      expect(stockService.recordInitialBalance).toHaveBeenCalledWith(
+        db,
+        'item-id',
+        10,
+      );
+    });
+
+    it('should not create the item when recording the initial balance fails', async () => {
+      db.itemEstoque.findUnique.mockResolvedValue(null);
+      db.itemEstoque.create.mockResolvedValue(row());
+      stockService.recordInitialBalance.mockRejectedValue(new Error('boom'));
+
+      await expect(service.createItem(payload)).rejects.toThrow('boom');
     });
 
     it('should use the INS- prefix when the item is an INSUMO', async () => {
@@ -184,56 +213,28 @@ describe('ItemService', () => {
   });
 
   describe('updateItem', () => {
-    it('should update the item when reserved does not exceed the stock', async () => {
+    it('should update the descriptive fields and refresh the update date', async () => {
       db.itemEstoque.findUnique.mockResolvedValue(row());
       db.itemEstoque.update.mockResolvedValue(undefined);
 
       await expect(
-        service.updateItem('item-id', {
-          itemEstoqueQuantidade: 8,
-          itemEstoqueReservada: 8,
-        }),
+        service.updateItem('item-id', { itemEstoquePrecoVenda: 45 }),
       ).resolves.toBeUndefined();
 
       expect(db.itemEstoque.update).toHaveBeenCalledWith({
         where: { itemEstoqueId: 'item-id' },
-        data: expect.objectContaining({
-          itemEstoqueQuantidade: 8,
-          itemEstoqueReservada: 8,
+        data: {
+          itemEstoquePrecoVenda: 45,
           itemEstoqueAtualizadoEm: expect.any(Date),
-        }),
+        },
       });
-    });
-
-    it('should compare against the current stock when quantity is not sent', async () => {
-      db.itemEstoque.findUnique.mockResolvedValue(
-        row({ itemEstoqueQuantidade: 10 }),
-      );
-
-      await expect(
-        service.updateItem('item-id', { itemEstoqueReservada: 11 }),
-      ).rejects.toThrow(UnprocessableEntityException);
-      expect(db.itemEstoque.update).not.toHaveBeenCalled();
-    });
-
-    it('should throw UnprocessableEntityException when the new quantity is below the reserved amount', async () => {
-      db.itemEstoque.findUnique.mockResolvedValue(
-        row({ itemEstoqueReservada: 5 }),
-      );
-
-      await expect(
-        service.updateItem('item-id', {
-          itemEstoqueQuantidade: 3,
-          itemEstoqueReservada: 5,
-        }),
-      ).rejects.toThrow(UnprocessableEntityException);
     });
 
     it('should throw NotFoundException when the item does not exist', async () => {
       db.itemEstoque.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.updateItem('missing', { itemEstoqueReservada: 0 }),
+        service.updateItem('missing', { itemEstoqueNome: 'X' }),
       ).rejects.toThrow(NotFoundException);
       expect(db.itemEstoque.update).not.toHaveBeenCalled();
     });

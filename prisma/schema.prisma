@@ -193,7 +193,7 @@ model ItemEstoque {
 model MovimentacaoEstoque {
   movimentacaoId         String                  @id @default(uuid()) @map("movimentacao_id") @db.Uuid
   itemEstoqueId          String                  @map("item_estoque_id") @db.Uuid
-  ordemServicoId         String                  @map("ordem_servico_id") @db.Uuid // Preenchido quando a movimentação vem de uma OS
+  ordemServicoId         String?                 @map("ordem_servico_id") @db.Uuid // Preenchido quando a movimentação vem de uma OS (reserva/baixa); nulo nas manuais
   usuarioId              String                  @map("usuario_id") @db.Uuid // Quem realizou a movimentação
   movimentacaoTipo       TipoMovimentacaoEstoque @map("movimentacao_tipo")
   movimentacaoQuantidade Decimal                 @map("movimentacao_quantidade") @db.Decimal(12, 3) // Sempre positiva; o tipo define o sentido
@@ -201,10 +201,11 @@ model MovimentacaoEstoque {
   movimentacaoCriadaEm   DateTime                @default(now()) @map("movimentacao_criada_em") @db.Timestamptz(6)
 
   itemEstoque  ItemEstoque  @relation(fields: [itemEstoqueId], references: [itemEstoqueId], onDelete: NoAction, onUpdate: NoAction)
-  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
-  usuario      Usuario      @relation(fields: [usuarioId], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
+  ordemServico OrdemServico? @relation(fields: [ordemServicoId], references: [ordemServicoId], onDelete: NoAction, onUpdate: NoAction)
+  usuario      Usuario       @relation(fields: [usuarioId], references: [usuarioId], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([itemEstoqueId], map: "MovimentacaoEstoque_item_estoque_id_idx_67447c15")
+  @@index([itemEstoqueId, movimentacaoCriadaEm], map: "MovimentacaoEstoque_item_criada_idx")
   @@index([ordemServicoId], map: "MovimentacaoEstoque_ordem_servico_id_idx_22fc9c3d")
   @@index([usuarioId], map: "MovimentacaoEstoque_usuario_id_idx_65b6616a")
 }
