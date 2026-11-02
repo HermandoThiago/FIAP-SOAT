@@ -2,8 +2,13 @@ import { Module } from '@nestjs/common';
 import { CatalogModule } from '../catalog/catalog.module';
 import { CustomersModule } from '../customers/customers.module';
 import { IdentityModule } from '../identity/identity.module';
-import { ServiceOrdersController, TrackingController } from './controllers';
 import {
+  MetricsController,
+  ServiceOrdersController,
+  TrackingController,
+} from './controllers';
+import {
+  MetricsService,
   ServiceOrderItemsService,
   ServiceOrdersService,
   TrackingService,
@@ -11,8 +16,13 @@ import {
 
 @Module({
   imports: [IdentityModule, CustomersModule, CatalogModule],
-  controllers: [ServiceOrdersController, TrackingController],
-  providers: [ServiceOrdersService, ServiceOrderItemsService, TrackingService],
+  controllers: [ServiceOrdersController, TrackingController, MetricsController],
+  providers: [
+    ServiceOrdersService,
+    ServiceOrderItemsService,
+    TrackingService,
+    MetricsService,
+  ],
   exports: [ServiceOrdersService],
 })
 export class ServiceOrdersModule {}

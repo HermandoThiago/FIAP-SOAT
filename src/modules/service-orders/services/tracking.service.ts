@@ -16,6 +16,7 @@ const trackingInclude = {
   historicoStatus: { orderBy: { historicoCriadoEm: 'asc' } },
   orcamentos: { orderBy: { orcamentoVersao: 'desc' }, take: 1 },
   itens: { include: { itemEstoque: { select: { itemEstoqueNome: true } } } },
+  servicos: { include: { servico: { select: { servicoNome: true } } } },
 } satisfies Prisma.OrdemServicoInclude;
 
 /** Acompanhamento do cliente (ADR-011): token de uma OS ou login `CUSTOMER`; OS alheia responde 404. */
@@ -47,6 +48,7 @@ export class TrackingService {
       serviceOrderId,
       serviceOrder.orcamentos[0] ?? null,
       serviceOrder.itens,
+      serviceOrder.servicos,
     );
     const { statusDescription, nextAction } = describeStatus(
       serviceOrder.ordemServicoStatus,
@@ -68,11 +70,18 @@ export class TrackingService {
       quote: {
         totalAmount: quote.orcamentoValorTotal,
         status: quote.orcamentoStatus,
-        items: quote.itens.map((item) => ({
-          description: item.nome,
-          quantity: item.quantidade,
-          subtotal: item.subtotal,
-        })),
+        items: [
+          ...quote.servicos.map((service) => ({
+            description: service.nome,
+            quantity: service.quantidade,
+            subtotal: service.subtotal,
+          })),
+          ...quote.itens.map((item) => ({
+            description: item.nome,
+            quantity: item.quantidade,
+            subtotal: item.subtotal,
+          })),
+        ],
       },
       timeline: serviceOrder.historicoStatus.map((entry) => ({
         status: entry.historicoStatusNovo,

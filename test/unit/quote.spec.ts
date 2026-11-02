@@ -31,12 +31,50 @@ describe('quote', () => {
       expect(total).toBe(7000 + 6750);
     });
 
+    it('should include the services in the total', () => {
+      const total = calculateQuoteTotal(
+        [{ osItemPrecoUnitario: 3500, osItemQuantidade: 2 }],
+        [{ osServicoPrecoUnitario: 15000, osServicoQuantidade: 2 }],
+      );
+
+      expect(total).toBe(7000 + 30000);
+    });
+
     it('should return zero when there are no items', () => {
       expect(calculateQuoteTotal([])).toBe(0);
     });
   });
 
   describe('buildQuote', () => {
+    it('should list the services and add them to the total', () => {
+      const quote = buildQuote(
+        'order-id',
+        null,
+        [],
+        [
+          {
+            osServicoId: 'os-service-1',
+            servicoId: 'service-1',
+            osServicoQuantidade: 2,
+            osServicoPrecoUnitario: 15000,
+            servico: { servicoNome: 'Alinhamento' },
+          },
+        ],
+      );
+
+      expect(quote.orcamentoValorTotal).toBe(30000);
+      expect(quote.servicos).toEqual([
+        {
+          osServicoId: 'os-service-1',
+          servicoId: 'service-1',
+          nome: 'Alinhamento',
+          quantidade: 2,
+          precoUnitario: 15000,
+          subtotal: 30000,
+        },
+      ]);
+    });
+
     it('should return an empty draft when the order has no quote yet', () => {
       expect(buildQuote('order-id', null, [])).toEqual({
         ordemServicoId: 'order-id',
@@ -45,6 +83,7 @@ describe('quote', () => {
         orcamentoValorTotal: 0,
         orcamentoEnviadoEm: null,
         itens: [],
+        servicos: [],
       });
     });
 

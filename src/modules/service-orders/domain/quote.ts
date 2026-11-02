@@ -11,6 +11,15 @@ export interface QuoteItem {
   subtotal: number; // centavos
 }
 
+export interface QuoteService {
+  osServicoId: string;
+  servicoId: string;
+  nome: string;
+  quantidade: number;
+  precoUnitario: number; // centavos, congelado na inclusão
+  subtotal: number; // centavos
+}
+
 export interface Quote {
   ordemServicoId: string;
   orcamentoVersao: number;
@@ -18,6 +27,15 @@ export interface Quote {
   orcamentoValorTotal: number; // centavos
   orcamentoEnviadoEm: Date | null;
   itens: QuoteItem[];
+  servicos: QuoteService[];
+}
+
+export interface QuoteServiceSource {
+  osServicoId: string;
+  servicoId: string;
+  osServicoQuantidade: number;
+  osServicoPrecoUnitario: number;
+  servico: { servicoNome: string };
 }
 
 export interface QuoteItemSource {
@@ -38,13 +56,27 @@ export function calculateSubtotal(
 
 export function calculateQuoteTotal(
   items: { osItemPrecoUnitario: number; osItemQuantidade: NumberLike }[],
+  services: {
+    osServicoPrecoUnitario: number;
+    osServicoQuantidade: number;
+  }[] = [],
 ): number {
-  return items.reduce(
+  const partsTotal = items.reduce(
     (total, item) =>
       total +
       calculateSubtotal(item.osItemPrecoUnitario, item.osItemQuantidade),
     0,
   );
+  const servicesTotal = services.reduce(
+    (total, service) =>
+      total +
+      calculateSubtotal(
+        service.osServicoPrecoUnitario,
+        service.osServicoQuantidade,
+      ),
+    0,
+  );
+  return partsTotal + servicesTotal;
 }
 
 /** O orçamento é derivado dos itens: o total nunca é atribuído, só calculado (CLAUDE.md, regra 5). */
@@ -56,12 +88,13 @@ export function buildQuote(
     orcamentoEnviadoEm: Date | null;
   } | null,
   items: QuoteItemSource[],
+  services: QuoteServiceSource[] = [],
 ): Quote {
   return {
     ordemServicoId: serviceOrderId,
     orcamentoVersao: quote?.orcamentoVersao ?? 1,
     orcamentoStatus: quote?.orcamentoStatus ?? StatusOrcamento.RASCUNHO,
-    orcamentoValorTotal: calculateQuoteTotal(items),
+    orcamentoValorTotal: calculateQuoteTotal(items, services),
     orcamentoEnviadoEm: quote?.orcamentoEnviadoEm ?? null,
     itens: items.map((item) => ({
       osItemId: item.osItemId,
@@ -72,6 +105,17 @@ export function buildQuote(
       subtotal: calculateSubtotal(
         item.osItemPrecoUnitario,
         item.osItemQuantidade,
+      ),
+    })),
+    servicos: services.map((service) => ({
+      osServicoId: service.osServicoId,
+      servicoId: service.servicoId,
+      nome: service.servico.servicoNome,
+      quantidade: service.osServicoQuantidade,
+      precoUnitario: service.osServicoPrecoUnitario,
+      subtotal: calculateSubtotal(
+        service.osServicoPrecoUnitario,
+        service.osServicoQuantidade,
       ),
     })),
   };

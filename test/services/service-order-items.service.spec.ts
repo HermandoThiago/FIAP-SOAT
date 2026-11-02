@@ -8,7 +8,10 @@ import {
   StatusOrcamento,
   StatusOrdemServico,
 } from '../../src/generated/prisma/enums';
-import { ItemService } from '../../src/modules/catalog/services';
+import {
+  CatalogService,
+  ItemService,
+} from '../../src/modules/catalog/services';
 import { ServiceOrderItemsService } from '../../src/modules/service-orders/services';
 import { DatabaseService } from '../../src/shared/database/database.service';
 
@@ -43,6 +46,11 @@ describe('ServiceOrderItemsService', () => {
       create: jest.fn(),
       deleteMany: jest.fn(),
     },
+    ordemServicoServico: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      deleteMany: jest.fn(),
+    },
     orcamento: {
       upsert: jest.fn(),
       updateMany: jest.fn(),
@@ -52,10 +60,24 @@ describe('ServiceOrderItemsService', () => {
   const db = {
     ordemServico: { findUnique: jest.fn() },
     ordemServicoItem: { findMany: jest.fn() },
+    ordemServicoServico: { findMany: jest.fn() },
     orcamento: { findUnique: jest.fn() },
     $transaction: jest.fn((fn: (t: typeof tx) => unknown) => fn(tx)),
   };
   const itemService = { findItemById: jest.fn() };
+  const catalogService = { findServiceById: jest.fn() };
+  const catalogEntry = {
+    servicoId: 'service-id',
+    servicoNome: 'Troca de óleo',
+    servicoPrecoBase: 15000,
+  };
+  const storedService = {
+    osServicoId: 'os-service-1',
+    servicoId: 'service-id',
+    osServicoQuantidade: 1,
+    osServicoPrecoUnitario: 15000,
+    servico: { servicoNome: 'Troca de óleo' },
+  };
   let service: ServiceOrderItemsService;
 
   const orderIn = (status: StatusOrdemServico) =>
@@ -66,6 +88,9 @@ describe('ServiceOrderItemsService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     itemService.findItemById.mockResolvedValue(part);
+    catalogService.findServiceById.mockResolvedValue(catalogEntry);
+    tx.ordemServicoServico.findMany.mockResolvedValue([]);
+    db.ordemServicoServico.findMany.mockResolvedValue([]);
     // A checagem de estoque usa `select` (nada na OS ainda); o recálculo e o orçamento leem os itens.
     tx.ordemServicoItem.findMany.mockImplementation(
       (args: { select?: unknown }) =>
@@ -77,6 +102,7 @@ describe('ServiceOrderItemsService', () => {
     service = new ServiceOrderItemsService(
       { db } as unknown as DatabaseService,
       itemService as unknown as ItemService,
+      catalogService as unknown as CatalogService,
     );
   });
 
@@ -253,6 +279,125 @@ describe('ServiceOrderItemsService', () => {
     });
   });
 
+  describe('addServiceItem', () => {
+    it.each([StatusOrdemServico.RECEBIDA, StatusOrdemServico.EM_DIAGNOSTICO])(
+      'should add the service with a price snapshot and recalculate the quote when the order is %s',
+      async (status) => {
+        orderIn(status);
+        tx.ordemServicoServico.findMany.mockResolvedValue([storedService]);
+
+        const quote = await service.addServiceItem(orderId, {
+          servicoId: 'service-id',
+          osServicoQuantidade: 1,
+        });
+
+        expect(tx.ordemServicoServico.create).toHaveBeenCalledWith({
+          data: {
+            ordemServicoId: orderId,
+            orcamentoId: 'quote-id',
+            servicoId: 'service-id',
+            osServicoQuantidade: 1,
+            osServicoPrecoUnitario: 15000,
+          },
+        });
+        expect(tx.orcamento.updateMany).toHaveBeenCalledWith({
+          where: { ordemServicoId: orderId, orcamentoVersao: 1 },
+          data: expect.objectContaining({
+            orcamentoValorTotal: 15000 + 7000, // serviço + peça já na OS
+          }) as unknown,
+        });
+        expect(quote.servicos).toEqual([
+          {
+            osServicoId: 'os-service-1',
+            servicoId: 'service-id',
+            nome: 'Troca de óleo',
+            quantidade: 1,
+            precoUnitario: 15000,
+            subtotal: 15000,
+          },
+        ]);
+      },
+    );
+
+    it('should throw NotFoundException when the service is missing or inactive', async () => {
+      catalogService.findServiceById.mockRejectedValueOnce(
+        new NotFoundException('Serviço não encontrado'),
+      );
+
+      await expect(
+        service.addServiceItem(orderId, {
+          servicoId: 'x',
+          osServicoQuantidade: 1,
+        }),
+      ).rejects.toThrow('Serviço não encontrado');
+      expect(tx.ordemServicoServico.create).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      StatusOrdemServico.AGUARDANDO_APROVACAO,
+      StatusOrdemServico.AGUARDANDO_EXECUCAO,
+      StatusOrdemServico.EM_EXECUCAO,
+      StatusOrdemServico.CANCELADA,
+    ])(
+      'should throw ConflictException when the order is %s',
+      async (status) => {
+        orderIn(status);
+
+        await expect(
+          service.addServiceItem(orderId, {
+            servicoId: 'service-id',
+            osServicoQuantidade: 1,
+          }),
+        ).rejects.toThrow(ConflictException);
+        expect(tx.ordemServicoServico.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it('should throw NotFoundException when the order does not exist', async () => {
+      tx.ordemServico.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.addServiceItem(orderId, {
+          servicoId: 'service-id',
+          osServicoQuantidade: 1,
+        }),
+      ).rejects.toThrow('Ordem de serviço não encontrada');
+    });
+  });
+
+  describe('removeServiceItem', () => {
+    it('should delete the service from the order and recalculate the quote', async () => {
+      orderIn(StatusOrdemServico.EM_DIAGNOSTICO);
+      tx.ordemServicoServico.deleteMany.mockResolvedValueOnce({ count: 1 });
+
+      const quote = await service.removeServiceItem(orderId, 'os-service-1');
+
+      expect(tx.ordemServicoServico.deleteMany).toHaveBeenCalledWith({
+        where: { osServicoId: 'os-service-1', ordemServicoId: orderId },
+      });
+      expect(quote.ordemServicoId).toBe(orderId);
+      expect(tx.orcamento.updateMany).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when the service is not in the order', async () => {
+      orderIn(StatusOrdemServico.RECEBIDA);
+      tx.ordemServicoServico.deleteMany.mockResolvedValueOnce({ count: 0 });
+
+      await expect(service.removeServiceItem(orderId, 'x')).rejects.toThrow(
+        'Serviço não encontrado na OS',
+      );
+    });
+
+    it('should throw ConflictException when the quote was already sent', async () => {
+      orderIn(StatusOrdemServico.AGUARDANDO_APROVACAO);
+
+      await expect(
+        service.removeServiceItem(orderId, 'os-service-1'),
+      ).rejects.toThrow(ConflictException);
+      expect(tx.ordemServicoServico.deleteMany).not.toHaveBeenCalled();
+    });
+  });
+
   describe('findQuote', () => {
     it('should return an empty draft when the order has no items yet', async () => {
       db.ordemServico.findUnique.mockResolvedValueOnce({
@@ -264,6 +409,7 @@ describe('ServiceOrderItemsService', () => {
       const quote = await new ServiceOrderItemsService(
         { db: { ...db } } as unknown as DatabaseService,
         itemService as unknown as ItemService,
+        catalogService as unknown as CatalogService,
       ).findQuote(orderId);
 
       expect(quote.orcamentoStatus).toBe(StatusOrcamento.RASCUNHO);

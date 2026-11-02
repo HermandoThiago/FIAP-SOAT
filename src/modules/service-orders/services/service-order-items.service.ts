@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { DatabaseService } from '../../../shared/database/database.service';
-import { ItemService } from '../../catalog/services';
-import { AddPartItemDto } from '../controllers/dtos';
+import { CatalogService, ItemService } from '../../catalog/services';
+import { AddPartItemDto, AddServiceItemDto } from '../controllers/dtos';
 import { buildQuote, calculateQuoteTotal } from '../domain/quote';
 import { StatusTransitionPolicy } from '../domain/policies';
 
@@ -19,7 +19,11 @@ const quoteItemsInclude = {
   itemEstoque: { select: { itemEstoqueNome: true } },
 } satisfies Prisma.OrdemServicoItemInclude;
 
-/** Peças e insumos da OS e o orçamento derivado deles (PRD-003). */
+const quoteServicesInclude = {
+  servico: { select: { servicoNome: true } },
+} satisfies Prisma.OrdemServicoServicoInclude;
+
+/** Serviços, peças e insumos da OS e o orçamento derivado deles (PRD-003). */
 @Injectable()
 export class ServiceOrderItemsService {
   private logger = new Logger(ServiceOrderItemsService.name);
@@ -28,6 +32,7 @@ export class ServiceOrderItemsService {
   constructor(
     private readonly prisma: DatabaseService,
     private readonly itemService: ItemService,
+    private readonly catalogService: CatalogService,
   ) {
     this.orm = this.prisma.db;
   }
@@ -59,19 +64,7 @@ export class ServiceOrderItemsService {
         );
       }
 
-      const orcamento = await tx.orcamento.upsert({
-        where: {
-          ordemServicoId_orcamentoVersao: {
-            ordemServicoId: serviceOrderId,
-            orcamentoVersao: QUOTE_VERSION,
-          },
-        },
-        create: {
-          ordemServicoId: serviceOrderId,
-          orcamentoVersao: QUOTE_VERSION,
-        },
-        update: {},
-      });
+      const orcamento = await this.ensureQuote(tx, serviceOrderId);
 
       await tx.ordemServicoItem.create({
         data: {
@@ -105,6 +98,48 @@ export class ServiceOrderItemsService {
     });
   }
 
+  async addServiceItem(serviceOrderId: string, payload: AddServiceItemDto) {
+    const service = await this.findActiveService(payload.servicoId);
+
+    const quote = await this.orm.$transaction(async (tx) => {
+      await this.ensureItemsEditable(tx, serviceOrderId);
+
+      const orcamento = await this.ensureQuote(tx, serviceOrderId);
+
+      await tx.ordemServicoServico.create({
+        data: {
+          ordemServicoId: serviceOrderId,
+          orcamentoId: orcamento.orcamentoId,
+          servicoId: service.servicoId,
+          osServicoQuantidade: payload.osServicoQuantidade,
+          osServicoPrecoUnitario: service.servicoPrecoBase, // snapshot do preço
+        },
+      });
+
+      return await this.recalculateQuote(tx, serviceOrderId);
+    });
+
+    this.logger.log(
+      `Serviço ${payload.servicoId} incluído na OS ${serviceOrderId}`,
+    );
+    return quote;
+  }
+
+  async removeServiceItem(serviceOrderId: string, osServicoId: string) {
+    return await this.orm.$transaction(async (tx) => {
+      await this.ensureItemsEditable(tx, serviceOrderId);
+
+      const { count } = await tx.ordemServicoServico.deleteMany({
+        where: { osServicoId, ordemServicoId: serviceOrderId },
+      });
+      if (count === 0) {
+        throw new NotFoundException('Serviço não encontrado na OS');
+      }
+
+      return await this.recalculateQuote(tx, serviceOrderId);
+    });
+  }
+
   async findQuote(serviceOrderId: string) {
     const serviceOrder = await this.orm.ordemServico.findUnique({
       where: { ordemServicoId: serviceOrderId },
@@ -126,10 +161,14 @@ export class ServiceOrderItemsService {
       where: { ordemServicoId: serviceOrderId },
     });
 
+    const services = await tx.ordemServicoServico.findMany({
+      where: { ordemServicoId: serviceOrderId },
+    });
+
     await tx.orcamento.updateMany({
       where: { ordemServicoId: serviceOrderId, orcamentoVersao: QUOTE_VERSION },
       data: {
-        orcamentoValorTotal: calculateQuoteTotal(items),
+        orcamentoValorTotal: calculateQuoteTotal(items, services),
         orcamentoAtualizadoEm: new Date(),
       },
     });
@@ -141,7 +180,7 @@ export class ServiceOrderItemsService {
     client: Prisma.TransactionClient,
     serviceOrderId: string,
   ) {
-    const [orcamento, items] = await Promise.all([
+    const [orcamento, items, services] = await Promise.all([
       client.orcamento.findUnique({
         where: {
           ordemServicoId_orcamentoVersao: {
@@ -155,9 +194,34 @@ export class ServiceOrderItemsService {
         include: quoteItemsInclude,
         orderBy: [{ osItemCriadoEm: 'asc' }, { osItemId: 'asc' }],
       }),
+      client.ordemServicoServico.findMany({
+        where: { ordemServicoId: serviceOrderId },
+        include: quoteServicesInclude,
+        orderBy: [{ osServicoCriadoEm: 'asc' }, { osServicoId: 'asc' }],
+      }),
     ]);
 
-    return buildQuote(serviceOrderId, orcamento, items);
+    return buildQuote(serviceOrderId, orcamento, items, services);
+  }
+
+  /** Cada OS tem um único orçamento (ADR-010); nasce na primeira inclusão de serviço ou peça. */
+  private async ensureQuote(
+    tx: Prisma.TransactionClient,
+    serviceOrderId: string,
+  ) {
+    return await tx.orcamento.upsert({
+      where: {
+        ordemServicoId_orcamentoVersao: {
+          ordemServicoId: serviceOrderId,
+          orcamentoVersao: QUOTE_VERSION,
+        },
+      },
+      create: {
+        ordemServicoId: serviceOrderId,
+        orcamentoVersao: QUOTE_VERSION,
+      },
+      update: {},
+    });
   }
 
   private async ensureItemsEditable(
@@ -189,6 +253,18 @@ export class ServiceOrderItemsService {
       }
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Peça não encontrada');
+      }
+      throw error;
+    }
+  }
+
+  /** `CatalogService` lança 404 para serviço inexistente ou inativo; aqui segue 404 com a mensagem da OS. */
+  private async findActiveService(serviceId: string) {
+    try {
+      return await this.catalogService.findServiceById(serviceId);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Serviço não encontrado');
       }
       throw error;
     }
