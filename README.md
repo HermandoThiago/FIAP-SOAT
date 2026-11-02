@@ -6,6 +6,9 @@
 > `docs/06-entrega/checklist-de-entrega.md`. Itens marcados `<a preencher>` fecham na entrega.
 > Status das decisões: todas as 13 ADRs aceitas (`docs/02-adr/README.md`).
 
+> **Quem vai testar ou gravar o vídeo:** siga o [`GUIA-DE-USO-E-TESTES.md`](GUIA-DE-USO-E-TESTES.md) — como subir, todas as
+> rotas, roteiro de teste passo a passo (com os resultados esperados) e como rodar os testes automatizados.
+
 ## 1. Objetivo do projeto
 
 Desenvolver a primeira versão (MVP) do **back-end monolítico** de uma oficina mecânica de médio porte, com foco em gestão
