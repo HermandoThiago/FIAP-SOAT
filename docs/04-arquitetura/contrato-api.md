@@ -75,6 +75,13 @@ acompanhamento **ou** login `CUSTOMER`), **C(login)** só login `CUSTOMER`, **P*
 | POST | `/parts/{id}/stock-movements` | G | `{ "type": "INBOUND"\|"ADJUSTMENT", "quantity": 10, "reason" }` | `201 StockMovement` · `422` |
 | GET | `/parts/{id}/stock-movements` | G | — | `200 [StockMovement]` (inclui `RESERVATION`/`OUTBOUND` geradas pelas OS) |
 
+> **Como está implementado (02/11/2026):** a rota é `/itens` (divergência registrada em `decisoes-leves.md`) e os campos em
+> português. `POST /itens/{id}/stock-movements { movimentacaoTipo: ENTRADA|SAIDA|AJUSTE, movimentacaoQuantidade,
+> movimentacaoMotivo? }` → `201 { movimentacao, saldo: { quantidade, reservada, disponivel } }`; `AJUSTE` define o **novo saldo
+> físico** (motivo obrigatório); `422` para saldo insuficiente, ajuste abaixo do reservado ou sem motivo. `GET
+> /itens/{id}/stock-movements?movimentacaoTipo=&ordemServicoId=&page=&pageSize=` → `{ movements, total, page, pageSize }`,
+> da mais recente para a mais antiga (inclui `RESERVA`/`SAIDA` geradas pelas OS). `PUT /itens/{id}` não altera o saldo.
+
 ### 3.4 Atendimento — ordem de serviço (`service-orders`)
 
 | Método | Rota | Acesso | Request | Response |
@@ -101,11 +108,13 @@ acompanhamento **ou** login `CUSTOMER`), **C(login)** só login `CUSTOMER`, **P*
 > campos em português; `PUT /service-orders/{id}` edita só `mecanicoId`, descrição, diagnóstico e km (status nunca — ADR-010,
 > e 409 em OS encerrada); paginação `page`/`pageSize`; `number` é string do autoincrement; novo comando `start-execution`;
 > `diagnosis` e `complete` aceitam Admin e Mecânico, `deliver` Admin e Atendente, `cancel` só Admin. `GET /{id}` também
-> aceita o papel Cliente, mas só para a **própria** OS (alheia → 404). Itens e orçamento (**só peças**): `POST …/items/parts`
+> aceita o papel Cliente, mas só para a **própria** OS (alheia → 404). Itens e orçamento: serviços em `POST …/items/services` `{ servicoId, osServicoQuantidade }` e `DELETE …/items/services/{osServicoId}`; peças em `POST …/items/parts`
 > `{ itemEstoqueId, osItemQuantidade }`, `DELETE …/items/parts/{osItemId}`, `GET …/quote` e `POST …/quote/send` (inclusão e
 > remoção: Admin e Mecânico; as duas devolvem o orçamento com `itens`, valores em **centavos**; itens só em
-> `RECEBIDA`/`EM_DIAGNOSTICO`; `quote/send` ainda não gera token de acompanhamento). Ainda **não** implementados: itens de
-> serviço (aguardam o módulo `/services`), `/tracking/**`, aprovação/recusa, reserva e baixa de estoque.
+> `RECEBIDA`/`EM_DIAGNOSTICO`; `quote/send` gera o token de acompanhamento). A **aprovação reserva** o estoque e a **finalização baixa** (mesma
+> transação do status; sem saldo → 422 e nada muda). `POST /service-orders` aceita `clientId` **ou** `customerDocument`
+> (CPF/CNPJ) e `GET /service-orders/{id}` devolve também `cliente`, `veiculo`, `mecanico`, `orcamento` (itens e serviços) e
+> `marcos` (data de cada etapa).
 
 `ServiceOrder` (completa):
 
