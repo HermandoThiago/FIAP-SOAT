@@ -1,11 +1,13 @@
 # Tech Challenge — Fase 1 · FIAP Pós Tech Software Architecture (SOAT) · Grupo 49
 
-**Sistema de Gestão da Oficina (SGO)** — nome do sistema provisório (enquete E-01); o enunciado pede o **número do grupo: 49**.
+**Sistema de Gestão da Oficina (SGO)** — back-end monolítico de uma oficina mecânica (API REST em NestJS + PostgreSQL).
 
-> Estrutura no formato mínimo exigido pelo enunciado da FIAP (versão de 23/09/2026 — não versionado; requisitos transcritos
-> em `docs/06-entrega/checklist-de-entrega.md`).
-> Itens marcados `<a preencher>` fecham na entrega (marcos M6/M7). Status do planejamento: **todas as 13 ADRs aceitas**
-> (`docs/02-adr/README.md`); esqueleto do código em construção (`prompts/02-esqueleto-do-projeto.md`).
+> Enunciado da FIAP (versão de 23/09/2026) — não versionado; requisitos transcritos em
+> `docs/06-entrega/checklist-de-entrega.md`. Itens marcados `<a preencher>` fecham na entrega.
+> Status das decisões: todas as 13 ADRs aceitas (`docs/02-adr/README.md`).
+
+> **Quem vai testar ou gravar o vídeo:** siga o [`GUIA-DE-USO-E-TESTES.md`](GUIA-DE-USO-E-TESTES.md) — como subir, todas as
+> rotas, roteiro de teste passo a passo (com os resultados esperados) e como rodar os testes automatizados.
 
 ## 1. Objetivo do projeto
 
@@ -17,95 +19,189 @@ vulnerabilidades). Requisitos rastreados em `docs/06-entrega/checklist-de-entreg
 
 ## 2. Descrição resumida da solução
 
-O atendente identifica o cliente por CPF/CNPJ e o veículo pela placa e abre a OS (*Recebida*). O mecânico inicia o
-diagnóstico, inclui serviços e peças (só com estoque disponível) e o **orçamento é calculado automaticamente**. Ao enviar o
-orçamento, o sistema gera um **token de acompanhamento** e "notifica" o cliente (simulado); o cliente consulta a OS e
-**aprova ou recusa** pela API (`/tracking`), com o token ou com o próprio login. A aprovação inicia a execução e **reserva**
-as peças; a finalização **baixa** o estoque; a entrega encerra a OS. Os seis status do enunciado mudam só por comandos de
-negócio (+ *Cancelada* para recusa/desistência), com histórico auditável e métrica de tempo médio de execução.
+O atendente cadastra o cliente (CPF/CNPJ) e o veículo (placa) e abre a OS (*Recebida*) informando o cliente pelo id ou pelo
+CPF/CNPJ. O mecânico inicia o diagnóstico e
+inclui **serviços** do catálogo e **peças/insumos** do estoque (só com quantidade disponível); o **orçamento é derivado dos
+itens e recalculado a cada mudança**, com o preço congelado no momento da inclusão. Ao enviar o orçamento, o sistema gera
+um **token de acompanhamento** e "notifica" o cliente (simulado em log); o cliente consulta a OS, com dados mascarados, e
+**aprova ou recusa** pela API (`/tracking`), com o token ou com o próprio login. A aprovação **reserva** as peças no estoque; depois disso o mecânico executa, a
+finalização **baixa** o estoque e o atendente entrega. O status só muda por **comandos de negócio** (nunca por `PATCH status`), cada mudança
+gera um histórico auditável, e o gerente consulta o **tempo médio de execução** (geral e por serviço).
+
+Status da OS (9): `RECEBIDA` → `EM_DIAGNOSTICO` → `AGUARDANDO_APROVACAO` → `AGUARDANDO_EXECUCAO` → `EM_EXECUCAO` →
+`FINALIZADA` → `ENTREGUE`; terminais alternativos: `ORCAMENTO_RECUSADO` e `CANCELADA`.
 
 ## 3. Arquitetura utilizada
 
-Monólito **modular por contexto delimitado** (`customers`, `catalog`, `service-orders`, `identity`, `shared`) com
-**camadas clássicas** em cada módulo — `controllers/` + `dto/` → `services/` → `repositories/` — sobre um **domínio rico**
-(agregados, value objects, eventos) sem dependência de framework. Um schema PostgreSQL por módulo; módulos se comunicam só
-pelos serviços exportados. Diagramas C4 em `docs/04-arquitetura/visao-geral.md`; camadas e árvore em
-`docs/04-arquitetura/estrutura-do-repositorio.md`; decisões (ADR-001…013) em `docs/02-adr/`; evolução para as próximas
-fases (Kubernetes, API Gateway, microsserviços) em `docs/04-arquitetura/evolucao-fases.md`.
+Monólito **modular por contexto delimitado**: um único processo NestJS e um único banco PostgreSQL, com os módulos
+`customers`, `catalog`, `service-orders` (core), `identity` e `shared`. Dentro de cada módulo, camadas clássicas:
+
+```text
+controllers/ + dtos/   HTTP: rotas, validação sintática (class-validator), papéis (JWT) e OpenAPI
+        ↓
+services/              serviços de aplicação: orquestram o caso de uso e as transações (prisma.$transaction)
+        ↓
+domain/                regras puras em TypeScript: política de transição de status, orçamento, validadores de
+                       CPF/CNPJ e placa, tempo de execução, entidades (sem dependência de framework)
+```
+
+- Módulos só conversam pelos **serviços exportados** (`CustomersService`, `VehiclesService`, `CatalogService`,
+  `ItemService`, `UsersService`…) — nunca pelo banco um do outro.
+- O acesso ao banco é feito nos serviços, pelo `DatabaseService` (Prisma Client); o MVP **não tem camada separada de
+  repositórios**.
+- **Transações:** a transição de status, o histórico e os efeitos da transição acontecem na mesma transação; a mudança é
+  um `UPDATE` condicional pelo status esperado, então de duas requisições concorrentes só uma vence (a outra recebe 409).
+- Diagramas C4 em `docs/04-arquitetura/visao-geral.md`; árvore e regras de dependência em
+  `docs/04-arquitetura/estrutura-do-repositorio.md`; decisões (ADR-001…013) em `docs/02-adr/`; divergências assumidas em
+  `docs/02-adr/decisoes-leves.md`.
 
 ## 4. Tecnologias utilizadas
 
 | Camada | Tecnologia |
 |---|---|
-| Linguagem / runtime | TypeScript 5 · Node 22 LTS |
-| Framework | NestJS 11 (`class-validator`, `@nestjs/swagger`, `@nestjs/jwt`) |
-| Banco / ORM | PostgreSQL 16 · Prisma (Prisma Migrate, `multiSchema`) |
-| Segurança | JWT HS256 + bcrypt · validação de CPF/CNPJ e placa em value objects · Semgrep, `npm audit`/Trivy, gitleaks, OWASP ZAP |
-| Testes | Jest · supertest · Testcontainers (PostgreSQL real) · Cucumber-js (BDD em português) · cobertura com gate ≥ 80 % |
-| Execução / CI | Docker + docker compose · GitHub Actions (CI, segurança, revisão automática de PR) |
+| Linguagem / runtime | TypeScript · Node 22 LTS |
+| Framework | NestJS 12 (`class-validator`, `@nestjs/swagger`, `@nestjs/jwt`) |
+| Banco / ORM | PostgreSQL 16 · Prisma 7 (Prisma Migrate, adapter `pg`) |
+| Segurança | JWT HS256 · senhas com Argon2id · validação de CPF/CNPJ e placa · `helmet` · gitleaks, `pnpm audit` e hadolint no CI |
+| Testes | Jest · supertest · Testcontainers (PostgreSQL real) · cobertura com gate ≥ 80 % |
+| Execução / CI | Docker + docker compose · GitHub Actions (`ci.yml`) · pnpm |
 
 ## 5. Pré-requisitos
 
-- Docker e Docker Compose v2 (`docker compose version`).
-- Para desenvolvimento local fora do contêiner: Node 22 e npm; Git.
+- **Para rodar a aplicação:** Docker e Docker Compose v2 (`docker compose version`). Nada mais.
+- **Para desenvolver e testar fora do contêiner:** Node 22+, pnpm 10 (`corepack enable`), Git e Docker (os testes de
+  integração usam Testcontainers).
 
 ## 6. Instruções para execução
 
+### Tudo em contêineres (recomendado)
+
 ```bash
 git clone <repositório> && cd FIAP-SOAT
-cp .env.example .env           # valores de exemplo, todos fictícios
-docker compose up --build      # API + PostgreSQL + migrações do Prisma + seed de demonstração
-# API:      http://localhost:8080/api/v1
-# Health:   http://localhost:8080/health
+cp .env.example .env            # valores de exemplo, todos fictícios
+docker compose up --build       # PostgreSQL + migrações do Prisma + seed + API
 ```
 
-Desenvolvimento local (só o banco no Docker):
+O compose sobe, em ordem: `database` (PostgreSQL 16, com healthcheck) → `migrate` (aplica as migrações e o seed
+idempotente e termina) → `api` (só inicia depois do `migrate` terminar com sucesso).
+
+- API: `http://localhost:3001` · Swagger: `http://localhost:3001/docs`
+- Porta ocupada? Ajuste `API_PORT` / `POSTGRES_PORT` no `.env`.
+- Zerar o ambiente (apaga o banco): `docker compose down -v`.
+
+### Desenvolvimento local (só o banco no Docker)
 
 ```bash
-docker compose up -d postgres
-npm ci && npx prisma migrate dev && npm run start:dev
+cp .env.example .env
+docker compose up -d database
+pnpm install                    # o postinstall gera o client do Prisma
+pnpm prisma:deploy              # aplica as migrações
+pnpm db:seed                    # dados de demonstração (idempotente)
+pnpm start:dev                  # http://localhost:3001 com hot reload
 ```
+
+### Roteiro rápido para ver o fluxo funcionando
+
+```bash
+API=http://localhost:3001
+login() { curl -s $API/auth/login -H 'content-type: application/json' -d "{\"email\":\"$1\",\"senha\":\"Demo@Oficina2026\"}" | jq -r .accessToken; }
+ATT=$(login atendente@oficina.local); MEC=$(login mecanico@oficina.local)
+
+# 1. cliente e veículo (documento e placa fictícios, mas válidos)
+CUS=$(curl -s $API/customers -H "authorization: Bearer $ATT" -H 'content-type: application/json' \
+  -d '{"usuarioNome":"Maria Teste","usuarioEmail":"maria@example.com","usuarioDocumento":"52998224725","usuarioTipoDocumento":"CPF"}' | jq -r .usuarioId)
+VEH=$(curl -s $API/vehicles -H "authorization: Bearer $ATT" -H 'content-type: application/json' \
+  -d "{\"usuarioId\":\"$CUS\",\"veiculoPlaca\":\"BRA2E19\",\"veiculoMarca\":\"Fiat\",\"veiculoModelo\":\"Argo\",\"veiculoAnoFabricacao\":2022,\"veiculoCor\":\"Prata\"}" | jq -r .veiculoId)
+
+# 2. abre a OS (o mecânico responsável é o do seed) — veja o Swagger para os ids de serviço e peça
+MECID=$(curl -s "$API/users?pageSize=100" -H "authorization: Bearer $ATT" | jq -r '.users[]|select(.usuarioEmail=="mecanico@oficina.local").usuarioId')
+OS=$(curl -s $API/service-orders -H "authorization: Bearer $ATT" -H 'content-type: application/json' \
+  -d "{\"clientId\":\"$CUS\",\"veiculoId\":\"$VEH\",\"mecanicoId\":\"$MECID\",\"ordemServicoDescricaoProblema\":\"Barulho ao frear\"}" | jq -r .ordemServicoId)
+```
+
+A sequência completa (itens, diagnóstico, envio do orçamento, aprovação pelo cliente, execução, finalização, entrega e
+métrica) está automatizada em `test/integration/service-order-flow.int-spec.ts` e documentada no Swagger.
 
 ## 7. Instruções para execução dos testes
 
 ```bash
-npm test            # unitários (domínio e services, sem banco)
-npm run test:e2e    # integração (Testcontainers) + BDD (Cucumber-js, cenários em português)
-npm run test:cov    # cobertura com gate: ≥ 80 % (linhas e branches) em service-orders e catalog
+pnpm test                  # unitários (domínio, services, controllers e DTOs; sem banco)
+pnpm run test:cov          # unitários + cobertura, com gate: falha se < 80 %
+pnpm run test:integration  # integração: PostgreSQL real via Testcontainers (exige Docker em execução)
 ```
 
-Evidência de cobertura versionada em `docs/06-entrega/evidencias/cobertura.md` `<a preencher em M4>`.
+- **Unitários (562):** regras de domínio, máquina de estados (todas as combinações status × comando), serviços com o
+  Prisma simulado, controllers (papéis e delegação) e DTOs (validação).
+- **Integração (82):** sobem um PostgreSQL 16 descartável, aplicam as migrações e o seed e exercitam a API inteira: auth e
+  papéis, cadastros, fluxo completo da OS (aprovada e recusada), acompanhamento do cliente, detalhamento, métrica, estoque
+  (reserva, baixa, rollback e concorrência) e atomicidade das transições. Para usar um banco já existente e vazio (ex.: serviço do CI), defina `INTEGRATION_DATABASE_URL`.
+- **Cobertura:** metas em `jest.config.ts` (`coverageThreshold`); resultado versionado em
+  `docs/06-entrega/evidencias/cobertura.md` (global: 97 % de linhas e 83 % de branches; `service-orders` e `catalog`
+  acima de 80 %).
+- **CI:** `.github/workflows/ci.yml` roda título do PR (Conventional Commits), build, lint, unitários com gate, integração,
+  imagem Docker + compose, gitleaks e auditoria de dependências.
 
 ## 8. Acesso ao Swagger / documentação da API
 
-- Swagger UI: `http://localhost:8080/docs` · documento OpenAPI: `http://localhost:8080/docs/openapi.json` (ambos com `APP_ENV=dev`).
-- Gerado a partir do código (code-first, ADR-005); contrato combinado antes de codar em `docs/04-arquitetura/contrato-api.md`.
+- **Swagger UI:** `http://localhost:3001/docs` · documento OpenAPI (JSON): `http://localhost:3001/docs-json`.
+- Gerado a partir do código (code-first, ADR-005). Clique em **Authorize** e cole o `accessToken` do login.
+- Contrato combinado antes de codar: `docs/04-arquitetura/contrato-api.md` (os identificadores do código estão em
+  português nas rotas e nos campos, conforme `docs/02-adr/decisoes-leves.md`).
+
+Principais rotas:
+
+| Área | Rotas |
+|---|---|
+| Auth | `POST /auth/login` · `/auth/refresh` · `/auth/logout` · `/auth/register` |
+| Clientes / veículos | `/customers` (CRUD, `/{id}/vehicles`) · `/vehicles` (CRUD) |
+| Catálogo | `/services` (CRUD) · `/itens` (peças e insumos, CRUD) |
+| Estoque | `POST /itens/{id}/stock-movements` (ENTRADA, SAIDA, AJUSTE) · `GET /itens/{id}/stock-movements` (histórico) |
+| Ordens de serviço | `/service-orders` (CRUD; `GET /{id}` detalha itens, orçamento e marcos; `/{id}/status-history`) · comandos: `/diagnosis`, `/quote/send`, `/start-execution`, `/complete`, `/deliver`, `/cancel` |
+| Itens e orçamento | `/service-orders/{id}/items/services` · `/items/parts` · `/quote` |
+| Cliente (acompanhamento) | `GET /tracking/service-orders/{id}` · `POST …/quote/approve` · `POST …/quote/reject` |
+| Métricas | `GET /metrics/average-execution-time?from=&to=&serviceId=` |
+
+Valores monetários são **inteiros em centavos** (`15000` = R$ 150,00); datas em UTC (ISO-8601); erros: 400 validação,
+401/403 autenticação/papel, 404 inexistente, 409 conflito ou transição inválida, 422 regra de negócio.
 
 ## 9. Decisão e justificativa do banco de dados
 
-**PostgreSQL 16** (ADR-002): o domínio é relacional e transacional (aprovar o orçamento muda o status da OS e reserva o
-estoque na mesma transação; finalizar baixa as peças reservadas), `NUMERIC` evita erro de arredondamento em dinheiro,
-constraints garantem invariantes (estoque ≥ 0, reservado ≤ estoque, documento único) e o tempo médio de execução é SQL
-simples. É gratuito, roda em um contêiner no compose, tem Testcontainers para testes de integração e caminho direto para
-RDS/Aurora nas próximas fases.
+**PostgreSQL 16** (ADR-002): o domínio é relacional e transacional (uma transição de status grava a OS, o histórico e o
+orçamento na mesma transação), `NUMERIC` evita erro de arredondamento nas quantidades de estoque, índices únicos
+garantem invariantes (documento, e-mail e nome de serviço únicos; uma OS aberta por veículo é checada na aplicação) e o tempo médio de
+execução sai do histórico de status com consultas simples. É gratuito, roda em um contêiner no compose, tem Testcontainers
+para testes de integração e caminho direto para RDS/Aurora nas próximas fases. O esquema é versionado com Prisma Migrate
+(`prisma/migrations`); o modelo está em `prisma/schema.prisma` e em `docs/04-arquitetura/modelo-de-dados.md`.
 
 ## 10. Usuários e credenciais de demonstração
 
-- O seed cria um usuário por papel de equipe (`MANAGER`, `MECHANIC`, `ATTENDANT`) e um cliente com login (`CUSTOMER`); as
-  senhas vêm das variáveis de ambiente do `.env.example` (`ADMIN_EMAIL`, `ADMIN_PASSWORD` …) — nenhum dado real.
-- Autenticação: `POST /api/v1/auth/login { "email", "password" }` → `accessToken`; no Swagger, colar em **Authorize**.
-- Acesso do cliente: token de acompanhamento gerado em `POST /service-orders/{id}/quote/send` (em dev aparece no log e na
-  resposta) **ou** login com papel `CUSTOMER` — rotas `/api/v1/tracking/**`.
+Criados pelo seed (`pnpm db:seed`, já executado pelo `docker compose`). A senha de todos vem de `SEED_PASSWORD` no `.env`
+(no `.env.example`: `Demo@Oficina2026`) — **valores fictícios, só para demonstração; troque fora do ambiente local**.
+
+| Papel | E-mail | Pode |
+|---|---|---|
+| Admin (gerente) | `admin@oficina.local` | tudo, inclusive cancelar OS e excluir cadastros |
+| Atendente | `atendente@oficina.local` | clientes, veículos, abrir e entregar OS |
+| Mecânico | `mecanico@oficina.local` | diagnóstico, itens, orçamento, execução e finalização |
+| Cliente | `cliente@oficina.local` | acompanhar as próprias OS em `/tracking` |
+
+- Login: `POST /auth/login { "email", "senha" }` → `accessToken` (15 min) e `refreshToken` (rotativo).
+- O seed também cria 4 serviços, 4 itens de estoque e um veículo (`ABC1D23`) do cliente de demonstração.
+- Acesso do cliente à OS: o **token de acompanhamento** vem na resposta de `POST /service-orders/{id}/quote/send` (fora de
+  produção) **ou** o login do cliente; ambos usam as rotas `/tracking/**`. O token vale para uma única OS; OS de outro
+  cliente responde 404 e o JWT da equipe não entra em `/tracking`.
 
 ## 11. Estrutura dos principais diretórios
 
 ```text
-src/modules/<contexto>/     controllers/ · dto/ · services/ · repositories/ · domain/ · <contexto>.module.ts
-src/shared/                 value objects, guards JWT, filtro Problem Details, PrismaService, relógio e ids
-prisma/                     schema.prisma (um schema PostgreSQL por módulo), migrations/, seed.ts
-test/                       unit/ · integration/ · bdd/ (features em português) · support/
+src/modules/<contexto>/     controllers/ · dtos/ · services/ · domain/ · <contexto>.module.ts
+src/shared/                 DatabaseService (Prisma Client) e módulo compartilhado
+src/scripts/seed.ts         dados de demonstração (idempotente)
+prisma/                     schema.prisma e migrations/
+test/unit/ · test/services/ testes unitários (controllers, DTOs, domínio e serviços)
+test/integration/           testes de integração (Testcontainers) e suporte
 docs/                       guia do grupo, PRDs, ADRs, ddd/ (entrega DDD), arquitetura, qualidade e segurança, entrega
-prompts/ · .github/         prompts de IA por frente · templates de issue/PR e workflows
+Dockerfile · docker-compose.yaml · .github/workflows/ci.yml
 ```
 
 Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.
@@ -120,6 +216,25 @@ Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.
 
 - YouTube (público, ≤ 15 min): `<link a preencher>` · roteiro: `docs/06-entrega/roteiro-do-video.md`.
 - Versão entregue: branch `master`, tag `v1.0.0`, commit `<hash a preencher>` (mesmo commit informado no PDF).
+
+## Controle de estoque
+
+- O saldo de um item (`itemEstoqueQuantidade`, `itemEstoqueReservada`; disponível = quantidade − reservada) **só muda por
+  uma movimentação registrada**, na mesma transação do saldo: `PUT /itens/{id}` não altera mais o saldo.
+- **Manuais** (`POST /itens/{id}/stock-movements`): `ENTRADA` soma; `SAIDA` tira só do disponível; `AJUSTE` define o novo
+  saldo físico (contagem de inventário, motivo obrigatório, nunca abaixo do reservado). O item criado com saldo já gera a
+  `ENTRADA` de saldo inicial.
+- **Da OS:** incluir peça só confere o disponível. **Aprovar o orçamento reserva** (`RESERVA`) as peças e **finalizar a OS
+  baixa** (`SAIDA`) o reservado, cada uma na mesma transação da mudança de status. Sem saldo para qualquer peça → `422` e
+  nada muda (nem as reservas já feitas, nem o status, nem a resposta do orçamento). As linhas dos itens são bloqueadas
+  (`SELECT … FOR UPDATE`) em ordem fixa, então aprovações concorrentes não vendem a mesma unidade duas vezes.
+- Invariantes também no banco (`CHECK`): `quantidade >= 0` e `0 <= reservada <= quantidade`.
+
+## Limitações conhecidas (MVP)
+
+- **Nomes:** peças e insumos estão em `/itens` (o contrato/glossário pedem `/parts`); divergência registrada em
+  `docs/02-adr/decisoes-leves.md` (02/11/2026).
+- **Notificação:** o envio do orçamento é simulado (log); não há e-mail.
 
 ## Grupo 49
 

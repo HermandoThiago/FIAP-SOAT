@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { randomInt } from 'node:crypto';
@@ -17,6 +16,7 @@ import {
   UpdateItemDto,
 } from '../controllers/dtos';
 import { ItemEstoque } from '../domain/entities';
+import { StockService } from './stock.service';
 
 @Injectable()
 export class ItemService {
@@ -26,6 +26,7 @@ export class ItemService {
   constructor(
     private readonly prisma: DatabaseService,
     private readonly ctx: RequestContext,
+    private readonly stockService: StockService,
   ) {
     this.orm = this.prisma.db;
   }
@@ -35,35 +36,34 @@ export class ItemService {
       payload.itemEstoqueTipo,
     );
 
-    const item = await this.orm.itemEstoque.create({
-      data: {
-        itemEstoqueTipo: payload.itemEstoqueTipo,
-        itemEstoqueCodigo,
-        itemEstoqueNome: payload.itemEstoqueNome,
-        itemEstoqueDescricao: payload.itemEstoqueDescricao,
-        itemEstoqueUnidade: payload.itemEstoqueUnidade,
-        itemEstoquePrecoVenda: payload.itemEstoquePrecoVenda,
-        itemEstoqueQuantidade: payload.itemEstoqueQuantidade,
-      },
+    // O saldo inicial nasce junto com a movimentação de ENTRADA que o explica (ADR-012).
+    const item = await this.orm.$transaction(async (tx) => {
+      const created = await tx.itemEstoque.create({
+        data: {
+          itemEstoqueTipo: payload.itemEstoqueTipo,
+          itemEstoqueCodigo,
+          itemEstoqueNome: payload.itemEstoqueNome,
+          itemEstoqueDescricao: payload.itemEstoqueDescricao,
+          itemEstoqueUnidade: payload.itemEstoqueUnidade,
+          itemEstoquePrecoVenda: payload.itemEstoquePrecoVenda,
+          itemEstoqueQuantidade: payload.itemEstoqueQuantidade,
+        },
+      });
+      await this.stockService.recordInitialBalance(
+        tx,
+        created.itemEstoqueId,
+        payload.itemEstoqueQuantidade,
+      );
+      return created;
     });
 
     return plainToInstance(ItemEstoque, item);
   }
 
   async updateItem(itemId: string, payload: UpdateItemDto) {
-    const current = await this.findItemById(itemId);
+    await this.findItemById(itemId);
 
-    const quantidade =
-      payload.itemEstoqueQuantidade ?? current.itemEstoqueQuantidade;
-    const reservada =
-      payload.itemEstoqueReservada ?? current.itemEstoqueReservada;
-
-    if (Number(reservada) > Number(quantidade)) {
-      throw new UnprocessableEntityException(
-        'A quantidade reservada não pode exceder o saldo em estoque',
-      );
-    }
-
+    // O saldo não passa por aqui: só movimentações e comandos da OS o alteram (ADR-012).
     await this.orm.itemEstoque.update({
       where: { itemEstoqueId: itemId },
       data: {

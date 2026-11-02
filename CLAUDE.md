@@ -98,5 +98,6 @@ Nome fora do glossário ou tradução divergente (ex.: `Budget` em vez de `Quote
 
 ## Comandos
 
-> Preencher quando o esqueleto (prompt 02) for mesclado: `npm ci`, `npm run start:dev`, `npm test`, `npm run test:e2e`,
-> `npm run test:cov`, `npm run lint`, `npx prisma migrate dev`, `docker compose up --build`.
+`pnpm install` · `pnpm start:dev` · `pnpm test` · `pnpm run test:cov` (gate de cobertura) · `pnpm run test:integration`
+(Testcontainers, exige Docker) · `pnpm lint` · `pnpm prisma:deploy` / `pnpm prisma:migrate` · `pnpm db:seed` ·
+`docker compose up --build` (banco + migrações + seed + API, `cp .env.example .env` antes).

@@ -163,15 +163,27 @@ async function main() {
     });
 
     if (!exists) {
-      await db.itemEstoque.create({
-        data: {
-          itemEstoqueTipo: i.tipo,
-          itemEstoqueCodigo: i.codigo,
-          itemEstoqueNome: i.nome,
-          itemEstoqueUnidade: i.unidade,
-          itemEstoquePrecoVenda: i.precoCentavos,
-          itemEstoqueQuantidade: i.quantidade,
-        },
+      // Saldo inicial com a movimentação de ENTRADA que o explica (ADR-012).
+      await db.$transaction(async (tx) => {
+        const created = await tx.itemEstoque.create({
+          data: {
+            itemEstoqueTipo: i.tipo,
+            itemEstoqueCodigo: i.codigo,
+            itemEstoqueNome: i.nome,
+            itemEstoqueUnidade: i.unidade,
+            itemEstoquePrecoVenda: i.precoCentavos,
+            itemEstoqueQuantidade: i.quantidade,
+          },
+        });
+        await tx.movimentacaoEstoque.create({
+          data: {
+            itemEstoqueId: created.itemEstoqueId,
+            usuarioId: userIds.get('admin@oficina.local')!,
+            movimentacaoTipo: 'ENTRADA',
+            movimentacaoQuantidade: i.quantidade,
+            movimentacaoMotivo: 'Saldo inicial (seed)',
+          },
+        });
       });
     }
   }

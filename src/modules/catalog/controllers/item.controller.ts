@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -12,6 +13,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiUnprocessableEntityResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
@@ -19,15 +21,24 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Role, Roles } from '../../identity/auth';
-import { ItemService } from '../services';
-import { CreateItemEstoqueDto, ListItensQueryDto, UpdateItemDto } from './dtos';
+import { ItemService, StockService } from '../services';
+import {
+  CreateItemEstoqueDto,
+  CreateStockMovementDto,
+  ListItensQueryDto,
+  ListStockMovementsQueryDto,
+  UpdateItemDto,
+} from './dtos';
 
 @ApiTags('Itens')
 @ApiBearerAuth()
 @Roles(Role.ADMIN, Role.ATTENDANT)
 @Controller('itens')
 export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+  constructor(
+    private readonly itemService: ItemService,
+    private readonly stockService: StockService,
+  ) {}
 
   @ApiOperation({ description: 'Cria um novo produto' })
   @ApiCreatedResponse({ description: 'Produto criado com sucesso' })
@@ -70,5 +81,39 @@ export class ItemController {
   @Delete(':itemId')
   async deleteItem(@Param('itemId') itemId: string) {
     return await this.itemService.deleteById(itemId);
+  }
+
+  @ApiOperation({
+    description:
+      'Registra uma movimentação manual de estoque (ENTRADA, SAIDA ou AJUSTE) e devolve o novo saldo',
+  })
+  @ApiCreatedResponse({ description: 'Movimentação registrada' })
+  @ApiNotFoundResponse({ description: 'Item não encontrado' })
+  @ApiUnprocessableEntityResponse({
+    description:
+      'Saldo insuficiente, ajuste abaixo do reservado ou sem motivo, ou quantidade inválida',
+  })
+  @HttpCode(201)
+  @Post(':itemId/stock-movements')
+  async registerMovement(
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Body() payload: CreateStockMovementDto,
+  ) {
+    return await this.stockService.registerMovement(itemId, payload);
+  }
+
+  @ApiOperation({
+    description:
+      'Histórico de movimentações do item, da mais recente para a mais antiga (filtros: tipo e OS)',
+  })
+  @ApiNotFoundResponse({ description: 'Item não encontrado' })
+  @ApiResponse({ status: 200, description: 'Histórico paginado' })
+  @HttpCode(200)
+  @Get(':itemId/stock-movements')
+  async findMovements(
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Query() query: ListStockMovementsQueryDto,
+  ) {
+    return await this.stockService.findMovements(itemId, query);
   }
 }

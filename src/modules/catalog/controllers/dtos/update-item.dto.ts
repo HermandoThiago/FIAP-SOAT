@@ -1,13 +1,10 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { CreateItemEstoqueDto } from './create-item.dto';
 
-export class UpdateItemDto extends PartialType(CreateItemEstoqueDto) {
-  @ApiProperty({ required: true, readOnly: true })
-  @IsNumber({ maxDecimalPlaces: 3 })
-  @Min(0)
-  @Max(999_999_999.999)
-  @IsNotEmpty()
-  readonly itemEstoqueReservada: number;
-}
+/**
+ * O saldo (`quantidade` e `reservada`) não se edita aqui: só muda por movimentação registrada
+ * (`POST /itens/{id}/stock-movements`) ou pelos comandos da OS (ADR-012).
+ */
+export class UpdateItemDto extends PartialType(
+  OmitType(CreateItemEstoqueDto, ['itemEstoqueQuantidade'] as const),
+) {}

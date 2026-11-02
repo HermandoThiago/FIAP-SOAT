@@ -20,7 +20,11 @@ export class RolesGuard implements CanActivate {
     );
     if (!required?.length) return true;
 
-    const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const { user, tracking } = context
+      .switchToHttp()
+      .getRequest<AuthenticatedRequest>();
+    // O token de acompanhamento não tem papel: o JwtAuthGuard já o limitou às rotas que o aceitam.
+    if (tracking) return true;
     if (!user || !required.includes(user.role)) {
       throw new ForbiddenException(
         'Você não tem permissão para acessar este recurso',
