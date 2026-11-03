@@ -51,6 +51,6 @@ flowchart TB
 - Preços são snapshots nos itens da OS; nomes são obtidos do catálogo. Dinheiro em centavos; estoque Decimal(12,3).
 - Aprovar reserva; iniciar execução é comando separado; finalizar consome a reserva. Recusa é terminal ORCAMENTO_RECUSADO. Cancelamento só Admin antes da aprovação.
 - JWT HS256 e papéis protegem a API; tracking tem escopo próprio. CORS permissivo, Swagger sempre exposto e notificação apenas simulada são limitações, não hardening concluído.
-- Testes sem banco/build foram aprovados com Node 24.22.2 temporário. Docker e CI continuam configurados com Node 22; a execução integrada não foi revalidada nesta revisão.
+- Testes sem banco/build foram aprovados com Node 24.22.2 temporário. O CI roda em Node 24 (exigência do Jest) e a imagem Docker de produção usa Node 22.
 
 Detalhes: [estrutura](estrutura-do-repositorio.md), [dados](modelo-de-dados.md), [fluxos](fluxos.md), [contrato](contrato-api.md), [DDD](../ddd/README.md), [segurança](../05-qualidade-e-seguranca/seguranca.md). ADRs mantêm o histórico; ver [leitura das divergências](../02-adr/README.md).

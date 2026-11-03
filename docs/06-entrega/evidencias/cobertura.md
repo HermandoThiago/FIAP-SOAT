@@ -3,7 +3,7 @@
 ## Medição de 02/11/2026 (suíte sem banco + integração)
 
 - Base: `6f62d13` com alterações locais não commitadas (Swagger e documentação). Repetir no hash final.
-- Ambiente: Windows, Node 24.22.2 temporário via `npm exec`, pnpm 10.15.1, Docker Desktop (WSL 2). O Node 22.14.0 da máquina falha no carregamento ESM; Docker e CI usam Node 22.
+- Ambiente: Windows, Node 24.22.2 temporário via `npm exec`, pnpm 10.15.1, Docker Desktop (WSL 2). O Node 22.14.0 da máquina falha no carregamento ESM; o CI usa Node 24 e a imagem Docker, Node 22.
 - Typecheck e build NestJS: aprovados.
 - Sem banco: **37 suítes, 567 testes aprovados**. Global: **97,51 % de linhas, 83,99 % de branches**, 90,29 % de funções. Gate aprovado.
 - Integração (`test:integration`, Testcontainers + PostgreSQL 16, migrações reais): **4 suítes, 82 testes aprovados**.

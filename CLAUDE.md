@@ -103,4 +103,4 @@ afirme algo que o código não faz é `[bloqueia]`.
 (Testcontainers, exige Docker) · `pnpm lint` · `pnpm prisma:deploy` / `pnpm prisma:migrate` · `pnpm db:seed` ·
 `docker compose up --build` (banco + migrações + seed + API; `cp .env.example .env` antes).
 
-Local: os testes exigem Node 24 (o Node 22.14 falha no carregamento ESM); o Docker e o CI usam Node 22.
+Os testes exigem Node 24.9 ou superior (o Jest só carrega o `@nestjs/common`, ESM, a partir daí) e o CI roda em Node 24; a imagem Docker de produção usa Node 22.

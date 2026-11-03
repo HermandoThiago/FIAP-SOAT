@@ -18,7 +18,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "22"
+  # Os testes exigem Node >= 24.9 (o Jest só carrega o @nestjs/common, ESM, a partir daí). A imagem Docker de
+  # produção continua em Node 22 (ver Dockerfile).
+  NODE_VERSION: "24"
   PNPM_VERSION: "10.15.1"
   # Valores fictícios, só para o CI (nenhum segredo real).
   JWT_SECRET: ci-only-secret-with-at-least-32-characters-0123456789

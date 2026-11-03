@@ -16,7 +16,7 @@
 | Curso | SOAT — Software Architecture |
 | Fase | 1 |
 | Número do grupo | 49 |
-| Linguagem e principais tecnologias | TypeScript 6 + NestJS 12 (Node 22 no Docker e no CI) · Prisma 7 · PostgreSQL 16 · JWT (HS256) + Argon2id · Jest e Testcontainers · Swagger (`@nestjs/swagger`) · Docker + docker compose · GitHub Actions (build, lint, testes, hadolint, gitleaks, `pnpm audit`). *Conferir `package.json` e o CI no commit da entrega; incluir Semgrep, Trivy ou ZAP somente se forem de fato executados.* |
+| Linguagem e principais tecnologias | TypeScript 6 + NestJS 12 (Node 22 na imagem Docker; testes e CI em Node 24) · Prisma 7 · PostgreSQL 16 · JWT (HS256) + Argon2id · Jest e Testcontainers · Swagger (`@nestjs/swagger`) · Docker + docker compose · GitHub Actions (build, lint, testes, hadolint, gitleaks, `pnpm audit`). *Conferir `package.json` e o CI no commit da entrega; incluir Semgrep, Trivy ou ZAP somente se forem de fato executados.* |
 
 | Nome completo | RM | Username no Discord |
 |---|---|---|

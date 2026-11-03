@@ -39,9 +39,9 @@ Resultado e comandos de reprodução: [evidência de cobertura](../06-entrega/ev
 
 ## 4. CI
 
-`ci.yml` roda em PR e push para `develop`/`master`: título do PR (Conventional Commits), typecheck, lint, build, testes com cobertura (artefato publicado), testes de integração com PostgreSQL, hadolint, build da imagem, subida do compose, gitleaks e `pnpm audit --prod --audit-level high`. Node 22.
+`ci.yml` roda em PR e push para `develop`/`master`: título do PR (Conventional Commits), typecheck, lint, build, testes com cobertura (artefato publicado), testes de integração com PostgreSQL, hadolint, build da imagem, subida do compose, gitleaks e `pnpm audit --prod --audit-level high`. Node 24.
 
-Observação: em 02/11/2026 a suíte sem banco foi validada localmente com Node 24.22.2 porque o Node 22.14.0 da máquina falhou no carregamento ESM; o Docker e o CI continuam em Node 22. Validar o runtime do CI na entrega.
+Observação: em 02/11/2026 a suíte sem banco foi validada localmente com Node 24.22.2 porque o Node 22.14.0 da máquina falhou no carregamento ESM; o CI roda em Node 24 (a partir da 24.9 o Jest carrega o `@nestjs/common`, ESM) e a imagem Docker de produção usa Node 22. Validar o runtime do CI na entrega.
 
 ## 5. Lacunas conhecidas
 

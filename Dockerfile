@@ -20,7 +20,9 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY tsconfig.json tsconfig.build.json nest-cli.json ./
 COPY src ./src
-RUN pnpm exec nest build
+# Regenera o client do Prisma agora que o tsconfig.json existe: no postinstall ele ainda não está no contexto
+# e o gerador emitiria imports com ".ts", que quebram em runtime.
+RUN pnpm exec prisma generate && pnpm exec nest build
 
 # ---- migrate: mesma base do build; aplica as migrações e o seed (usado pelo docker compose) ----
 FROM build AS migrate
