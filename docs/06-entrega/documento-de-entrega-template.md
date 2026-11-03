@@ -30,7 +30,7 @@
 |---|---|
 | Repositório (**público** durante a correção e a revisão de notas) | `<https://github.com/…/FIAP-SOAT>` |
 | Branch da entrega | `master` |
-| Tag e **hash do commit** da entrega | `v1.0.0` · `<hash completo>` |
+| **Hash do commit** da entrega | `<hash completo>` |
 | README (objetivo, solução, arquitetura, tecnologias, pré-requisitos, execução, testes, Swagger, banco, credenciais, diretórios, links) | `<link para o README.md nesse commit>` |
 | Documentação da API (Swagger/OpenAPI) | `http://localhost:3001/docs` (JSON em `/docs-json`) após `docker compose up` (instruções no README) |
 | Relatório da análise de vulnerabilidades | `<link para docs/06-entrega/relatorio-de-vulnerabilidades.md nesse commit>` |

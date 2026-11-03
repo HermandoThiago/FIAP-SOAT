@@ -217,7 +217,7 @@ Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.
 ## 13. Vídeo da entrega
 
 - YouTube (público, ≤ 15 min): `<link a preencher>` · roteiro: `docs/06-entrega/roteiro-do-video.md`.
-- Versão entregue: branch `master`, tag `v1.0.0`. O hash completo do commit está no PDF de entrega (um commit não pode conter o próprio hash).
+- Versão entregue: branch `master`. O hash completo do commit está no PDF de entrega (um commit não pode conter o próprio hash).
 
 ## Controle de estoque
 

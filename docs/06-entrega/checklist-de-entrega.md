@@ -46,7 +46,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | T10 | **Tratamento adequado das transações** nos principais fluxos | `$transaction` em aprovar (status + resposta do orçamento + reserva), finalizar (status + baixa), enviar orçamento e criar item com saldo inicial; update condicional por status (corrida → 409). **Testes de integração** (`stock.int-spec.ts`): falta de estoque no meio da aprovação desfaz as reservas já feitas, o status e o orçamento (422); duas aprovações concorrentes disputando as últimas unidades → só uma vence | Diego | 🟡 |
 | T11 | Dockerfile para build · docker-compose orquestrando o ambiente completo | `Dockerfile` multi-stage (usuário não-root, healthcheck) + `docker-compose.yaml` (`database` → `migrate` → `api`); validado em 02/11/2026 (build, migrações, seed, login e rota protegida). Trivy na imagem executado em 02/11/2026 (ver `relatorio-de-vulnerabilidades.md`). Pendente: teste em máquina limpa por outro membro | Hermando | 🟡 |
 | T12 | Repositório **público** durante a correção e a revisão de notas, só com arquivos necessários, sem credenciais/tokens | visibilidade pública ligada na entrega; gitleaks limpo no histórico | | ⬜ |
-| T13 | Versão identificada (branch, tag ou hash) informada no PDF; código do vídeo = código da documentação = commit entregue | tag `v1.0.0` em `master` + hash no PDF | | ⬜ |
+| T13 | Versão identificada (branch, tag ou hash) informada no PDF; código do vídeo = código da documentação = commit entregue | branch `master` + hash no PDF | | ⬜ |
 | T14 | **Branch principal protegida, tudo via PR** (enunciado, entregáveis §2: "a branch main deve sempre estar protegida e tudo que chegar nela deve vir através de PR") | `master` e `develop` protegidas **sem bypass para ninguém**; todo commit desde 23/09 chega por PR; os commits diretos da fase de planejamento até 23/09 estão registrados como exceção em `docs/02-adr/decisoes-leves.md` | Hermando | ⬜ |
 
 ## 3. Entregáveis (enunciado §1–§4)
@@ -54,7 +54,7 @@ Legenda: ⬜ não iniciado · 🟡 em andamento · ✅ pronto e verificado por o
 | # | Entregável | Evidência | Dono | Status |
 |---|---|---|---|---|
 | E1 | **PDF único** com a primeira página obrigatória (Curso SOAT — Software Architecture; Fase 1; grupo **49**; nome completo, RM e Discord de todos; linguagem e tecnologias) e todos os links | `documento-de-entrega-template.md` preenchido e exportado | F2 | ⬜ |
-| E2 | Branch e **hash do commit** da entrega no PDF (a avaliação considera só essa versão) | tag `v1.0.0` em `master` + hash | F1 | ⬜ |
+| E2 | Branch e **hash do commit** da entrega no PDF (a avaliação considera só essa versão) | branch `master` + hash | F1 | ⬜ |
 | E3 | README completo no repositório (objetivo, solução, arquitetura, tecnologias, pré-requisitos, execução, testes, Swagger, banco, credenciais de demonstração, diretórios, links DDD e vídeo) | `README.md` no commit da entrega | F5 infra | 🟡 faltam links do Miro/vídeo e o hash |
 | E4 | Vídeo ≤ 15 min, **público no YouTube**, áudio compreensível, mostrando o commit da entrega, a documentação, as decisões e os integrantes | link + roteiro cumprido (§4) | F5 entrega | ⬜ |
 | E5 | Event storming — criação da OS | `docs/ddd/event-storming.md` revisado; versão visual em `docs/ddd/diagramas/` e `docs/ddd/event-storming.pdf` | F2 | 🟡 |
@@ -92,7 +92,7 @@ ao commit informado no PDF (dizer branch/tag/hash na abertura).
 
 - [ ] Clone limpo → `docker compose up` → Swagger → fluxo completo em < 5 min (pessoa ≠ dono da infra — Hermando)
 - [ ] Repositório **público**; links do PDF abertos em janela anônima (Miro sem pedido de permissão; YouTube público; README e relatório no commit da entrega)
-- [ ] Branch + hash do PDF = tag `v1.0.0` = commit mostrado no vídeo
+- [ ] Branch + hash do PDF = commit mostrado no vídeo
 - [ ] `master` e `develop` protegidas sem bypass; todo commit desde 23/09 chegou por PR (T14)
 - [ ] Vídeo assistido inteiro com cronômetro (≤ 15:00), áudio ok, integrantes identificados, checklist §4 marcado
 - [ ] README lido do início ao fim contra os 13 itens do enunciado; comandos copiados e executados
