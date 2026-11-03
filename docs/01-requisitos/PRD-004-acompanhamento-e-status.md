@@ -2,10 +2,38 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão (máquina de estados e acesso do cliente consolidados pelas ADRs 010/011 em 22/09/2026) |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F3 · apoio F4 (acesso do cliente) |
 | Origem no enunciado | Bloco "Acompanhamento da OS": 6 status; "Alteração automática dos status conforme ações no sistema"; "Permitir consulta por parte do cliente via API para acompanhar o progresso"; vídeo: "A alteração dos status da Ordem de Serviço"; §5 do enunciado de 23/09: "Controlar as alterações de status; Aplicar as regras de transição" |
 | Contexto DDD | `service-orders` (core) + read model de acompanhamento |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+Mapeamento dos status do planejamento para o enum `StatusOrdemServico`:
+
+| Planejamento | Código | Observação |
+|---|---|---|
+| `RECEIVED` | `RECEBIDA` | |
+| `IN_DIAGNOSIS` | `EM_DIAGNOSTICO` | |
+| `AWAITING_APPROVAL` | `AGUARDANDO_APROVACAO` | |
+| — | `AGUARDANDO_EXECUCAO` | novo: após a aprovação |
+| `IN_PROGRESS` | `EM_EXECUCAO` | só por `start-execution` |
+| `COMPLETED` | `FINALIZADA` | |
+| `DELIVERED` | `ENTREGUE` | terminal |
+| `CANCELLED` (recusa) | `ORCAMENTO_RECUSADO` | terminal |
+| `CANCELLED` (Admin) | `CANCELADA` | terminal; só antes da aprovação |
+
+| Requisito | Situação |
+|---|---|
+| RF-050 só por comandos | implementado (`StatusTransitionPolicy`) |
+| RF-051 histórico | `OrdemServicoStatusHistorico`; autor é opcional no schema |
+| RF-052 consulta do cliente | `GET /tracking/service-orders/{id}`, mascarada; token de uma OS ou login Cliente |
+| RF-053 listagem do cliente em `/tracking` | **Não implementado** |
+| RF-055 `nextAction` | **Não implementado** |
+| RN-050 validação no agregado | validação na política pura de `domain/`, chamada pelo serviço |
+| RN-054 rate limit | **não implementado** |
 
 ## 1. Objetivo
 

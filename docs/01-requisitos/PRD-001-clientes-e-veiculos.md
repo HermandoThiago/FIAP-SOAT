@@ -2,10 +2,23 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F3 (Domínio & API) · apoio F4 (validações) |
 | Origem no enunciado | "Identificação do cliente por CPF/CNPJ"; "Cadastro de veículo (placa, marca, modelo, ano)"; "CRUD de clientes"; "CRUD de veículos"; "Validação dos dados sensíveis (CPF/CNPJ, placa de veículo)" |
 | Contexto DDD | `customers` (supporting) — ver `docs/ddd/contextos-delimitados.md` |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Requisito | Situação |
+|---|---|
+| Entidade `Customer` | **Não existe**: cliente é um `Usuario` com perfil Cliente, sem senha de acesso própria; documento imutável |
+| RF-002 consulta por documento | `GET /customers?usuarioDocumento=`; a OS também aceita `customerDocument` |
+| RF-005 / RF-009 remoção | exclusão lógica; cliente com OS em aberto → 409 |
+| RF-010 cadastrar na hora, junto com a OS | **Não implementado**: cadastro de cliente e veículo é anterior e separado |
+| `active` | campo `usuarioAtivo` (cliente) e inativação do veículo |
+| RN-008 mascaramento | respostas do acompanhamento mascaram documento e placa; máscara em logs não foi verificada |
 
 ## 1. Objetivo
 

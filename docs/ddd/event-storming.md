@@ -1,12 +1,14 @@
 # Event Storming — fluxos obrigatórios
 
-> Entregável do enunciado (versão de 23/09/2026): event storming **da criação da OS**, **do acompanhamento da OS** e **da
-> gestão de peças e insumos**, no Miro (link acessível sem pedir permissão) e **exportado para `docs/ddd/event-storming.pdf`**.
-> Este arquivo é a **versão versionada** (Mermaid) que a F2 transfere para o Miro, post-it por post-it, e que o vídeo usa
-> para explicar "o processo de Event Storming". Os hotspots foram resolvidos pelas ADRs 010/011/012 em 22/09/2026 (§5) —
-> os diagramas já refletem as decisões.
+Entregável: event storming da criação da OS, do acompanhamento da OS e da gestão de peças e insumos, no Miro (link pendente) e exportado para `docs/ddd/event-storming.pdf`.
 
-## 0. Legenda (cores padrão do Event Storming)
+Versões visuais dos três fluxos em `diagramas/`: `02-event-storming-criacao-os`, `03-event-storming-acompanhamento-os` e `04-event-storming-estoque` (`.drawio` editável + `.png`), reunidas em `event-storming.pdf`; a máquina de estados está em `01-maquina-de-estados`.
+
+> **Eventos são fatos conceituais de negócio**, não eventos publicados no código. Não há classes de evento, barramento nem handlers: cada "política" abaixo é executada diretamente pelo serviço de aplicação, na mesma transação. O rastro real é o histórico de status, o orçamento e as movimentações de estoque ([agregados §3](agregados.md)).
+
+Papéis reais: **Admin**, **Atendente**, **Mecânico**, **Cliente**. Não existem Gerente nem Analista financeiro; "gestão" é feita pelo Admin.
+
+## 0. Legenda
 
 ```mermaid
 flowchart LR
@@ -18,20 +20,19 @@ flowchart LR
     classDef leitura fill:#7ed321,stroke:#4a8a0e,color:#000
     classDef externo fill:#f7b2d9,stroke:#c2185b,color:#000
     classDef hotspot fill:#ff4d6d,stroke:#a3001b,color:#fff
-    L1(Evento de domínio<br/>laranja · passado):::evento
-    L2[Comando<br/>azul · imperativo]:::comando
-    L3([Ator<br/>amarelo pequeno]):::ator
-    L4[[Agregado<br/>amarelo claro]]:::agregado
-    L5{{Política / regra<br/>lilás · sempre que…}}:::politica
-    L6[/Modelo de leitura<br/>verde/]:::leitura
-    L7[(Sistema externo<br/>rosa)]:::externo
-    L8>Hotspot / dúvida<br/>vermelho]:::hotspot
+    L1(Evento · passado):::evento
+    L2[Comando · imperativo]:::comando
+    L3([Ator]):::ator
+    L4[[Agregado conceitual]]:::agregado
+    L5{{Política · sempre que…}}:::politica
+    L6[/Modelo de leitura/]:::leitura
+    L7[(Sistema externo)]:::externo
+    L8>Hotspot / dúvida]:::hotspot
 ```
 
-Gramática usada: **Ator → Comando → Agregado → Evento**; **Evento → Política → Comando** (automação);
-**Modelo de leitura** alimenta a decisão do ator.
+Gramática: **Ator → Comando → Agregado → Evento**; **Evento → Política → Comando**.
 
-## 1. Big picture — linha do tempo dos eventos (os três fluxos juntos)
+## 1. Big picture
 
 ```mermaid
 flowchart LR
@@ -39,26 +40,25 @@ flowchart LR
     subgraph Cadastro
         E0(Cliente cadastrado):::evento --> E0b(Veículo cadastrado):::evento
     end
-    subgraph Estoque["Fluxo 3 — Gestão de peças e insumos"]
-        P1(Peça cadastrada):::evento --> P2(Entrada de estoque registrada):::evento
+    subgraph Estoque["Fluxo 3 — peças e insumos"]
+        P1(Item cadastrado):::evento --> P2(Entrada de estoque registrada):::evento
     end
-    subgraph OS["Fluxo 1 — Criação da OS (E1–E6) · Fluxo 2 — Acompanhamento (E7–E11)"]
-        E1(OS recebida):::evento --> E2(Diagnóstico iniciado):::evento --> E3(Serviço incluído na OS):::evento --> E4(Peça incluída na OS):::evento
-        E4 --> E5(Orçamento recalculado):::evento --> E6(Orçamento enviado ao cliente):::evento
+    subgraph OS["Fluxos 1 e 2 — criação e acompanhamento da OS"]
+        E1(OS recebida):::evento --> E2(Diagnóstico iniciado):::evento --> E3(Serviço ou peça incluído):::evento
+        E3 --> E5(Orçamento recalculado):::evento --> E6(Orçamento enviado):::evento
         E6 --> E7(Orçamento aprovado):::evento --> E8(Execução iniciada):::evento --> E9(Execução finalizada):::evento --> E10(Veículo entregue):::evento
-        E6 --> E7b(Orçamento recusado):::evento --> E11(OS cancelada):::evento
+        E6 --> E7b(Orçamento recusado):::evento --> E11(OS recusada - terminal):::evento
+        E1 --> E12(OS cancelada - terminal):::evento
     end
     E0b -.-> E1
-    P2 -.-> E4
+    P2 -.-> E3
     E7 -.-> P3(Reserva de estoque realizada):::evento
     E9 -.-> P4(Baixa de estoque realizada):::evento
-    P4 -.-> P5(Estoque abaixo do mínimo):::evento
 ```
 
-Eventos pivotais (marcos que separam fases do processo): **OS recebida** · **Orçamento enviado ao cliente** ·
-**Orçamento aprovado** · **Execução finalizada** · **Veículo entregue** (e o desvio terminal **OS cancelada**).
+Marcos pivotais: OS recebida · Orçamento enviado · Orçamento aprovado · Execução iniciada · Execução finalizada · Veículo entregue. Desvios terminais: **OS recusada** (cliente recusou) e **OS cancelada** (Admin, antes da aprovação).
 
-## 2. Fluxo 1 — Criação da OS (process modeling)
+## 2. Fluxo 1 — Criação da OS
 
 ### 2.1 Recepção e diagnóstico
 
@@ -72,20 +72,18 @@ flowchart LR
     classDef leitura fill:#7ed321,stroke:#4a8a0e,color:#000
     classDef hotspot fill:#ff4d6d,stroke:#a3001b,color:#fff
 
-    R1[/Busca de cliente por documento/]:::leitura --> A1([Atendente]):::ator
-    A1 --> C1[Identificar cliente<br/>por CPF/CNPJ]:::comando --> G1[[Cliente]]:::agregado --> E1(Cliente identificado):::evento
-    A1 --> C1b[Cadastrar cliente]:::comando --> G1
-    G1 --> E1b(Cliente cadastrado):::evento
-    E1 --> C2[Identificar veículo<br/>por placa]:::comando --> G2[[Veículo]]:::agregado --> E2(Veículo identificado):::evento
-    A1 --> C2b[Cadastrar veículo]:::comando --> G2 --> E2b(Veículo cadastrado):::evento
-    E2 --> C3[Criar ordem de serviço]:::comando --> G3[[Ordem de Serviço]]:::agregado --> E3(OS recebida):::evento
-    E3 --> PL1{{Sempre que uma OS é recebida,<br/>registrar histórico e número}}:::politica
-    A2([Mecânico]):::ator --> C4[Iniciar diagnóstico]:::comando --> G3 --> E4(Diagnóstico iniciado):::evento
-    R2[/Fila de OS por status/]:::leitura --> A2
-    H1>Criar cliente/veículo junto com a OS<br/>no mesmo comando? RF-010 (Should)]:::hotspot -.-> C3
+    R1[/Busca de cliente por documento/]:::leitura --> A1([Atendente ou Admin]):::ator
+    A1 --> C1b[Cadastrar cliente]:::comando --> G1[[Cliente - Usuario]]:::agregado --> E1b(Cliente cadastrado):::evento
+    A1 --> C2b[Cadastrar veículo]:::comando --> G2[[Veículo]]:::agregado --> E2b(Veículo cadastrado):::evento
+    A1 --> C3[Criar ordem de serviço<br/>clientId ou customerDocument]:::comando --> G3[[Ordem de Serviço]]:::agregado --> E3(OS recebida):::evento
+    E3 --> PL1{{Sempre que a OS é criada,<br/>gravar histórico e número sequencial}}:::politica
+    PL0{{Veículo do cliente, sem OS aberta,<br/>mecânico válido}}:::politica --> C3
+    A2([Mecânico ou Admin]):::ator --> C4[Iniciar diagnóstico]:::comando --> G3 --> E4(Diagnóstico iniciado):::evento
+    R2[/Listagem de OS por status/]:::leitura --> A2
+    H1>Criar cliente e veículo no mesmo comando da OS?<br/>não implementado]:::hotspot -.-> C3
 ```
 
-### 2.2 Composição do orçamento e aprovação
+### 2.2 Composição do orçamento e envio
 
 ```mermaid
 flowchart LR
@@ -97,29 +95,36 @@ flowchart LR
     classDef leitura fill:#7ed321,stroke:#4a8a0e,color:#000
     classDef externo fill:#f7b2d9,stroke:#c2185b,color:#000
 
-    R1[/Catálogo de serviços e peças<br/>com disponibilidade/]:::leitura --> A1([Mecânico]):::ator
-    A1 --> C1[Incluir serviço na OS]:::comando --> G1[[Ordem de Serviço]]:::agregado --> E1(Serviço incluído na OS):::evento
-    A1 --> C2[Incluir peça/insumo na OS]:::comando --> PL0{{Verificar disponibilidade em estoque —<br/>sem disponibilidade, recusar com 422 (ADR-012)}}:::politica --> G1 --> E2(Peça incluída na OS):::evento
-    E1 --> PL1{{Sempre que itens mudam,<br/>recalcular orçamento}}:::politica
+    R1[/Catálogo de serviços e itens/]:::leitura --> A1([Mecânico ou Admin]):::ator
+    A1 --> C1[Incluir serviço]:::comando --> G1[[Ordem de Serviço]]:::agregado --> E1(Serviço incluído):::evento
+    A1 --> C2[Incluir peça ou insumo]:::comando --> PL0{{Conferir disponibilidade;<br/>insuficiente → 422; não reserva}}:::politica --> G1 --> E2(Peça incluída):::evento
+    E1 --> PL1{{Sempre que itens mudam,<br/>congelar preço e recalcular orçamento}}:::politica
     E2 --> PL1
-    PL1 --> C3[Recalcular orçamento]:::comando --> G1 --> E3(Orçamento recalculado):::evento
-    A1 --> C4[Enviar orçamento<br/>para aprovação]:::comando --> G1 --> E4(Orçamento enviado ao cliente):::evento
-    E4 --> PL2{{Sempre que o orçamento é enviado,<br/>congelar itens, gerar token de acompanhamento<br/>e notificar cliente — ADR-011}}:::politica
-    PL2 --> X1[(Notificação<br/>e-mail/SMS simulado)]:::externo
-    PL2 --> E4b(Token de acompanhamento gerado):::evento
-    R2[/Acompanhamento da OS: status + orçamento<br/>via token de acompanhamento ou login do cliente/]:::leitura --> A2([Cliente]):::ator
-    A2 --> C5[Aprovar orçamento]:::comando --> G1 --> E5(Orçamento aprovado):::evento
-    A2 --> C6[Recusar orçamento<br/>com motivo]:::comando --> G1 --> E6(Orçamento recusado):::evento
-    E6 --> PL3{{Sempre que o orçamento é recusado,<br/>cancelar a OS — ADR-010}}:::politica --> E7(OS cancelada):::evento
-    A3([Gerente]):::ator --> C7[Cancelar OS<br/>antes da aprovação, com motivo]:::comando --> G1 --> E7
+    PL1 --> E3(Orçamento recalculado):::evento
+    A1 --> C4[Enviar orçamento]:::comando --> G1 --> E4(Orçamento enviado):::evento
+    E4 --> PL2{{Sempre que o orçamento é enviado,<br/>gerar token de acompanhamento<br/>e registrar a notificação em log}}:::politica
+    PL2 --> X1[(Notificação simulada - log)]:::externo
+    A3([Admin]):::ator --> C7[Cancelar OS com motivo<br/>antes da aprovação]:::comando --> G1 --> E7(OS cancelada):::evento
 ```
 
-## 3. Fluxo 2 — Acompanhamento da OS: status, execução, finalização, entrega e consulta do cliente
+Itens só podem mudar em **Recebida** e **Em diagnóstico**; o envio exige ao menos um item.
 
-A máquina de estados oficial (7 status e tabela de transições) está em `docs/01-requisitos/PRD-004-acompanhamento-e-status.md`
-§2 e entra no frame deste fluxo no Miro, junto com a consulta do cliente (token de acompanhamento ou login).
+## 3. Fluxo 2 — Acompanhamento da OS
 
-### 3.1 Execução, finalização e entrega
+A máquina de estados implementada (9 status, 8 comandos) está em `01-maquina-de-estados` e na [política de transições](../04-arquitetura/fluxos.md). Tabela:
+
+| Comando | De | Para | Papel |
+|---|---|---|---|
+| startDiagnosis | RECEBIDA | EM_DIAGNOSTICO | Admin, Mecânico |
+| sendQuote | EM_DIAGNOSTICO | AGUARDANDO_APROVACAO | Admin, Mecânico |
+| approveQuote | AGUARDANDO_APROVACAO | AGUARDANDO_EXECUCAO | Cliente |
+| rejectQuote | AGUARDANDO_APROVACAO | ORCAMENTO_RECUSADO | Cliente |
+| startExecution | AGUARDANDO_EXECUCAO | EM_EXECUCAO | Admin, Mecânico |
+| complete | EM_EXECUCAO | FINALIZADA | Admin, Mecânico |
+| deliver | FINALIZADA | ENTREGUE | Admin, Atendente |
+| cancel | RECEBIDA, EM_DIAGNOSTICO, AGUARDANDO_APROVACAO | CANCELADA | Admin |
+
+### 3.1 Aprovação, execução, finalização e entrega
 
 ```mermaid
 flowchart LR
@@ -130,41 +135,36 @@ flowchart LR
     classDef politica fill:#bd10e0,stroke:#7a0a92,color:#fff
     classDef leitura fill:#7ed321,stroke:#4a8a0e,color:#000
 
-    E0(Orçamento aprovado):::evento --> PL1{{Sempre que o orçamento é aprovado,<br/>iniciar execução e reservar as peças da OS<br/>na mesma transação — ADR-012}}:::politica
-    PL1 --> C1[Iniciar execução]:::comando --> G1[[Ordem de Serviço]]:::agregado --> E1(Execução iniciada):::evento
-    PL1 --> C2[Reservar peças da OS]:::comando --> G2[[Peça / Estoque]]:::agregado --> E2(Reserva de estoque realizada):::evento
-    A1([Mecânico]):::ator --> C3[Finalizar execução]:::comando --> G1 --> E3(Execução finalizada):::evento
-    E3 --> PL2{{Sempre que a OS é finalizada,<br/>baixar as peças reservadas, registrar<br/>tempo de execução e notificar cliente}}:::politica
-    PL2 --> C5[Baixar peças reservadas]:::comando --> G2 --> E5(Baixa de estoque realizada):::evento
-    A2([Atendente]):::ator --> C4[Registrar entrega do veículo]:::comando --> G1 --> E4(Veículo entregue):::evento
-    E4 --> PL3{{OS entregue é imutável}}:::politica
-    E3 --> R1[/Tempo médio de execução<br/>por serviço e período/]:::leitura
-    E1 --> R2[/Acompanhamento da OS<br/>para o cliente/]:::leitura
-    E3 --> R2
-    E4 --> R2
-    R1 --> A3([Gerente]):::ator
+    R0[/Acompanhamento mascarado<br/>token da OS ou login Cliente/]:::leitura --> A0([Cliente]):::ator
+    A0 --> C0[Aprovar orçamento]:::comando --> G1[[Ordem de Serviço]]:::agregado --> E0(Orçamento aprovado):::evento
+    E0 --> PL1{{Na mesma transação,<br/>reservar as peças; sem saldo → 422 e nada muda}}:::politica
+    PL1 --> C2[Reservar estoque]:::comando --> G2[[Item de estoque]]:::agregado --> E2(Reserva realizada):::evento
+    A0 --> C0b[Recusar com motivo]:::comando --> G1 --> E0b(Orçamento recusado - OS terminal):::evento
+    A1([Mecânico ou Admin]):::ator --> C1[Iniciar execução]:::comando --> G1 --> E1(Execução iniciada):::evento
+    A1 --> C3[Finalizar execução]:::comando --> G1 --> E3(Execução finalizada):::evento
+    E3 --> PL2{{Na mesma transação,<br/>baixar a reserva}}:::politica --> C5[Baixar estoque]:::comando --> G2 --> E5(Baixa realizada):::evento
+    A2([Atendente ou Admin]):::ator --> C4[Registrar entrega]:::comando --> G1 --> E4(Veículo entregue):::evento
+    E4 --> PL3{{OS entregue é terminal}}:::politica
+    E3 --> R1[/Tempo médio de execução/]:::leitura
 ```
 
-### 3.2 Tabela consolidada dos Fluxos 1 e 2 (para colar no Miro)
+A aprovação **não inicia** a execução; `start-execution` é um comando separado.
 
-Linhas 1–8 = Fluxo 1 (criação da OS); linhas 9–12 = Fluxo 2 (acompanhamento: aprovação/recusa, execução, finalização, entrega).
+### 3.2 Tabela consolidada dos Fluxos 1 e 2
 
-| # | Ator | Comando | Agregado | Evento | Política disparada | Modelo de leitura |
-|---|---|---|---|---|---|---|
-| 1 | Atendente | Identificar cliente por CPF/CNPJ | Cliente | Cliente identificado / cadastrado | — | Busca de cliente |
-| 2 | Atendente | Identificar/cadastrar veículo | Veículo | Veículo identificado / cadastrado | — | Veículos do cliente |
-| 3 | Atendente | Criar ordem de serviço | Ordem de Serviço | **OS recebida** | Registrar histórico + número | Fila por status |
-| 4 | Mecânico | Iniciar diagnóstico | Ordem de Serviço | Diagnóstico iniciado | Registrar histórico | Fila por status |
-| 5 | Mecânico | Incluir serviço | Ordem de Serviço | Serviço incluído na OS | Recalcular orçamento | Catálogo |
-| 6 | Mecânico | Incluir peça/insumo | Ordem de Serviço | Peça incluída na OS | Verificar disponibilidade (sem estoque → 422); recalcular orçamento | Catálogo c/ disponibilidade |
-| 7 | Sistema | Recalcular orçamento | Ordem de Serviço | Orçamento recalculado | — | Orçamento da OS |
-| 8 | Mecânico | Enviar orçamento | Ordem de Serviço | **Orçamento enviado ao cliente** | Congelar itens; gerar token de acompanhamento; notificar | Acompanhamento |
-| 9 | Cliente | Aprovar orçamento | Ordem de Serviço | **Orçamento aprovado** | Iniciar execução; reservar peças (tudo ou nada) | Acompanhamento |
-| 9b | Cliente | Recusar orçamento | Ordem de Serviço | Orçamento recusado → **OS cancelada** | Cancelar a OS (ADR-010); sem efeito no estoque | Acompanhamento |
-| 9c | Gerente | Cancelar OS (antes da aprovação) | Ordem de Serviço | OS cancelada | Registrar motivo e histórico | Fila por status |
-| 10 | Sistema | Iniciar execução | Ordem de Serviço | Execução iniciada | Registrar histórico | Acompanhamento |
-| 11 | Mecânico | Finalizar execução | Ordem de Serviço | **Execução finalizada** | Baixar peças reservadas; registrar tempo de execução; notificar | Tempo médio |
-| 12 | Atendente | Registrar entrega | Ordem de Serviço | **Veículo entregue** | Tornar OS imutável | Histórico |
+| # | Ator | Comando | Evento | Efeito |
+|---|---|---|---|---|
+| 1 | Atendente/Admin | Cadastrar cliente e veículo | Cliente/Veículo cadastrado | — |
+| 2 | Atendente/Admin | Criar OS | **OS recebida** | histórico + número |
+| 3 | Mecânico/Admin | Iniciar diagnóstico | Diagnóstico iniciado | histórico |
+| 4 | Mecânico/Admin | Incluir serviço/peça | Item incluído | congela preço; recalcula; peça sem saldo → 422 |
+| 5 | Mecânico/Admin | Enviar orçamento | **Orçamento enviado** | token; log simulado |
+| 6 | Cliente | Aprovar | **Orçamento aprovado** | reserva atômica |
+| 6b | Cliente | Recusar | Orçamento recusado | ORCAMENTO_RECUSADO, motivo |
+| 6c | Admin | Cancelar | OS cancelada | motivo; só antes da aprovação |
+| 7 | Mecânico/Admin | Iniciar execução | Execução iniciada | histórico |
+| 8 | Mecânico/Admin | Finalizar | **Execução finalizada** | baixa a reserva |
+| 9 | Atendente/Admin | Entregar | **Veículo entregue** | terminal |
 
 ## 4. Fluxo 3 — Gestão de peças e insumos
 
@@ -177,72 +177,54 @@ flowchart LR
     classDef politica fill:#bd10e0,stroke:#7a0a92,color:#fff
     classDef leitura fill:#7ed321,stroke:#4a8a0e,color:#000
 
-    A1([Gerente]):::ator --> C1[Cadastrar peça/insumo]:::comando --> G1[[Peça]]:::agregado --> E1(Peça cadastrada):::evento
-    A1 --> C2[Atualizar preço/dados da peça]:::comando --> G1 --> E2(Peça atualizada):::evento
-    E2 --> PL0{{OS já orçadas mantêm<br/>o preço de snapshot}}:::politica
-    A1 --> C3[Registrar entrada de estoque]:::comando --> G1 --> E3(Entrada de estoque registrada):::evento
-    A1 --> C4[Ajustar estoque<br/>inventário]:::comando --> G1 --> E4(Estoque ajustado):::evento
-    A1 --> C5[Inativar peça]:::comando --> G1 --> E5(Peça inativada):::evento
-    X0(Peça incluída na OS<br/>Fluxo 1):::evento -.-> PL4{{Só incluir se disponibilidade ≥ quantidade —<br/>senão 422 (ADR-012)}}:::politica
-    X1(Orçamento aprovado<br/>evento do Fluxo 1):::evento --> PL1{{Sempre que o orçamento é aprovado,<br/>reservar as peças da OS — tudo ou nada}}:::politica
-    PL1 --> C6[Reservar estoque]:::comando --> G1 --> E6(Reserva de estoque realizada):::evento
-    X2(Execução finalizada<br/>evento do Fluxo 1):::evento --> PL2{{Sempre que a OS é finalizada,<br/>baixar as peças reservadas}}:::politica --> C7[Baixar estoque]:::comando --> G1 --> E7(Baixa de estoque realizada):::evento
-    E7 --> PL3{{Sempre que o estoque fica<br/>abaixo do mínimo, alertar — Could}}:::politica --> E8(Estoque abaixo do mínimo):::evento
-    E8 --> R1[/Peças a repor/]:::leitura --> A1
+    A1([Admin ou Atendente]):::ator --> C1[Cadastrar item]:::comando --> G1[[Item de estoque]]:::agregado --> E1(Item cadastrado):::evento
+    E1 --> PL5{{Saldo inicial gera a entrada Saldo inicial}}:::politica
+    A1 --> C2[Atualizar dados e preço]:::comando --> G1 --> E2(Item atualizado):::evento
+    E2 --> PL0{{OS já orçadas mantêm o preço congelado;<br/>PUT não altera saldo}}:::politica
+    A1 --> C3[Registrar entrada]:::comando --> G1 --> E3(Entrada registrada):::evento
+    A1 --> C4b[Saída manual - só do disponível]:::comando --> G1 --> E4b(Saída registrada):::evento
+    A1 --> C4[Ajustar - define o novo saldo físico, com motivo]:::comando --> G1 --> E4(Estoque ajustado):::evento
+    A1 --> C5[Inativar - exclusão lógica]:::comando --> G1 --> E5(Item inativado):::evento
+    X1(Orçamento aprovado - Fluxo 2):::evento --> PL1{{Reservar tudo ou nada}}:::politica --> G1 --> E6(Reserva realizada):::evento
+    X2(Execução finalizada - Fluxo 2):::evento --> PL2{{Baixar a reserva}}:::politica --> G1 --> E7(Baixa realizada):::evento
     E3 --> R2[/Histórico de movimentações/]:::leitura
     E6 --> R2
     E7 --> R2
     E4 --> R2
 ```
 
-A movimentação de **liberação** (`RELEASE`, "Reserva liberada") existe no modelo e no agregado, mas não tem gatilho no
-MVP: recusa e cancelamento só acontecem antes da aprovação, logo antes de qualquer reserva (ADR-010 + ADR-012).
+Fora do implementado: **estoque mínimo e alerta**, reposição a fornecedor e **liberação de reserva**. O tipo `LIBERACAO_RESERVA` e a função `release` existem, mas nenhum fluxo os usa: recusa e cancelamento só ocorrem antes da aprovação, portanto antes de qualquer reserva.
 
-### 4.1 Tabela consolidada do Fluxo 3
+Movimentações manuais (`ENTRADA`, `SAIDA`, `AJUSTE`) usam `POST /itens/{id}/stock-movements`; `RESERVA` e a `SAIDA` da OS nascem só dos comandos da OS.
 
-| # | Ator | Comando | Agregado | Evento | Política | Leitura |
-|---|---|---|---|---|---|---|
-| 1 | Gerente | Cadastrar peça/insumo | Peça | Peça cadastrada | — | Catálogo |
-| 2 | Gerente | Atualizar peça | Peça | Peça atualizada | OS orçadas mantêm snapshot | Catálogo |
-| 3 | Gerente | Registrar entrada | Peça | Entrada de estoque registrada | — | Movimentações |
-| 4 | Gerente | Ajustar estoque | Peça | Estoque ajustado | — | Movimentações |
-| 5 | Sistema (política) | Reservar estoque (na aprovação) | Peça | Reserva de estoque realizada | Tudo ou nada; sem disponibilidade → 422 e aprovação revertida | Movimentações |
-| 6 | Sistema (política) | Baixar estoque (na finalização) | Peça | Baixa de estoque realizada | Alertar se abaixo do mínimo (Could) | Movimentações |
-| 7 | Gerente | Inativar peça | Peça | Peça inativada | — | Catálogo |
+## 5. Hotspots
 
-## 5. Hotspots — resolvidos em 22/09/2026 (Lote 3 de enquetes)
-
-| Hotspot | Resolução |
+| Hotspot | Situação |
 |---|---|
-| Recusa do orçamento: voltar a diagnóstico ou cancelar | ADR-010 / E-14 — **Cancelada** (terminal); renegociar = nova OS |
-| Como o cliente se autentica para consultar/aprovar | ADR-011 / E-15 — token de acompanhamento (uma OS) **ou** login com papel `CUSTOMER` |
-| Momento da baixa de estoque; comportamento sem estoque | ADR-012 / E-16 — **reserva na aprovação + baixa na finalização**; sem disponibilidade → 422 |
-| Estorno após cancelamento com baixa já feita | Combinação ADR-010 + ADR-012: cancelamento só antes da aprovação → nunca há reserva/baixa a estornar |
-| Criar cliente/veículo junto com a OS | PRD-001 RF-010 (Should) — em aberto na revisão do PRD |
-| Quantidade decimal para insumos | PRD-002 Q3 (proposta: sim, `quantity` decimal(10,3)) — em aberto na revisão do PRD |
+| Recusa do orçamento: voltar ao diagnóstico ou encerrar | Implementado como **ORCAMENTO_RECUSADO** (terminal); ADR-010 previa `CANCELLED` — divergência registrada em `decisoes-leves.md` |
+| Acesso do cliente | Implementado: token de acompanhamento (uma OS) **ou** login de Cliente (ADR-011) |
+| Momento da baixa e falta de estoque | Implementado: conferir ao incluir, reservar ao aprovar, baixar ao finalizar; 422 sem saldo (ADR-012) |
+| Estorno após cancelamento | Não se aplica: cancelamento só antes da aprovação |
+| Criar cliente/veículo junto com a OS | **Não implementado** (RF-010 era Should) |
+| Quantidade decimal para insumos | Implementado: `Decimal(12,3)` |
+| Reparo adicional / reabertura | **Não implementado** |
 
-## 6. Software design — agregados por evento
+## 6. Agregados e nomes no código
 
-Post-its em português (linguagem falada); a coluna *No código* traz o nome em inglês (ADR-013, glossário em
-`linguagem-ubiqua.md` §8).
+Os post-its ficam em português (linguagem falada). Os identificadores do código são mistos, em português no schema e nos DTOs (ver [glossário](linguagem-ubiqua.md)).
 
-| Agregado | Eventos que emite (post-it) | No código | Módulo |
+| Agregado conceitual | Fatos | No código | Módulo |
 |---|---|---|---|
-| Cliente | Cliente cadastrado, atualizado, inativado | `Customer` — `CustomerRegistered` … | `customers` |
-| Veículo | Veículo cadastrado, atualizado, inativado | `Vehicle` — `VehicleRegistered` … | `customers` |
-| Serviço | Serviço cadastrado, atualizado, inativado | `Service` — `ServiceRegistered` … | `catalog` |
-| Peça (com estoque) | Peça cadastrada/atualizada/inativada; Entrada registrada; Estoque ajustado; Reserva realizada; Baixa realizada; Reserva liberada (sem gatilho no MVP); Estoque abaixo do mínimo | `Part` — `PartRegistered`, `StockInboundRecorded`, `StockAdjusted`, `StockReserved`, `StockWithdrawn`, `ReservationReleased`, `StockBelowMinimum` | `catalog` |
-| Ordem de Serviço | OS recebida; Diagnóstico iniciado; Serviço/Peça incluído(a)/removido(a); Orçamento recalculado/enviado/aprovado/recusado; Execução iniciada/finalizada; Veículo entregue; OS cancelada | `ServiceOrder` — `ServiceOrderReceived`, `DiagnosisStarted`, `ItemAddedToServiceOrder`, `ItemRemovedFromServiceOrder`, `QuoteRecalculated`, `QuoteSent`, `QuoteApproved`, `QuoteRejected`, `ExecutionStarted`, `ExecutionCompleted`, `VehicleDelivered`, `ServiceOrderCancelled` | `service-orders` |
-| Usuário | Usuário criado (equipe ou cliente); Login realizado/falhou | `User` — `UserRegistered`, `UserAuthenticated` | `identity` |
+| Cliente | cadastrado, atualizado, inativado | `Usuario` com perfil Cliente; `CustomersService` | `customers` / `identity` |
+| Veículo | cadastrado, atualizado, inativado | `Veiculo`; `VehiclesService` | `customers` |
+| Serviço | cadastrado, atualizado, inativado | `Servico`; `CatalogService` | `catalog` |
+| Item de estoque | cadastrado, entrada, saída, ajuste, reserva, baixa | `ItemEstoque`, `MovimentacaoEstoque`; `ItemService`, `StockService` | `catalog` |
+| Ordem de Serviço | todos os marcos do §1 | `OrdemServico`, `Orcamento`, `OrdemServicoStatusHistorico`; `ServiceOrdersService`, `ServiceOrderItemsService`, `TrackingService` | `service-orders` |
+| Usuário | criado, autenticado, inativado | `Usuario`, `UsuarioSenha`, `SessaoRefresh`; `AuthService`, `UsersService` | `identity` |
 
-## 7. Como montar no Miro e exportar (F2)
+## 7. Como montar no Miro e exportar
 
-1. Frame "Legenda" com os 8 tipos de post-it.
-2. Frame "Big picture" só com eventos laranja em linha do tempo + pivotais marcados com linha vertical.
-3. Frame "Fluxo 1 — Criação da OS" (raias recepção/diagnóstico e orçamento/aprovação) usando a gramática ator → comando → agregado → evento → política.
-4. Frame "Fluxo 2 — Acompanhamento da OS" (máquina de estados, execução/finalização/entrega, consulta do cliente por token ou login).
-5. Frame "Fluxo 3 — Gestão de peças e insumos".
-6. Frame "Hotspots" com os post-its vermelhos marcados como **resolvidos** e o link da ADR que resolveu cada um (§5).
-7. Frames "Domain storytelling", "Context map", "Agregados / entidades / value objects" (`domain-storytelling.md`, `contextos-delimitados.md`, `agregados.md`) e "Glossário" (`linguagem-ubiqua.md`).
-8. Compartilhar o board como "qualquer pessoa com o link pode ver" — o enunciado exige acesso sem pedido de permissão.
-9. Exportar: frames 2–6 → `docs/ddd/event-storming.pdf`; frame 7 → `docs/ddd/diagramas.pdf`; o glossário já é `docs/ddd/linguagem-ubiqua.md`. Conferir contra o código entregue antes de exportar (M5): "documentação que não corresponda ao código não será considerada evidência completa".
+1. Frames: legenda, big picture, Fluxo 1, Fluxo 2 (com a máquina de estados), Fluxo 3 e hotspots com a situação do §5.
+2. Domain storytelling, mapa de contextos, modelo de agregados e glossário em frames próprios (`domain-storytelling.md`, `contextos-delimitados.md`, `agregados.md`, `linguagem-ubiqua.md`).
+3. Compartilhar como "qualquer pessoa com o link pode ver" e testar em janela anônima.
+4. Os PDFs `event-storming.pdf` e `diagramas.pdf` já estão no repositório, gerados a partir dos PNGs de `diagramas/`. Se o Miro for alterado, regenerar e conferir contra o código entregue.

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="app.diagrams.net" agent="fiap-soat-grupo-49" version="20.3.0">
+  <diagram id="09-agregados-entidades-vos" name="Agregados, entidades e objetos de valor • MVP">
+    <mxGraphModel dx="2200" dy="1450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1450" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Agregados, entidades e objetos de valor • MVP" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=30;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="28" width="2100" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="Agregado = fronteira de consistência • entidade = tabela Prisma • objeto de valor = conceito sem classe própria (enum, validador ou inteiro)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=16;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="84" width="2100" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="agg_os" value="Agregado Ordem de serviço (módulo service-orders)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=19;fontStyle=1;rounded=1;arcSize=3;align=left;verticalAlign=top;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=3;spacingLeft=16;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="1180" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="os" value="&lt;b&gt;OrdemServico&lt;/b&gt; (raiz)&lt;br&gt;número sequencial · descrição do problema · diagnóstico · km de entrada · motivo de cancelamento" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="100" y="220" width="400" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="orc" value="&lt;b&gt;Orcamento&lt;/b&gt;&lt;br&gt;versão · status · total em centavos · enviado em" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="580" y="210" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="osserv" value="&lt;b&gt;OrdemServicoServico&lt;/b&gt;&lt;br&gt;serviço da OS · quantidade · preço unitário congelado" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="210" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ositem" value="&lt;b&gt;OrdemServicoItem&lt;/b&gt;&lt;br&gt;peça da OS · quantidade · preço unitário congelado" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="320" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="hist" value="&lt;b&gt;OrdemServicoStatusHistorico&lt;/b&gt;&lt;br&gt;status anterior e novo · autor · observação · data" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="580" y="320" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pol" value="&lt;b&gt;StatusTransitionPolicy&lt;/b&gt;&lt;br&gt;8 comandos · transições permitidas · terminais · itens editáveis só em RECEBIDA e EM_DIAGNOSTICO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=0;align=center;verticalAlign=middle;fillColor=#ede9fe;strokeColor=#6d28d9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="100" y="380" width="400" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_status" value="StatusOrdemServico&lt;br&gt;(enum, 9 valores)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="560" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_stq" value="StatusOrcamento&lt;br&gt;(enum: RASCUNHO, ENVIADO, APROVADO, REJEITADO)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="560" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_money" value="Valor monetário&lt;br&gt;(inteiro em centavos)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="560" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_num" value="Número da OS&lt;br&gt;(sequencial, texto)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="560" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="inv_os" value="Invariantes: total do orçamento é derivado dos itens; preço congelado na inclusão; cada transição grava histórico na mesma transação; veículo sem outra OS aberta." style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="660" width="1100" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="agg_est" value="Agregado Item de estoque (módulo catalog)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=19;fontStyle=1;rounded=1;arcSize=3;align=left;verticalAlign=top;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=3;spacingLeft=16;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="150" width="840" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="item" value="&lt;b&gt;ItemEstoque&lt;/b&gt; (raiz)&lt;br&gt;código · tipo · unidade · preço de venda · saldo físico · saldo reservado · ativo" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="220" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="mov" value="&lt;b&gt;MovimentacaoEstoque&lt;/b&gt;&lt;br&gt;tipo · quantidade · motivo · OS (opcional)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="220" width="320" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="stock" value="&lt;b&gt;StockService&lt;/b&gt;&lt;br&gt;reserva na aprovação · baixa na finalização · entrada, saída e ajuste manuais" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=0;align=center;verticalAlign=middle;fillColor=#ede9fe;strokeColor=#6d28d9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="390" width="380" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_tipo" value="TipoMovimentacaoEstoque&lt;br&gt;(enum)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="390" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_un" value="UnidadeMedida e&lt;br&gt;TipoItemEstoque (enums)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="470" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_qtd" value="Quantidade&lt;br&gt;(Decimal 12,3)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="560" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_sal" value="Saldo disponível&lt;br&gt;(físico − reservado)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="560" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="inv_est" value="Invariantes: físico ≥ 0 e 0 ≤ reservado ≤ físico (domínio e CHECK no banco); saldo só muda por movimentação; linhas travadas com SELECT … FOR UPDATE." style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="660" width="760" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="agg_srv" value="Agregado Serviço (catalog)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=19;fontStyle=1;rounded=1;arcSize=3;align=left;verticalAlign=top;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=3;spacingLeft=16;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="860" width="520" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="serv" value="&lt;b&gt;Servico&lt;/b&gt; (raiz)&lt;br&gt;nome único · descrição · preço base · ativo" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="100" y="930" width="440" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_pb" value="Preço base&lt;br&gt;(inteiro em centavos)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1050" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="agg_usr" value="Agregado Usuário / Cliente (identity e customers)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=19;fontStyle=1;rounded=1;arcSize=3;align=left;verticalAlign=top;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=3;spacingLeft=16;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="640" y="860" width="900" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="usr" value="&lt;b&gt;Usuario&lt;/b&gt; (raiz)&lt;br&gt;nome · e-mail · documento · telefone · ativo&lt;br&gt;cliente = Usuario com perfil Cliente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="680" y="930" width="330" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="perfil" value="&lt;b&gt;Perfil&lt;/b&gt;&lt;br&gt;Admin · Atendente · Mecânico · Cliente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="930" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="senha" value="&lt;b&gt;UsuarioSenha&lt;/b&gt;&lt;br&gt;hash Argon2id&lt;br&gt;&lt;b&gt;SessaoRefresh&lt;/b&gt; · tokens" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="930" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_doc" value="Documento CPF/CNPJ&lt;br&gt;(validador, dígitos verificadores)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1050" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_mail" value="E-mail único&lt;br&gt;(inclusive inativo)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="1050" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="agg_vei" value="Agregado Veículo (customers)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=19;fontStyle=1;rounded=1;arcSize=3;align=left;verticalAlign=top;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=3;spacingLeft=16;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="860" width="540" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="vei" value="&lt;b&gt;Veiculo&lt;/b&gt; (raiz)&lt;br&gt;proprietário (Usuario) · placa · chassi · marca · modelo · ano · cor · km" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="930" width="460" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_placa" value="Placa&lt;br&gt;(antiga ou Mercosul)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="1050" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo_ano" value="Ano de fabricação&lt;br&gt;(validador)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="1050" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" value="serviço" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#6b7280;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;exitX=0.15;exitY=1;exitDx=0;exitDy=0;entryX=0.34;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="agg_os" target="agg_srv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="cliente, atendente, mecânico" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#6b7280;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;exitX=0.65;exitY=1;exitDx=0;exitDy=0;entryX=0.21;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="agg_os" target="agg_usr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="veículo" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#6b7280;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;exitX=0.95;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="agg_os" target="agg_vei">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#6b7280;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="agg_os" target="agg_est">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#6b7280;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="agg_vei" target="agg_usr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="leg0" value="Legenda" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=16;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1170" width="110" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Raiz do agregado" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fde68a;strokeColor=#b45309;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1170" width="190" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Entidade (tabela)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1170" width="190" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Objeto de valor (conceito)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=1;arcSize=40;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1170" width="230" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Política / serviço de domínio" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;rounded=0;align=center;verticalAlign=middle;fillColor=#ede9fe;strokeColor=#6d28d9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1170" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="Seta tracejada = referência por identificador. Ao lado: OS → Item de estoque (peça; reserva e baixa pelo StockService, na mesma transação) e Veículo → Usuário (proprietário)." style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=16;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="1160" width="1020" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="warn" value="DDD tático parcial: o código não tem classes de agregado nem de objeto de valor. As entidades são classes de dados em domain/entities; os objetos de valor são enums, validadores e inteiros em centavos; as regras ficam em funções e políticas puras de domain/ e nos serviços transacionais. As raízes acima são conceituais. Não há eventos de domínio publicados (ver docs/ddd/agregados.md)." style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;align=left;verticalAlign=middle;fillColor=#fffbeb;strokeColor=#d97706;strokeWidth=2;spacingLeft=14;spacingRight=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1240" width="2080" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

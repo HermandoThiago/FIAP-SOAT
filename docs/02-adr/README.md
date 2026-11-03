@@ -46,6 +46,24 @@ cada uma; as opções e recomendações ficam como registro.
 Tipo 1 = difícil de reverter/afeta todos (exige enquete) · Tipo 2 = reversível (dono da frente decide; enquete opcional) —
 decisões Tipo 2 que não precisam de ADR ficam em [decisoes-leves.md](decisoes-leves.md) (ex.: E-17, ORM = Prisma).
 
+## Leitura das divergências
+
+As ADRs registram a decisão da época e não foram reescritas. Onde o código difere, vale o código (ver também [decisoes-leves.md](decisoes-leves.md) e a [visão geral](../04-arquitetura/visao-geral.md)).
+
+| ADR | O que a ADR diz | O que o código entregue faz |
+|---|---|---|
+| 003 | Camadas `controllers` → `services` → `repositories`, agregados ricos no `domain/` | Sem camada `repositories/`: os serviços usam o Prisma direto; `domain/` tem funções e políticas puras, não agregados ricos |
+| 004 | Senha com bcrypt | Argon2id (ADR-015 prevalece); JWT HS256 e papéis `Admin`/`Atendente`/`Mecanico`/`Cliente` (sem `MANAGER`) |
+| 005 | Swagger só em desenvolvimento, em `/docs/openapi.json` | UI em `/docs` e JSON em `/docs-json`, **sempre expostos** |
+| 006 | Testcontainers e BDD (Cucumber-js) | Testes unitários, de serviço e de integração com Testcontainers; **não há `test/bdd`** |
+| 009 | UUID v4 gerado na aplicação; número `OS-AAAA-NNNNNN` | UUIDs por default do Prisma; número da OS sequencial do banco, sem o formato anual |
+| 010 | Status terminal `CANCELLED` para recusa e cancelamento, 7 status | 9 status; recusa → `ORCAMENTO_RECUSADO`; cancelamento só do Admin antes da aprovação; aprovação leva a `AGUARDANDO_EXECUCAO` e `start-execution` é comando separado |
+| 011 | Token de acompanhamento ou login `CUSTOMER` | Mantido; papel chama-se `Cliente` |
+| 012 | Reserva na aprovação, baixa na finalização, 422 sem estoque | Mantido; incluir peça apenas confere disponibilidade; nenhum fluxo libera reserva |
+| 013 | Código e API em inglês | Misto: rotas em inglês ou português (`/itens`), schema e DTOs em português |
+
+Itens que não estão em nenhuma ADR e ainda não existem: `/health` e `/ready`, estoque mínimo e envio real de notificação.
+
 ## Como criar uma nova ADR
 
 1. Copie `ADR-000-template.md` → `ADR-0NN-titulo-curto.md` (numeração sequencial).

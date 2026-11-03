@@ -1,5 +1,8 @@
 # Enquetes — decisões pendentes (texto pronto para o Discord)
 
+> **Registro das votações.** Onde a implementação divergiu do resultado de uma enquete, a divergência está em
+> `docs/02-adr/README.md` e `docs/02-adr/decisoes-leves.md`; o código e o Swagger prevalecem.
+
 > Como usar: copie o bloco da enquete para o Discord (recurso **Enquete** do canal), marque `@everyone`, prazo 72 h.
 > Ao encerrar, registre o resultado aqui e na seção *Decisão* da ADR/PRD correspondente. Ordem = prioridade.
 

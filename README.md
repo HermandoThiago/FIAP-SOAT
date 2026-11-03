@@ -144,7 +144,8 @@ pnpm run test:integration  # integração: PostgreSQL real via Testcontainers (e
 ## 8. Acesso ao Swagger / documentação da API
 
 - **Swagger UI:** `http://localhost:3001/docs` · documento OpenAPI (JSON): `http://localhost:3001/docs-json`.
-- Gerado a partir do código (code-first, ADR-005). Clique em **Authorize** e cole o `accessToken` do login.
+- Gerado a partir do código (code-first, ADR-005). Execute `POST /auth/login`, clique em **Authorize** e cole somente o
+  `accessToken`, **sem** o prefixo `Bearer`. O Swagger envia `Authorization: Bearer <token>` nas rotas protegidas.
 - Contrato combinado antes de codar: `docs/04-arquitetura/contrato-api.md` (os identificadores do código estão em
   português nas rotas e nos campos, conforme `docs/02-adr/decisoes-leves.md`).
 
@@ -208,14 +209,14 @@ Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.
 
 ## 12. Documentação DDD
 
-- Miro (acessível sem pedir permissão): `<link a preencher>`
+- Documentação DDD (pasta pública no Google Drive, sem pedir permissão): <https://drive.google.com/drive/folders/1-5cyDTGdb8r-q7zIxAUV7Ahn6Kfzl2W4?usp=sharing>
 - Exportação no repositório (estrutura pedida pelo enunciado): `docs/ddd/event-storming.pdf`, `docs/ddd/diagramas.pdf`,
   `docs/ddd/linguagem-ubiqua.md` — versões Mermaid em `docs/ddd/*.md` (`docs/ddd/README.md` explica o mapeamento).
 
 ## 13. Vídeo da entrega
 
 - YouTube (público, ≤ 15 min): `<link a preencher>` · roteiro: `docs/06-entrega/roteiro-do-video.md`.
-- Versão entregue: branch `master`, tag `v1.0.0`, commit `<hash a preencher>` (mesmo commit informado no PDF).
+- Versão entregue: branch `master`, tag `v1.0.0`. O hash completo do commit está no PDF de entrega (um commit não pode conter o próprio hash).
 
 ## Controle de estoque
 
@@ -232,15 +233,16 @@ Detalhes: `docs/04-arquitetura/estrutura-do-repositorio.md`.
 
 ## Limitações conhecidas (MVP)
 
-- **Nomes:** peças e insumos estão em `/itens` (o contrato/glossário pedem `/parts`); divergência registrada em
-  `docs/02-adr/decisoes-leves.md` (02/11/2026).
+- **Nomes:** os identificadores são mistos: rotas em inglês ou português (`/itens`), schema e DTOs em português. Divergências das ADRs em `docs/02-adr/README.md`.
 - **Notificação:** o envio do orçamento é simulado (log); não há e-mail.
+- **Operação:** não há `/health` nem `/ready`; o CORS está aberto e o Swagger fica sempre exposto (`docs/05-qualidade-e-seguranca/seguranca.md`).
+- **DDD tático:** sem agregados ricos, objetos de valor nem eventos publicados; as regras estão em funções e políticas de `domain/` (`docs/ddd/agregados.md`).
 
 ## Grupo 49
 
 | Integrante | RM | Discord | Frente (E-02 aprovada; redistribuída em 16/09 e 22/09 — ver `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`) |
 |---|---|---|---|
-| Shirley Balbino | `preencher` | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro (com apoio dos dois), BDD (Gherkin), checklist, facilitação do assíncrono; **F5** entrega — roteiro e edição do vídeo, PDF |
+| Shirley Balbino | RM378258 | shirleybalbino | **F2** DDD & Documentação + Produto (Product & DDD Lead) — PRDs, event storming/Miro (com apoio dos dois), BDD (Gherkin), checklist, facilitação do assíncrono; **F5** entrega — roteiro e edição do vídeo, PDF |
 | Diego Marques | RM369305 | dmosantos | **F3** Domínio & API — core `service-orders` + **modelagem do banco de dados** (modelo, Prisma, migrações, seed, justificativa da ADR-002); co-revisão de arquitetura (F1), testes do core e revisão de segurança (F4) |
 | Hermando Thiago | RM378259 | hermandothiago | **F1** Arquitetura & Repositório — **estrutura do código** (esqueleto, camadas, CI/compose) **+ ADRs**, revisão de PRs; **F3** módulos `customers` e `catalog`; **F4** Qualidade & Segurança — testes, cobertura, BDD automatizado, scans e relatório; métrica de tempo médio |
 
@@ -274,5 +276,5 @@ Comece por: `docs/00-guia-do-grupo/como-trabalhamos.md` → `docs/02-adr/README.
 2. **Repositório público** no GitHub durante a correção e a revisão de notas, só com arquivos necessários e sem segredos,
    com README completo, testes ≥ 80 %, Swagger e o relatório da análise de vulnerabilidades.
 3. **Vídeo público no YouTube** (≤ 15 min) demonstrando os 15 itens do enunciado no commit entregue.
-4. **Documentação DDD** no Miro (acessível sem pedir permissão) e exportada em `docs/ddd/`.
+4. **Documentação DDD** em pasta pública do Google Drive (sem pedir permissão) e exportada em `docs/ddd/`.
 5. Funcionalidades e requisitos técnicos obrigatórios rastreados em `docs/06-entrega/checklist-de-entrega.md`.

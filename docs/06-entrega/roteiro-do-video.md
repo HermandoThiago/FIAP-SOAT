@@ -1,46 +1,46 @@
 # Roteiro do vídeo (≤ 15 minutos)
 
-> Regras: cobrir **todos** os 15 itens do enunciado na ordem em que aparecem; demonstrar ao vivo (Swagger) em vez de
-> ler slides; cada bloco tem responsável e tempo máximo; ensaio cronometrado obrigatório. Gravar por blocos (cada um
-> grava o seu) e juntar na edição, ou gravar junto — decidir na E-03. Exigências do enunciado (23/09): publicar no YouTube
-> como **público**, áudio compreensível, mostrar o projeto no **commit informado no PDF** e identificar os integrantes.
+Regras: cobrir **todos** os 15 itens do enunciado na ordem; demonstrar ao vivo (Swagger) em vez de ler slides; cada bloco tem responsável e tempo máximo; ensaio cronometrado obrigatório. O vídeo deve ser **público** no YouTube, com áudio compreensível, mostrar o projeto no **commit informado no PDF** e identificar os integrantes.
 
-## Preparação (antes de gravar)
+Demonstrar só o que existe; o que estiver pendente (relatório de vulnerabilidades, BDD, `/health`) não entra como pronto.
 
-- [ ] `docker compose down -v && docker compose up --build` em máquina limpa; seed carregado (OS aguardando aprovação pronta para a demo).
-- [ ] Miro aberto nos frames: legenda, big picture, fluxo 1, fluxo 2, context map, agregados, glossário.
-- [ ] Swagger aberto e autenticado (token do gerente já colado no *Authorize*).
-- [ ] Terminal com relatório de cobertura e saída do BDD prontos; relatórios de scan abertos (antes × depois).
-- [ ] IDE com a árvore do repositório colapsada nos módulos.
-- [ ] Resolução 1080p, zoom 125 % no navegador, fontes grandes no terminal.
-- [ ] Branch, tag (`v1.0.0`) e hash do commit da entrega definidos — o vídeo mostra esse commit e o diz na abertura.
-- [ ] Publicar como **público** no YouTube (não "não listado"); testar o link em janela anônima; conferir o áudio com fone.
+## Preparação
+
+- [ ] `cp .env.example .env`, `docker compose down -v && docker compose up --build` em máquina limpa. O serviço `migrate` aplica migrações e seed; a API sobe em `http://localhost:3001`.
+- [ ] Usuários do seed (senha em `SEED_PASSWORD`, `.env.example`): `admin@`, `atendente@`, `mecanico@` e `cliente@oficina.local`.
+- [ ] Miro (ou os PNGs revisados em `Revisão`) aberto nos frames: legenda, big picture, fluxos 1–3, mapa de contextos, glossário.
+- [ ] Swagger em `http://localhost:3001/docs`, autenticado (colar **só o access token** em *Authorize*).
+- [ ] Terminal com o relatório de cobertura; relatórios de scan abertos, se existirem.
+- [ ] Resolução 1080p, zoom 125 %, fontes grandes.
+- [ ] Branch, tag e hash do commit da entrega definidos; dizê-los na abertura.
+- [ ] Publicar como **público**; testar o link em janela anônima; conferir o áudio.
 
 ## Blocos
 
 | # | Item do enunciado | Tempo | O que mostrar / dizer | Responsável |
 |---|---|---|---|---|
-| 1 | **Proposta da solução** | 0:00–0:50 | Grupo 49 e integrantes (nome, RM, papel); branch/tag e hash do commit da entrega; problema da oficina (5 dores); MVP: OS, clientes, veículos, catálogo/estoque, orçamento com aprovação, DDD + qualidade + segurança | F2 (Shirley) |
-| 2 | **Arquitetura do projeto** | 0:50–1:50 | C4 nível 1 e 2 (`visao-geral.md`): atores, API monolítica, banco, compose; frase sobre evolução para K8s/microsserviços | F1 |
-| 3 | **Organização do monólito e suas camadas** | 1:50–2:50 | Árvore do repo: módulos por contexto (`customers`, `catalog`, `service-orders`, `identity`) e as camadas clássicas de cada módulo (`controllers` → `services` → `repositories`, sobre um `domain` rico e sem framework); um módulo só fala com outro pelo serviço exportado; por que isso facilita a Clean (Fase 2) e os microsserviços (Fase 4) | F1 |
-| 4 | **Escolha e justificativa do banco** | 2:50–3:30 | ADR-002: relacional/transacional (aprovação + baixa de estoque atômica), `NUMERIC`, constraints, Testcontainers, RDS depois; schema por módulo | F3 (Diego — modelagem do banco) |
-| 5 | **Event Storming + elementos de DDD** | 3:30–5:30 | Miro: legenda; big picture; fluxos 1 (criação da OS), 2 (acompanhamento) e 3 (peças/insumos) com a gramática ator → comando → agregado → evento → política e os pivotais; hotspots resolvidos por ADRs; context map (core/supporting/generic); agregados e VOs (`Document`, `LicensePlate`, `Money`); linguagem ubíqua (glossário ↔ nomes no código/Swagger) | F2 |
-| 6 | **Fluxo de criação e acompanhamento da OS** | 5:30–7:00 | Swagger: criar cliente (CPF) e veículo (placa) → `POST /service-orders` (Recebida) → `GET /tracking/...` como cliente (token de acompanhamento; mostrar também o login `CUSTOMER`) | F3 |
-| 7 | **Inclusão de serviços, peças e insumos** | 7:00–7:50 | `POST …/diagnosis` → incluir serviço → incluir peça (mostrar estoque antes) → tentar peça sem estoque (422) | F3 |
-| 8 | **Geração e aprovação do orçamento** | 7:50–9:00 | `GET …/quote` (calculado) → `POST …/quote/send` (token no log/resposta) → `POST /tracking/…/quote/approve` → status Em execução; mostrar estoque **reservado** (`reservedQuantity`/`availableQuantity`) | F3 |
-| 9 | **Alteração dos status da OS** | 9:00–10:00 | Diagrama de estados (6 + Cancelada); `POST …/complete` (mostrar estoque baixado) → `POST …/deliver`; `GET …/status-history`; tentar transição inválida (409); recusa → Cancelada; listagem por status; `GET /metrics/average-execution-time` | F3 |
-| 10 | **Autenticação das APIs administrativas** | 10:00–10:50 | Chamar `/customers` sem token (401) → `POST /auth/login` → *Authorize* → 200; papel insuficiente (403); validação CPF/placa inválidos (422); menção a hash/segredos por env | F4 |
-| 11 | **Execução da aplicação** | 10:50–11:40 | Terminal: `git clone` → `.env.example` → `docker compose up --build` → logs → `/health`; README na tela | F5 |
-| 12 | **Documentação Swagger/OpenAPI** | 11:40–12:10 | Swagger UI: tags por módulo, exemplos, esquema `bearerAuth`, erros documentados; `/docs/openapi.json` gerado pelo código (code-first, ADR-005) | F5 |
-| 13 | **Testes automatizados** | 12:10–13:20 | Rodar testes (ou mostrar CI verde); relatório de cobertura ≥ 80 % em `service-orders` e `catalog`; cenários BDD em português passando; teste parametrizado da máquina de estados | F4 |
-| 14 | **Resultado da análise de vulnerabilidades** | 13:20–14:30 | Ferramentas (Semgrep, SCA, Trivy, gitleaks, ZAP); tabela antes × depois; 1 exemplo de achado corrigido; riscos aceitos; link do relatório | F4 |
-| 15 | Encerramento | 14:30–15:00 | Recap dos entregáveis (Miro, repo, relatório, PDF); próximos passos (Fase 2) | F2 (Shirley) |
+| 1 | **Proposta da solução** | 0:00–0:50 | Grupo 49 e integrantes (nome, RM, papel); branch/tag e hash; problema da oficina; MVP: OS, clientes, veículos, catálogo/estoque, orçamento com aprovação, DDD, qualidade e segurança | F2 (Shirley) |
+| 2 | **Arquitetura do projeto** | 0:50–1:50 | `docs/04-arquitetura/visao-geral.md`: atores, API monolítica NestJS, PostgreSQL, compose (`database` → `migrate` → `api`); evolução futura apenas como intenção | F1 |
+| 3 | **Organização do monólito e camadas** | 1:50–2:50 | Árvore do repo: módulos `customers`, `catalog`, `service-orders`, `identity` e `shared`. Em cada um: `controllers`/`dtos` → `services` → Prisma pelo `DatabaseService`, com regras puras em `domain/`. **Explicar a divergência** da ADR-003: não há camada `repositories/` nem agregados ricos, por decisão registrada em `decisoes-leves.md`. Módulos colaboram por serviços exportados, mas o banco é compartilhado | F1 |
+| 4 | **Escolha e justificativa do banco** | 2:50–3:30 | ADR-002: relacional e transacional (aprovação + reserva e finalização + baixa atômicas), `Decimal` para estoque, constraints `CHECK`, Testcontainers. Um banco compartilhado, sem schema por módulo | F3 (Diego — modelagem do banco) |
+| 5 | **Event Storming + elementos de DDD** | 3:30–5:30 | Frames dos três fluxos, a gramática ator → comando → agregado → evento → política, hotspots e situação; mapa de contextos (core/supporting/generic); linguagem ubíqua e relação glossário ↔ código. Dizer que os eventos são **fatos conceituais** e que o DDD tático é parcial (sem agregados ricos nem VOs) | F2 |
+| 6 | **Criação e acompanhamento da OS** | 5:30–7:00 | Swagger: cadastrar cliente (CPF) e veículo (placa) → `POST /service-orders` (Recebida; por `customerDocument` ou `clientId`) → `GET /tracking/service-orders/{id}` com token de acompanhamento, e também com o login `cliente@` | F3 |
+| 7 | **Serviços, peças e insumos** | 7:00–7:50 | `POST …/diagnosis` → incluir serviço → incluir peça (mostrar o saldo antes e depois: **conferido, não reservado**) → peça sem saldo (422) | F3 |
+| 8 | **Geração e aprovação do orçamento** | 7:50–9:00 | `GET …/quote` (calculado) → `POST …/quote/send` (token na resposta; notificação só em log) → `POST /tracking/…/quote/approve` → status **Aguardando execução**; mostrar saldo **reservado** em `GET /itens/{id}` e a movimentação `RESERVA` | F3 |
+| 9 | **Alteração dos status da OS** | 9:00–10:00 | Diagrama de 9 status; `POST …/start-execution` → `POST …/complete` (saldo baixado, movimentação `SAIDA`) → `POST …/deliver`; `GET …/status-history`; transição inválida (409); recusa → **Orçamento recusado**; cancelamento do Admin antes da aprovação; listagem por status; `GET /metrics/average-execution-time` | F3 |
+| 10 | **Autenticação das APIs administrativas** | 10:00–10:50 | Chamar `/customers` sem token (401) → `POST /auth/login` → *Authorize* → 200; papel insuficiente (403); CPF/placa inválidos (422 ou 400, conforme o DTO); Argon2id e segredos por variável de ambiente; refresh com rotação | F4 |
+| 11 | **Execução da aplicação** | 10:50–11:40 | `git clone` → `.env.example` → `docker compose up --build` → logs → Swagger em `/docs`; README na tela. Não existe `/health` | F5 |
+| 12 | **Documentação Swagger/OpenAPI** | 11:40–12:10 | UI `/docs` e JSON `/docs-json`; esquema Bearer; tags por módulo; code-first (ADR-005) | F5 |
+| 13 | **Testes automatizados** | 12:10–13:20 | `test:cov` (567 testes, cobertura global ≈ 97,5 % linhas e ≈ 84 % branches; domínios críticos > 80 %) e `test:integration`; CI; teste parametrizado da máquina de estados. **Sem BDD** (não existe `test/bdd`) | F4 |
+| 14 | **Análise de vulnerabilidades** | 13:20–14:30 | `relatorio-de-vulnerabilidades.md`: ferramentas executadas em 02/11/2026 (Semgrep, gitleaks, Trivy, hadolint, `pnpm audit`) e resultado: 0 achados no código e nos segredos; achados abertos na imagem base e em `fast-uri`, com a decisão do grupo. ZAP só se for executado antes da gravação. Citar as limitações conhecidas (CORS aberto, Swagger sempre exposto, notificação simulada) | F4 |
+| 15 | Encerramento | 14:30–15:00 | Recap dos entregáveis (Miro, repositório, relatório, PDF) | F2 (Shirley) |
+
+Responsáveis seguem as frentes de `docs/00-guia-do-grupo/frentes-e-responsabilidades.md`; confirmar com o grupo, pois a redistribuição de 22/09 mudou quem cobre cada frente.
 
 ## Dicas
 
-- Falar o **nome do requisito** ao demonstrá-lo ("aqui está a alteração automática de status…") — facilita a correção.
-- O vídeo precisa ficar no ar (público) durante toda a correção e a revisão de notas; não apagar nem reenviar depois da entrega.
-- Deixar dados de demo com nomes claros (`Maria Silva`, `OS-2026-000042`) e valores redondos (R$ 330,00).
-- Se algo falhar ao vivo, cortar na edição — nunca gravar de novo tudo.
-- Legendas/callouts curtos para os itens do checklist; sem música alta.
-- Duração-alvo 14:30 para ter margem.
+- Falar o **nome do requisito** ao demonstrá-lo.
+- O vídeo fica no ar (público) durante a correção e a revisão de notas.
+- Dados de demo claros e valores redondos; sem CPF, placa ou e-mail reais.
+- Se algo falhar ao vivo, cortar na edição.
+- Duração-alvo 14:30.

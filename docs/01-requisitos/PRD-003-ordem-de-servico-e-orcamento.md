@@ -2,10 +2,28 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão (recusa/cancelamento, acesso do cliente e estoque consolidados pelas ADRs 010/011/012 em 22/09/2026) |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F3 (Domínio & API) · apoio F1 |
 | Origem no enunciado | Bloco "Criação da Ordem de Serviço (OS)" completo; "A geração e aprovação do orçamento"; "A inclusão de serviços, peças e insumos" (itens do vídeo); §5 do enunciado de 23/09: "Registro da aprovação ou rejeição do orçamento" |
 | Contexto DDD | `service-orders` (**core domain**) |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Requisito | Situação |
+|---|---|
+| RF-030 cliente e veículo por id **ou** documento/placa | cliente por `clientId` ou `customerDocument`; veículo **só por `veiculoId`**; `mecanicoId` é obrigatório; sem serviços iniciais na criação |
+| RF-031 número `OS-AAAA-NNNNNN` | número **sequencial** do banco, devolvido como texto |
+| RF-037 aprovação → `Em execução` automática | aprovação → `AGUARDANDO_EXECUCAO` (reserva o estoque); `POST …/start-execution` leva a `EM_EXECUCAO` |
+| RF-038 recusa → `Cancelada` | `ORCAMENTO_RECUSADO`, com motivo |
+| RF-042 cancelar (Gerente) | **Admin**, com motivo, em Recebida, Em diagnóstico ou Aguardando aprovação |
+| RF-043 reabrir orçamento | não implementado, como previsto |
+| RN-035 `executionStartedAt` | não há coluna; marcos e tempos vêm do histórico de status |
+| RN-039 uma OS aberta por veículo | verificado na aplicação; sem índice único no banco |
+| RN-040 versão otimista (`version`) | **não existe**; transição por update condicionado ao status (perdedor → 409) |
+| Peça incluída | confere disponibilidade, **não reserva** |
+| Jornada "execução inicia automaticamente" e cenários Gherkin | usar os status do enum real (tabela no PRD-004); `RECEIVED`=`RECEBIDA` etc. |
 
 ## 1. Objetivo
 

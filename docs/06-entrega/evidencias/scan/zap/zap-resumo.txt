@@ -1,0 +1,7 @@
+OWASP ZAP 2.17.0 (imagem ghcr.io/zaproxy/zaproxy:stable) - zap-api-scan.py
+Data: 03/11/2026. Alvo: API do compose local (http://localhost:3001), imagem de producao reconstruida.
+Entrada: OpenAPI gerado pelo proprio codigo (/docs-json): 34 caminhos, 51 operacoes; 48 URLs importadas, 132 URLs examinadas.
+Autenticacao: cabecalho Authorization com JWT do usuario Admin do seed (token com validade de 2 h, usado so no teste e nao gravado no relatorio).
+Regras: 120 aprovadas; 0 FAIL; 0 WARN; 2 informativos (respostas 4xx esperadas durante o teste; conteudo nao armazenavel em cache).
+Duracao: cerca de 75 segundos (execucao de 1a tentativa descartada: a importacao pela URL leu so 2 URLs).
+Limites: rotas /tracking exigem token proprio de acompanhamento e responderam 4xx ao token de Admin; sem teste de logica de negocio nem de autorizacao entre usuarios; varredura curta.
