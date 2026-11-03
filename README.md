@@ -69,8 +69,9 @@ domain/                regras puras em TypeScript: política de transição de s
 ## 5. Pré-requisitos
 
 - **Para rodar a aplicação:** Docker e Docker Compose v2 (`docker compose version`). Nada mais.
-- **Para desenvolver e testar fora do contêiner:** Node 22+, pnpm 10 (`corepack enable`), Git e Docker (os testes de
-  integração usam Testcontainers).
+- **Para desenvolver e testar fora do contêiner:** Node 24.9 ou superior (os testes dependem disso: o Jest só carrega o
+  `@nestjs/common`, que é ESM, a partir dessa versão), pnpm 10 (`corepack enable` ou `npm install -g pnpm@10.15.1`), Git e
+  Docker (os testes de integração usam Testcontainers). A imagem Docker de produção usa Node 22.
 
 ## 6. Instruções para execução
 
