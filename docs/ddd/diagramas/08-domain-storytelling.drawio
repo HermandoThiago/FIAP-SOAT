@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="app.diagrams.net" agent="fiap-soat-grupo-49" version="20.3.0">
+  <diagram id="08-domain-storytelling" name="Domain Storytelling • fluxo da OS">
+    <mxGraphModel dx="2200" dy="1780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1780" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Domain Storytelling • Atendimento de uma ordem de serviço" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=30;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="28" width="2100" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="História 1 (fluxo feliz) e variações das histórias 3 e 4 • atores, objetos de trabalho e atividades numeradas • valores fictícios" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=16;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="84" width="2100" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" value="Ator" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;fillColor=#e2e8f0;strokeColor=#94a3b8;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="220" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="Atividade → objeto de trabalho" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;fillColor=#e2e8f0;strokeColor=#94a3b8;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="140" width="640" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" value="Estado da OS" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;fillColor=#e2e8f0;strokeColor=#94a3b8;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="140" width="270" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="h4" value="Efeitos do Sistema e regras (anotações)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;fillColor=#e2e8f0;strokeColor=#94a3b8;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="140" width="800" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="Cliente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o1" value='CPF + descrição do problema&lt;br&gt;("barulho ao frear")' style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="195" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="1. informa o CPF e descreve o problema" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a1" target="o1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Atendente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o2" value="Cliente e Veículo&lt;br&gt;(documento e placa)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="295" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="2. localiza ou cadastra" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a2" target="o2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" value="Cliente e veículo são cadastrados em chamadas separadas antes da OS" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="300" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="Atendente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="400" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o3" value="Ordem de serviço&lt;br&gt;(cliente, veículo, mecânico)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="395" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="3. cria" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a3" target="o3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="RECEBIDA" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="410" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" value="Gera o número sequencial e o histórico; o veículo não pode ter outra OS aberta" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="400" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o4" value="Ordem de serviço" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="495" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="4. inicia o diagnóstico" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a4" target="o4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="EM_DIAGNOSTICO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="510" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="600" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o5" value='Serviço "Troca de pastilhas"&lt;br&gt;+ Peça "Pastilha × 2"' style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="595" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="5. inclui serviço e peça" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a5" target="o5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="EM_DIAGNOSTICO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="610" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n5" value="Congela o preço unitário, confere a disponibilidade (sem reservar) e recalcula o orçamento" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="600" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="700" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o6" value="Orçamento" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="695" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="6. envia" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a6" target="o6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="AGUARDANDO_APROVACAO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="710" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n6" value="Gera o token de acompanhamento; a notificação é só registrada em log" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="700" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" value="Cliente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="800" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o7" value="Orçamento&lt;br&gt;(token da OS ou login de Cliente)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="795" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="7. consulta e aprova" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a7" target="o7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="AGUARDANDO_EXECUCAO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="810" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n7" value="Reserva as peças na mesma transação; sem saldo, a aprovação falha com 422 e nada muda" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="800" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="900" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o8" value="Ordem de serviço" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="895" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="8. inicia a execução" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a8" target="o8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="EM_EXECUCAO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="910" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n8" value="Comando explícito: a aprovação não inicia o serviço" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="900" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1000" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o9" value="Ordem de serviço" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="995" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="9. finaliza" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a9" target="o9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" value="FINALIZADA" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="1010" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n9" value="Baixa a reserva do estoque na mesma transação" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1000" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a10" value="Atendente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1100" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o10" value="Veículo entregue" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1095" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="10. registra a entrega" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a10" target="o10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" value="ENTREGUE" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="1110" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n10" value="Estado terminal" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1100" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a11" value="Equipe" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1200" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="o11" value="Tempo médio de execução" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1195" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="11. consulta o tempo médio" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a11" target="o11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n11" value="Do início da execução até a finalização, pelo histórico de status" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1200" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bandv" value="Variações" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=1;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1310" width="2080" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="va1" value="Cliente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1380" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo1" value="Orçamento" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1375" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ve1" value="V1. recusa, informando o motivo" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="va1" target="vo1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vs1" value="ORCAMENTO_RECUSADO" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="1390" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vn1" value="Estado terminal. Nada muda no estoque (ainda não havia reserva). Não há reabertura: para renegociar, abre-se uma nova OS" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1380" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="va2" value="Admin" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1480" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo2" value="Ordem de serviço&lt;br&gt;(antes da aprovação)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1475" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ve2" value="V2. cancela, com motivo obrigatório" style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="va2" target="vo2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vs2" value="CANCELADA" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="1490" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vn2" value="Só em RECEBIDA, EM_DIAGNOSTICO ou AGUARDANDO_APROVACAO. Depois da aprovação não há cancelamento" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1480" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="va3" value="Mecânico" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1580" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vo3" value="Item de estoque&lt;br&gt;(0 disponível)" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1575" width="410" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ve3" value='V3. tenta incluir "Amortecedor × 2"' style="endArrow=block;endFill=1;html=1;fontFamily=Arial;fontSize=14;fontColor=#0f172a;strokeColor=#334155;strokeWidth=2;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="va3" target="vo3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vs3" value="422 estoque insuficiente" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#fee2e2;strokeColor=#b91c1c;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="1590" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vn3" value="Nada é reservado. O Atendente registra uma entrada manual de estoque e o Mecânico inclui a peça" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1580" width="800" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Ator" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=17;fontStyle=1;rounded=1;arcSize=30;align=center;verticalAlign=middle;fillColor=#fef08a;strokeColor=#a16207;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1680" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Objeto de trabalho" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=15;rounded=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="230" y="1680" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Estado da OS" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;fontStyle=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1680" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Anotação / regra" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=14;align=left;verticalAlign=middle;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=1;dashed=1;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="670" y="1680" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="O Sistema não aparece como ator: seus efeitos automáticos são as anotações. Não há reparo adicional, cancelamento pós-aprovação, notificação real nem reposição a fornecedor." style="whiteSpace=wrap;html=1;fontFamily=Arial;fontColor=#0f172a;fontSize=16;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="900" y="1675" width="1240" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

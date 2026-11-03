@@ -2,10 +2,28 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F4 (Qualidade & Segurança) |
 | Origem no enunciado | "Implementação de autenticação JWT para APIs administrativas"; "Validação dos dados sensíveis (CPF/CNPJ, placa de veículo)"; vídeo: "A autenticação das APIs administrativas"; disciplina *Desenvolvimento Seguro* (OWASP Top 10) |
 | Contexto DDD | `identity` (generic subdomain) |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Requisito | Situação |
+|---|---|
+| RN-060 bcrypt | **Argon2id** (ADR-015) |
+| RF-060 expiração de 60 min | 15 min por padrão (`JWT_ACCESS_EXPIRES_IN`) |
+| RF-063 papéis `ATTENDANT`/`MECHANIC`/`MANAGER`/`CUSTOMER` | `Admin`, `Atendente`, `Mecanico`, `Cliente`; claim `role`; sem `MANAGER` |
+| RF-061 rota `/parts` | `/itens` |
+| RF-065 refresh e logout | **implementados**: rotação, revogação da família no reuso; refresh e logout exigem access token |
+| RF-067 `/health`, `/ready` | **não existem**; Swagger em `/docs` e `/docs-json`, sempre expostos |
+| RN-063 erros 422 de validação | validação de entrada → 400; regras de negócio → 422 |
+| RN-067 CORS restritivo | **CORS aberto** (`origin: '*'`); `helmet` ativo |
+| RN-068 SCA e Trivy no CI | `pnpm audit`, hadolint e gitleaks; Trivy não executado |
+| RN-069 rate limit de login, RN-070 logs de segurança | **não implementados** |
+| `POST /auth/register` | protegido (Admin/Atendente); não é cadastro público |
 
 ## 1. Objetivo
 

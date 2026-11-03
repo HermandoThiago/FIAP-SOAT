@@ -2,10 +2,23 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F3 · apoio F1 |
 | Origem no enunciado | "Listagem e detalhamento de ordens de serviço"; "Monitoramento do tempo médio de execução dos serviços" |
 | Contexto DDD | read models sobre `service-orders` (consultas e métricas) |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Requisito | Situação |
+|---|---|
+| RF-070 filtros | `status`, `clientId`, `veiculoId`, `from`, `to`, paginação `page` (a partir de 1) e `pageSize`; os envelopes variam por recurso (RN-073 não vale) |
+| RF-072 média geral | `GET /metrics/average-execution-time`; média em minutos com duas casas e `null` sem amostras; `from`, `to`, `serviceId` opcionais |
+| RN-071 período padrão de 30 dias | **não existe** |
+| RF-073 por serviço | `byService`, usando a duração das OS que contêm o serviço (não há cronômetro por tarefa); **sem** estimado × real |
+| RF-074 `/metrics/summary` | **não implementado** |
+| Acesso | Admin, Atendente e Mecânico |
 
 ## 1. Objetivo
 

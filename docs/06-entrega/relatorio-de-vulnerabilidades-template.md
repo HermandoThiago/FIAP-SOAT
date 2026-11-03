@@ -20,13 +20,13 @@ Fora do escopo: infraestrutura de nuvem (não há nesta fase), front-end (inexis
 | Camada | Ferramenta | Versão | Configuração |
 |---|---|---|---|
 | SAST | Semgrep | `<x.y>` | `p/owasp-top-ten`, `p/typescript`, `p/nodejs`, `p/secrets` |
-| SCA | `npm audit` + Trivy fs | `<x.y>` | `package-lock.json` |
+| SCA | `pnpm audit` + Trivy fs | `<x.y>` | `pnpm-lock.yaml` |
 | Imagem | Trivy image + hadolint | `<x.y>` | `HIGH,CRITICAL` |
 | Segredos | gitleaks | `<x.y>` | histórico completo |
-| DAST | OWASP ZAP baseline + API scan | `<x.y>` | alvo `http://localhost:8080/api/v1`, `/docs/openapi.json` |
+| DAST | OWASP ZAP baseline + API scan | `<x.y>` | alvo `http://localhost:3001`, `/docs-json` |
 | IaC | Trivy config | `<x.y>` | `Dockerfile`, `docker-compose.yml` |
 
-Execução: local (scripts em `scripts/security/`) e no CI (`.github/workflows/security.yml`). Relatórios brutos em
+Execução: local e no CI (`.github/workflows/ci.yml`). Preencher **somente** com ferramentas efetivamente executadas; remover as linhas das demais. Relatórios brutos em
 `docs/06-entrega/evidencias/scan-1/` e `scan-2/`.
 
 ## 3. Resumo executivo
@@ -64,4 +64,4 @@ Resumo do checklist `docs/05-qualidade-e-seguranca/seguranca.md` com status fina
 
 - `evidencias/scan-1/` — relatórios brutos iniciais (SARIF/HTML/JSON)
 - `evidencias/scan-2/` — relatórios brutos finais
-- Prints do CI (`security.yml`) verde
+- Prints do CI (`ci.yml`) verde

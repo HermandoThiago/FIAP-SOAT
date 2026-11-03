@@ -1,220 +1,132 @@
-# Agregados, entidades, value objects e invariantes
+# Agregados, entidades e invariantes — modelo conceitual × implementação
 
-> Diagramas "conforme apresentado na disciplina de DDD". Identificadores em inglês conforme ADR-013 (Aceita) e o
-> glossário `linguagem-ubiqua.md`; o texto explicativo fica em português. Cada agregado é a **unidade de consistência**:
-> invariantes valem dentro dele e são garantidas pela raiz. Regras de recusa/cancelamento (ADR-010), estoque (ADR-012)
-> e acesso do cliente (ADR-011) já consolidadas (22/09/2026).
+> O desenho tático inicial (agregados ricos, objetos de valor `Money`/`Document`, eventos publicados) **não foi implementado**. O MVP usa classes de dados em `domain/entities`, funções e políticas puras em `domain/` e serviços de aplicação transacionais. Abaixo: o modelo conceitual e onde cada invariante vive.
 
-## 1. Visão geral dos agregados
+## 1. Agregados conceituais e fronteiras de consistência
+
+Referências entre agregados são por identificador. No banco, porém, há FKs reais entre as tabelas (ver [modelo de dados](../04-arquitetura/modelo-de-dados.md)).
 
 ```mermaid
 classDiagram
     direction LR
-    class Customer {
-        <<AggregateRoot>>
-        +CustomerId id
-        +CustomerType customerType
-        +Document document
-        +String name
-        +Email email
-        +Phone phone
-        +boolean active
-        +updateContact()
-        +deactivate()
+    class Usuario {
+        <<Identidade e Cliente>>
+        perfil Admin/Atendente/Mecanico/Cliente
+        documento CPF/CNPJ
+        ativo
     }
-    class Vehicle {
-        <<AggregateRoot>>
-        +VehicleId id
-        +CustomerId customerId
-        +LicensePlate licensePlate
-        +String brand
-        +String model
-        +int year
-        +boolean active
-        +deactivate()
+    class Veiculo {
+        proprietario = Usuario Cliente
+        placa
     }
-    class Service {
-        <<AggregateRoot>>
-        +ServiceId id
-        +String name
-        +Money price
-        +int estimatedMinutes
-        +boolean active
+    class Servico {
+        nome unico
+        preco base em centavos
     }
-    class Part {
-        <<AggregateRoot>>
-        +PartId id
-        +String sku
-        +PartType type
-        +UnitOfMeasure unitOfMeasure
-        +Money unitPrice
-        +Quantity stockQuantity
-        +Quantity reservedQuantity
-        +Quantity minimumStock
-        +recordInbound(qty)
-        +reserve(qty, serviceOrderId)
-        +withdraw(qty, serviceOrderId)
-        +release(qty, serviceOrderId)
-        +adjust(qty, reason)
-        +availableQuantity() Quantity
+    class ItemEstoque {
+        PECA ou INSUMO
+        saldo fisico
+        saldo reservado
     }
-    class ServiceOrder {
-        <<AggregateRoot>>
-        +ServiceOrderId id
-        +ServiceOrderNumber number
-        +CustomerId customerId
-        +VehicleId vehicleId
-        +ServiceOrderStatus status
-        +Quote quote
-        +Milestones milestones
-        +String cancellationReason
-        +int version
-        +startDiagnosis()
-        +addServiceItem(ServiceSnapshot, qty)
-        +addPartItem(PartSnapshot, qty)
-        +removeItem(itemId)
-        +sendQuote()
-        +approveQuote()
-        +rejectQuote(reason)
-        +complete()
-        +deliver()
-        +cancel(reason)
+    class MovimentacaoEstoque {
+        ENTRADA SAIDA AJUSTE RESERVA LIBERACAO_RESERVA
     }
-    class ServiceItem {
-        <<Entity>>
-        +ItemId id
-        +ServiceId serviceId
-        +String nameSnapshot
-        +Money priceSnapshot
-        +int quantity
-        +subtotal() Money
+    class OrdemServico {
+        <<Raiz conceitual do atendimento>>
+        status com 9 valores
+        numero sequencial
     }
-    class PartItem {
-        <<Entity>>
-        +ItemId id
-        +PartId partId
-        +String nameSnapshot
-        +Money unitPriceSnapshot
-        +Quantity quantity
-        +subtotal() Money
+    class Orcamento {
+        RASCUNHO ENVIADO APROVADO REJEITADO
+        total em centavos
     }
-    class StatusHistoryEntry {
-        <<Entity>>
-        +ServiceOrderStatus fromStatus
-        +ServiceOrderStatus toStatus
-        +Instant occurredAt
-        +String actor
-        +String reason
+    class ItensDaOS {
+        servicos e pecas
+        preco unitario congelado
     }
-    class Quote {
-        <<ValueObject>>
-        +Money totalAmount
-        +QuoteStatus status
-        +Instant sentAt
-        +Instant respondedAt
+    class Historico {
+        transicoes de status
     }
-    class User {
-        <<AggregateRoot>>
-        +UserId id
-        +Email email
-        +PasswordHash passwordHash
-        +Role[] roles
-        +CustomerId customerId
-        +boolean active
-    }
-    ServiceOrder "1" *-- "0..*" ServiceItem
-    ServiceOrder "1" *-- "0..*" PartItem
-    ServiceOrder "1" *-- "1..*" StatusHistoryEntry
-    ServiceOrder "1" *-- "1" Quote
-    ServiceOrder ..> Customer : referencia por id
-    ServiceOrder ..> Vehicle : referencia por id
-    ServiceItem ..> Service : snapshot
-    PartItem ..> Part : snapshot
-    Vehicle ..> Customer : referencia por id
-    User ..> Customer : referencia por id (papel CUSTOMER)
+    OrdemServico "1" --> "*" ItensDaOS
+    OrdemServico "1" --> "*" Orcamento
+    OrdemServico "1" --> "*" Historico
+    OrdemServico ..> Usuario : cliente, atendente, mecanico
+    OrdemServico ..> Veiculo
+    ItensDaOS ..> Servico
+    ItensDaOS ..> ItemEstoque
+    ItemEstoque "1" --> "*" MovimentacaoEstoque
 ```
 
-Referências entre agregados são **sempre por id** (nunca objeto navegável) — regra de DDD que também evita JOINs
-entre módulos.
+Diferenças em relação ao desenho original:
 
-## 2. Value objects compartilhados (`shared/domain`)
+- **Não existe agregado `Customer`**: cliente é um `Usuario` com perfil Cliente (ADR-011 mantém o login de Cliente).
+- **`Orcamento` é entidade persistida** (id, versão, status, total), não objeto de valor.
+- **`OrdemServico` não carrega `version`**; concorrência é tratada por update condicionado ao status esperado (409 para quem perde a corrida).
+- O **estoque** pertence ao agregado `ItemEstoque`; a OS apenas referencia e aciona reserva/baixa pelo `StockService` na mesma transação.
+- Não há `Part`, `Customer`, `ServiceItem`, `PartItem` como classes. Os nomes reais são `ItemEstoque`, `Usuario`, `OrdemServicoServico` e `OrdemServicoItem`.
 
-| VO | Regras | Testes obrigatórios |
-|---|---|---|
-| `Document` (`Cpf` \| `Cnpj`) | só dígitos; tamanho 11/14; dígitos verificadores; rejeita sequências repetidas; `masked()` | válidos, inválidos por DV, tamanho errado, repetidos, formatação com pontos/traço |
-| `LicensePlate` | normaliza maiúsculas/sem hífen; antiga `AAA9999` ou Mercosul `AAA9A99`; `masked()` | ambos os padrões, minúsculas, com hífen, inválidas |
-| `Money` | decimal 2 casas, BRL, ≥ 0; soma/multiplicação sem float | arredondamento, soma, multiplicação por quantidade |
-| `Quantity` | decimal(10,3) ≥ 0 (insumos fracionários) ou inteiro para peças | negativa rejeitada |
-| `Email`, `Phone` | formato; normalização | válidos/inválidos |
-| `ServiceOrderNumber` | `OS-AAAA-NNNNNN`; gerado por sequência anual | formato; sequência |
-| `ServiceOrderStatus` (enum, 7 valores) + `StatusTransitionPolicy` | tabela de transições da PRD-004 §2 | todas as combinações status × comando |
+## 2. Onde cada invariante vive
 
-## 3. Invariantes por agregado
+### Ordem de serviço
 
-### ServiceOrder
+| Invariante | Implementação |
+|---|---|
+| Só as transições da tabela são válidas; terminais não aceitam comando | `StatusTransitionPolicy.resolve` / `isTerminal`; violação → 409 |
+| Itens só mudam em `RECEBIDA` ou `EM_DIAGNOSTICO` | `StatusTransitionPolicy.canEditItems`, usado por `ServiceOrderItemsService` |
+| Total do orçamento é derivado dos itens, nunca informado | `domain/quote.ts` (`buildQuote`, `calculateQuoteTotal`); recalculado a cada inclusão/remoção |
+| Preço unitário é congelado na inclusão; nome vem do catálogo | `ServiceOrderItemsService` |
+| Envio exige ao menos um item | `ServiceOrdersService` (quote/send) |
+| Aprovar reserva estoque; falta de saldo → 422 e nada muda | `ServiceOrdersService` + `StockService.reserve…` na mesma transação |
+| Finalizar baixa a reserva | `StockService` na transação do `complete` |
+| Recusa → `ORCAMENTO_RECUSADO` (terminal); cancelamento só Admin, só antes da aprovação, com motivo | política + `CancelServiceOrderDto` |
+| Cada transição grava histórico na mesma transação | `OrdemServicoStatusHistorico` |
+| Veículo pertence ao cliente e não tem outra OS aberta | verificado em `ServiceOrdersService` (sem índice único no banco) |
+| Marcos e tempo de execução vêm do histórico | `domain/milestones.ts`, `domain/execution-time.ts` |
 
-1. Itens só podem ser incluídos/removidos em `RECEIVED` ou `IN_DIAGNOSIS`.
-2. `quote.totalAmount` = Σ `serviceItems.subtotal()` + Σ `partItems.subtotal()` — recalculado a cada mudança de item; nunca atribuído de fora.
-3. `sendQuote()` exige ≥ 1 item e total > 0; muda status para `AWAITING_APPROVAL`; congela itens; marca `quoteSentAt`.
-4. `approveQuote()` só em `AWAITING_APPROVAL`; muda para `IN_PROGRESS`; marca `executionStartedAt`; `quote.status =
-   APPROVED`; emite `QuoteApproved` — a **reserva** de estoque é orquestrada pelo serviço de aplicação, fora do agregado
-   (módulos diferentes), na mesma transação; falha na reserva reverte tudo (ADR-012).
-5. `rejectQuote(reason)` só em `AWAITING_APPROVAL`; `quote.status = REJECTED`, `respondedAt`; muda para `CANCELLED` com o
-   motivo (ADR-010) — sem volta para diagnóstico.
-6. `cancel(reason)` só em `RECEIVED`, `IN_DIAGNOSIS` ou `AWAITING_APPROVAL` (`MANAGER`); muda para `CANCELLED` com o motivo.
-7. `complete()` só em `IN_PROGRESS`; marca `completedAt` — a **baixa** das peças reservadas é orquestrada pelo serviço de
-   aplicação na mesma transação (ADR-012). `deliver()` só em `COMPLETED`. Após `DELIVERED` ou `CANCELLED`, qualquer comando
-   lança `InvalidTransitionError`.
-8. Toda transição adiciona `StatusHistoryEntry` (append-only, com `actor` = id do usuário, `CUSTOMER` ou `SYSTEM`) e
-   incrementa `version` (lock otimista).
-9. `vehicleId` deve pertencer a `customerId` — verificado pelo serviço de aplicação (consulta ao módulo `customers`) antes de criar.
+### Estoque
 
-### Part
+| Invariante | Implementação |
+|---|---|
+| Físico ≥ 0 e 0 ≤ reservado ≤ físico | funções de `domain/stock.ts` **e** `CHECK` no banco |
+| Saldo só muda por movimentação | `StockService`; `PUT /itens/{id}` não altera saldo |
+| Disponível = físico − reservado | `availableQuantity` |
+| Ajuste define o novo saldo físico (inventário), com motivo, nunca abaixo do reservado | `adjust` |
+| Saída manual só consome o disponível | `issue` |
+| Linhas bloqueadas em ordem fixa na reserva/baixa | `SELECT … FOR UPDATE` no `StockService` |
+| Liberação de reserva | função `release` e tipo `LIBERACAO_RESERVA` existem; **nenhum fluxo atual os aciona** (recusa e cancelamento ocorrem antes de qualquer reserva) |
 
-1. `stockQuantity ≥ 0`, `reservedQuantity ≥ 0` e `reservedQuantity ≤ stockQuantity` sempre; `availableQuantity() =
-   stockQuantity − reservedQuantity`.
-2. Estoque só muda por método que gera `StockMovement` (`recordInbound`, `reserve`, `withdraw`, `release`, `adjust`).
-3. `reserve(qty)` exige `availableQuantity() ≥ qty` (ADR-012 — senão `422 estoque insuficiente`); aumenta `reservedQuantity`.
-4. `withdraw(qty)` exige `reservedQuantity ≥ qty`; consome a reserva: reduz `stockQuantity` **e** `reservedQuantity`
-   (movimentação `OUTBOUND`, na finalização da OS).
-5. `release(qty)` exige `reservedQuantity ≥ qty`; reduz só `reservedQuantity` (sem gatilho no MVP — Could).
-6. `adjust(qty, reason)` nunca deixa `stockQuantity` abaixo de `reservedQuantity`.
-7. Peça inativa não pode ser incluída em OS (verificado pelo serviço de aplicação ao montar o snapshot).
+### Usuário, cliente e veículo
 
-### Customer / Vehicle
+- E-mail e documento únicos, mesmo após inativação; exclusão lógica preserva histórico.
+- Documento validado por `isValidCpf` / `isValidCnpj` (`identity/domain/validators`); placa por `license-plate.validator` (padrão antigo e Mercosul); ano por `vehicle-year.validator`.
+- Senha em Argon2id, em tabela própria (`UsuarioSenha`); sessões em `SessaoRefresh`.
+- Inativar cliente é bloqueado com OS em aberto (verificado no serviço).
 
-1. Documento único entre clientes ativos (unicidade garantida no repositório + constraint).
-2. Placa única entre veículos ativos.
-3. Inativação bloqueada se houver OS em aberto (verificado pelo serviço de aplicação via consulta ao módulo `service-orders`).
+## 3. Eventos de negócio
 
-### User
+Os eventos abaixo (por exemplo *Orçamento aprovado*, *Reserva realizada*) são **fatos conceituais** usados no Event Storming. **Não há classes de evento, barramento, outbox nem handlers** no código; o efeito de cada fato é executado diretamente no serviço, dentro da transação, e o rastro persistido é o histórico de status e as movimentações de estoque. `CustomerNotifier` também não existe: o envio ao cliente é só log.
 
-1. E-mail único; senha sempre em hash (bcrypt); ≥ 1 papel.
-2. `CUSTOMER` é papel exclusivo (não se combina com papéis de equipe) e exige `customerId` de um cliente existente;
-   usuários de equipe não têm `customerId` (ADR-011).
+| Fato (post-it) | Rastro real no sistema |
+|---|---|
+| OS recebida / Diagnóstico iniciado / Execução iniciada / finalizada / Veículo entregue / OS cancelada | linha em `OrdemServicoStatusHistorico` |
+| Orçamento enviado / aprovado / recusado | `Orcamento.orcamentoStatus` + datas, respondente e motivo + histórico |
+| Item incluído / removido; Orçamento recalculado | linhas de `OrdemServicoServico` / `OrdemServicoItem`; total do `Orcamento` |
+| Entrada, ajuste, reserva, baixa | `MovimentacaoEstoque` |
+| Estoque abaixo do mínimo | **não implementado** (não há estoque mínimo no schema) |
+| Usuário autenticado | resposta do login; não há tabela de eventos de login |
 
-## 4. Eventos de domínio (nomes canônicos)
+## 4. Serviços de aplicação (reais)
 
-`CustomerRegistered` · `VehicleRegistered` · `ServiceOrderReceived` · `DiagnosisStarted` · `ItemAddedToServiceOrder` ·
-`ItemRemovedFromServiceOrder` · `QuoteRecalculated` · `QuoteSent` · `QuoteApproved` · `QuoteRejected` · `ExecutionStarted` ·
-`ExecutionCompleted` · `VehicleDelivered` · `ServiceOrderCancelled` · `PartRegistered` · `StockInboundRecorded` ·
-`StockAdjusted` · `StockReserved` · `StockWithdrawn` · `ReservationReleased` · `StockBelowMinimum` · `UserRegistered` ·
-`UserAuthenticated`
+| Serviço | Responsabilidade |
+|---|---|
+| `ServiceOrdersService` | criar OS, comandos de transição (`applyCommand`), aprovar (com reserva), finalizar (com baixa), cancelar, listar e detalhar |
+| `ServiceOrderItemsService` | incluir/remover serviços e peças, congelar preço, conferir disponibilidade, recalcular orçamento |
+| `TrackingService` | consulta mascarada e aprovar/recusar pelo cliente, com verificação de escopo |
+| `MetricsService` | tempo médio de execução |
+| `CatalogService`, `ItemService`, `StockService` | serviços, itens de estoque e movimentações |
+| `CustomersService`, `VehiclesService` | clientes e veículos |
+| `AuthService`, `UsersService`, `TrackingTokenService` | login, refresh, usuários e token de acompanhamento |
 
-Payload mínimo: `id do agregado`, `occurredAt`, dados necessários ao handler (ex.: `QuoteApproved { serviceOrderId, partItems[] }`,
-`ExecutionCompleted { serviceOrderId, partItems[], executionTimeMinutes }`).
+## 5. Se o grupo quiser evoluir o DDD tático (fora do MVP)
 
-## 5. Serviços de domínio e serviços de aplicação (camadas clássicas, ADR-003)
-
-| Nome | Tipo | Responsabilidade |
-|---|---|---|
-| `QuoteCalculator` | Domínio (pode ser método do agregado) | Soma itens com `Money` |
-| `StatusTransitionPolicy` | Domínio | Tabela de transições válidas e quem pode executar |
-| `ServiceOrdersService.create` | Aplicação | Valida cliente/veículo via `CustomersService`/`VehiclesService`; RN-039; cria OS; persiste; publica evento |
-| `ServiceOrdersService.addServiceItem` / `addPartItem` | Aplicação | Busca snapshot via `CatalogService`/`PartsService`; verifica disponibilidade (422); chama agregado |
-| `ServiceOrdersService.sendQuote` | Aplicação | Chama agregado; emite token via `TrackingTokenService`; notifica via `CustomerNotifier` |
-| `ServiceOrdersService.approveQuote` | Aplicação (**transacional, 2 módulos**) | Agregado aprova; `PartsService.reserveForServiceOrder` (tudo ou nada); commit único |
-| `ServiceOrdersService.complete` | Aplicação (**transacional, 2 módulos**) | Agregado finaliza; `PartsService.withdrawReservedForServiceOrder`; commit único |
-| `ServiceOrdersService.rejectQuote` / `deliver` / `cancel` | Aplicação | Transições + histórico (recusa e cancelamento → `CANCELLED`, sem efeito no estoque) |
-| `TrackingService` | Aplicação (leitura + comandos do cliente) | Verifica a propriedade da OS pela credencial (token de acompanhamento ou login `CUSTOMER`; senão 404); projeção mascarada com `statusDescription` em português |
-| `MetricsService.averageExecutionTime` | Aplicação (leitura) | Consulta agregada |
+Encapsular as invariantes de `ServiceOrder` e `ItemEstoque` em classes com comandos, introduzir objetos de valor (`Document`, `LicensePlate`, `Money`) e publicar eventos de domínio com outbox. Fora do escopo desta entrega.

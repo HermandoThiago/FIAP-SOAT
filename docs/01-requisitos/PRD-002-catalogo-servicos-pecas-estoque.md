@@ -2,10 +2,28 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão (regras de estoque consolidadas pela ADR-012 em 22/09/2026) |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F3 (Domínio & API) |
 | Origem no enunciado | "CRUD de serviços"; "CRUD de peças e insumos, com controle de estoque"; "Possibilidade de incluir peças e insumos necessários"; Event storming obrigatório do fluxo **gestão de peças e insumos**; §5 do enunciado de 23/09 lista "Controle de estoque" como item próprio |
 | Contexto DDD | `catalog` (supporting) |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Requisito | Situação |
+|---|---|
+| Rota e nomes | `/itens` (`ItemEstoque`), não `/parts`; `/services` para serviços; código do item em vez de SKU |
+| RF-020 tempo estimado do serviço, RN-025 | **Não existe** no schema; sem comparação estimado × real |
+| RF-021 estoque mínimo, RF-027 peças abaixo do mínimo | **Não implementados** |
+| RN-020 preços com 2 casas | inteiro em **centavos**; quantidades `Decimal(12,3)` (Q3 resolvida: sim) |
+| RN-022 snapshot de nome e preço | congela **só o preço**; o nome é lido do catálogo |
+| RF-022, RF-023 entrada e ajuste | `POST /itens/{id}/stock-movements`; o ajuste **define o novo saldo físico** com motivo, nunca abaixo do reservado; saída manual só do disponível |
+| RF-024 reserva e baixa | implementados na aprovação e na finalização, na transação da OS |
+| RF-025 liberação | tipo e função existem; **nenhum fluxo os aciona** |
+| RF-026 histórico | `GET /itens/{id}/stock-movements` |
+| RN-021 saldo só por movimentação | implementado; `PUT /itens/{id}` não altera saldo |
+| RF-028 inativação | exclusão lógica |
 
 ## 1. Objetivo
 

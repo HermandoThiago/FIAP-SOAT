@@ -2,10 +2,24 @@
 
 | Campo | Valor |
 |---|---|
-| Status | 📝 Rascunho para revisão do grupo |
+| Status | Planejamento (ver *Situação da implementação*) |
 | Dono | F2 (Shirley — produto) · apoio F1 (Hermando) |
 | Origem | Enunciado *SOAT — Fase 1 — Tech Challenge* da FIAP, versão de 23/09/2026 — não versionado; requisitos transcritos em `docs/06-entrega/checklist-de-entrega.md` |
 | Última atualização | 23/09/2026 (revalidado contra o enunciado atualizado) |
+
+## Situação da implementação
+
+> Planejamento original; onde o código difere, vale o código ([contrato](../04-arquitetura/contrato-api.md), [divergências das ADRs](../02-adr/README.md#leitura-das-divergências)). Nomes de status, papéis e rotas no texto abaixo são os do planejamento.
+
+| Tema do planejamento | Implementado |
+|---|---|
+| Recusa do orçamento (Q2) → `Cancelada` | `ORCAMENTO_RECUSADO` (terminal); `CANCELADA` é só do Admin, antes da aprovação |
+| Status | 9 valores, não 7; aprovação leva a `AGUARDANDO_EXECUCAO` e `start-execution` é comando separado |
+| Papéis (Q5) | `Admin`, `Atendente`, `Mecanico`, `Cliente`; sem Gerente |
+| Peças em `/parts` | rotas em `/itens` |
+| Notificação ao cliente | apenas log; o token volta na resposta fora de produção |
+| Estoque | reserva na aprovação, baixa na finalização, 422 sem saldo (ADR-012), como planejado |
+| Estoque mínimo, alertas, reposição, reparo adicional, reabertura | **não implementados** |
 
 ## 1. Problema
 

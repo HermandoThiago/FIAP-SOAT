@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net" agent="fiap-soat-grupo-49">
+  <diagram id="01-maquina-de-estados" name="Estados da Ordem de Serviço">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="2600" pageHeight="1450" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=30;fontColor=#0f172a;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;fillColor=none;strokeColor=none;rounded=0;align=left;spacing=0;" value="Estados da Ordem de Serviço" vertex="1">
+          <mxGeometry height="48" width="2500" x="50" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;spacing=12;shadow=0;fillColor=none;strokeColor=none;rounded=0;align=left;spacing=0;" value="Status mudam por comandos de negócio; não existe edição livre do status. Rótulos mostram comando e ator autorizado." vertex="1">
+          <mxGeometry height="52" width="2500" x="50" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="RECEBIDA" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Recebida&lt;br&gt;RECEBIDA" vertex="1">
+          <mxGeometry height="120" width="250" x="70" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="EM_DIAGNOSTICO" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Em diagnóstico&lt;br&gt;EM_DIAGNOSTICO" vertex="1">
+          <mxGeometry height="120" width="250" x="430" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="AGUARDANDO_APROVACAO" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Aguardando&lt;br&gt;aprovação&lt;br&gt;AGUARDANDO_APROVACAO" vertex="1">
+          <mxGeometry height="120" width="250" x="790" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="AGUARDANDO_EXECUCAO" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#fef3c7;strokeColor=#b45309;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Aguardando&lt;br&gt;execução&lt;br&gt;AGUARDANDO_EXECUCAO" vertex="1">
+          <mxGeometry height="120" width="250" x="1150" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="EM_EXECUCAO" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Em execução&lt;br&gt;EM_EXECUCAO" vertex="1">
+          <mxGeometry height="120" width="250" x="1510" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="FINALIZADA" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Finalizada&lt;br&gt;FINALIZADA" vertex="1">
+          <mxGeometry height="120" width="250" x="1870" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ENTREGUE" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Entregue&lt;br&gt;ENTREGUE" vertex="1">
+          <mxGeometry height="120" width="250" x="2230" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ORCAMENTO_RECUSADO" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=18;fontColor=#0f172a;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Orçamento recusado&lt;br&gt;ORCAMENTO_RECUSADO&lt;br&gt;Terminal" vertex="1">
+          <mxGeometry height="130" width="300" x="1060" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="CANCELADA" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=18;fontColor=#0f172a;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;spacing=12;shadow=0;fontStyle=1;" value="Cancelada&lt;br&gt;CANCELADA&lt;br&gt;Terminal" vertex="1">
+          <mxGeometry height="130" width="280" x="300" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" command="startDiagnosis" edge="1" parent="1" source="RECEBIDA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="EM_DIAGNOSTICO" value="diagnosis&lt;br&gt;Mecânico/Admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" command="sendQuote" edge="1" parent="1" source="EM_DIAGNOSTICO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="AGUARDANDO_APROVACAO" value="quote/send&lt;br&gt;Mecânico/Admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" command="approveQuote" edge="1" parent="1" source="AGUARDANDO_APROVACAO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="AGUARDANDO_EXECUCAO" value="approve&lt;br&gt;Cliente">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" command="startExecution" edge="1" parent="1" source="AGUARDANDO_EXECUCAO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="EM_EXECUCAO" value="start-execution&lt;br&gt;Mecânico/Admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" command="complete" edge="1" parent="1" source="EM_EXECUCAO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="FINALIZADA" value="complete&lt;br&gt;Mecânico/Admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" command="deliver" edge="1" parent="1" source="FINALIZADA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;" target="ENTREGUE" value="deliver&lt;br&gt;Atendente/Admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" command="rejectQuote" edge="1" parent="1" source="AGUARDANDO_APROVACAO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#dc2626;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;exitX=0.8;exitY=1;entryX=0.5;entryY=0;" target="ORCAMENTO_RECUSADO" value="reject • Cliente">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-8" command="cancel" edge="1" parent="1" source="RECEBIDA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#dc2626;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="CANCELADA" value="cancel • Admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="195" y="480" />
+              <mxPoint x="440" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-9" command="cancel" edge="1" parent="1" source="EM_DIAGNOSTICO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#dc2626;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="CANCELADA" value="cancel • Admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="555" y="525" />
+              <mxPoint x="440" y="525" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-10" command="cancel" edge="1" parent="1" source="AGUARDANDO_APROVACAO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#dc2626;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#334155;labelBackgroundColor=#ffffff;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="CANCELADA" value="cancel • Admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="915" y="570" />
+              <mxPoint x="440" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="creation" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=16;fontColor=#0f172a;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;spacing=12;shadow=0;" value="Criação da OS&lt;br&gt;Atendente/Admin&lt;br&gt;POST /service-orders&lt;br&gt;Define RECEBIDA e registra histórico" vertex="1">
+          <mxGeometry height="85" width="560" x="70" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="approval" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=17;fontColor=#0f172a;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=2;spacing=12;shadow=0;" value="Aprovação: orçamento APROVADO + reserva de peças + histórico + novo status na mesma transação.&lt;br&gt;Sem estoque: 422 e rollback; continua AGUARDANDO_APROVACAO." vertex="1">
+          <mxGeometry height="110" width="980" x="1530" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="completion" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=17;fontColor=#0f172a;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=2;spacing=12;shadow=0;" value="Finalização: baixa do estoque reservado + histórico + FINALIZADA na mesma transação.&lt;br&gt;Iniciar execução é uma ação explícita; não há verificação de agenda/mecânico livre." vertex="1">
+          <mxGeometry height="110" width="980" x="1530" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="restrictions" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=18;fontColor=#0f172a;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;spacing=12;shadow=0;" value="Cancelamento só pelo Admin e antes da aprovação, nos três estados desenhados. Recusa não altera estoque: ainda não havia reserva.&lt;br&gt;ENTREGUE, ORCAMENTO_RECUSADO e CANCELADA não aceitam comandos de transição. Sem reparo adicional/reabertura no MVP." vertex="1">
+          <mxGeometry height="110" width="2440" x="70" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="routes" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=18;fontColor=#0f172a;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;spacing=12;shadow=0;" value="Rotas de equipe: POST /service-orders/{id}/{comando}. Cliente: POST /tracking/service-orders/{id}/quote/approve ou /reject.&lt;br&gt;Itens podem ser incluídos/removidos somente em RECEBIDA e EM_DIAGNOSTICO. Envio exige item com total positivo.&lt;br&gt;Fonte: StatusTransitionPolicy, ServiceOrdersService, ServiceOrdersController e TrackingController." vertex="1">
+          <mxGeometry height="150" width="2440" x="70" y="1050" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

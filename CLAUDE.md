@@ -7,96 +7,100 @@ detalhes ficam em `docs/`.
 
 Tech Challenge Fase 1 da FIAP Pós Tech Software Architecture: MVP do back-end **monolítico** de uma oficina mecânica
 (ordens de serviço, clientes, veículos, catálogo/estoque, orçamento com aprovação do cliente), com DDD, testes ≥ 80 %
-nos domínios críticos e desenvolvimento seguro. **Stack (ADR-001/002 + E-17): TypeScript + NestJS + Prisma + PostgreSQL 16.**
-Responda **em português**; escreva código, nomes e mensagens de commit de código **em inglês** (ADR-013, Aceita).
+nos domínios críticos e desenvolvimento seguro. **Stack: TypeScript + NestJS + Prisma + PostgreSQL 16** (ADR-001/002).
+Responda **em português**. O código implementado mistura idiomas (ver "Nomes" abaixo): siga o padrão do módulo que
+você está alterando.
 
-## Fonte da verdade (leia antes de propor qualquer coisa)
+## Fonte da verdade
 
-- Enunciado da FIAP (versão de 23/09/2026) — **não versionado**: propriedade intelectual da FIAP, nunca commitar o PDF
-  (`.gitignore`). Requisitos, entregáveis e itens do vídeo transcritos em `docs/06-entrega/checklist-de-entrega.md`.
-- `docs/01-requisitos/PRD-*.md` — o que o sistema faz (RF), regras (RN), critérios de aceite.
-- `docs/02-adr/` — decisões de arquitetura. **Todas as 13 ADRs estão Aceitas** (Lotes 1–3 encerrados em 22/09/2026); vale
-  a seção *Decisão* de cada uma — opções e recomendações são só registro. Decisões leves (Tipo 2, ex.: ORM = Prisma)
-  estão em `docs/02-adr/decisoes-leves.md`. Regra que dependa de algo não decidido: diga qual ADR/enquete resolve e pare.
-- `docs/ddd/linguagem-ubiqua.md` — **tradução oficial de cada termo para o código** (§1 módulos, §2–§6 identificadores,
-  §7 status, §8 eventos, §9 serviços de aplicação). Termo sem tradução no glossário não entra no código: proponha a linha no glossário.
-- `docs/ddd/agregados.md` — agregados, invariantes e eventos de domínio.
-- `docs/04-arquitetura/contrato-api.md` — rotas, payloads, códigos de erro (Problem Details); depois de implementado, o
-  Swagger gerado pelo código é a versão oficial (ADR-005, code-first).
-- `docs/04-arquitetura/estrutura-do-repositorio.md` — camadas clássicas por módulo, árvore de pastas, toolchain, regras de dependência.
-- `docs/06-entrega/checklist-de-entrega.md` — o que precisa existir para a nota; atualize quando fechar um item.
+Em caso de conflito, **o código e o schema Prisma prevalecem** sobre qualquer documento. Os documentos foram alinhados
+ao MVP implementado em 02/11/2026.
 
-Se algo não está documentado, é **scope creep**: aponte, não implemente.
+- Enunciado da FIAP — **não versionado** (propriedade intelectual da FIAP; nunca commitar o PDF).
+- `docs/04-arquitetura/contrato-api.md` e o Swagger gerado pelo código (`/docs`, `/docs-json`): rotas, payloads, erros.
+- `docs/ddd/linguagem-ubiqua.md` — termo do domínio → identificador no código e situação (implementado, parcial, não
+  implementado). `docs/ddd/agregados.md`, `event-storming.md` e `contextos-delimitados.md` completam o DDD.
+- `docs/01-requisitos/PRD-*.md` — o que o sistema faz; cada PRD tem o bloco *Situação da implementação*.
+- `docs/02-adr/` — decisões. As ADRs são histórico: onde o código divergiu, a divergência está em
+  `docs/02-adr/README.md` e em `docs/02-adr/decisoes-leves.md`.
+- `docs/06-entrega/checklist-de-entrega.md` — o que precisa existir para a nota; atualize ao fechar um item.
 
-## Regras de arquitetura
+Conceito de negócio que não existe no código (reparo adicional, liberação de reserva, reposição a fornecedor,
+estoque mínimo, e-mail real) **não deve ser descrito como funcionalidade**: ver `linguagem-ubiqua.md` §5.
 
-Cada regra cita a fonte. Divergência de uma regra é `[bloqueia]` na revisão de PR.
+## Arquitetura (como está implementada)
 
-1. Monólito modular por contexto delimitado: módulos `customers`, `catalog`, `service-orders` (core), `identity` e
-   `shared` (monólito: enunciado; módulos e nomes: `docs/ddd/contextos-delimitados.md`, ADR-013).
-2. ADR-003 (Aceita; revotada em 22/09) — **camadas clássicas dentro de cada módulo**: `controllers/` + `dto/` (HTTP,
-   validação sintática, OpenAPI) → `services/` (serviços de aplicação: orquestram os casos de uso, as transações e as
-   chamadas a outros módulos) → `repositories/` (Prisma ↔ agregados), todos sobre `domain/` (agregados, VOs, eventos,
-   políticas — TypeScript puro). Controller nunca chama repositório; `domain/` não importa `@nestjs/*` nem
-   `@prisma/client`; regra de negócio fica no agregado, não no service.
-3. ADR-003 (Aceita) — módulos só se comunicam pelo **serviço de aplicação exportado** pelo módulo Nest do outro
-   (`CustomersService`, `VehiclesService`, `CatalogService`, `PartsService`, `AuthService`, `TrackingTokenService`) ou por
-   eventos de domínio — nunca import de `domain/` ou `repositories/` de outro módulo, nunca JOIN entre schemas. Serviços
-   de aplicação usam o sufixo `Service` (`ServiceOrdersService`); a entidade `Service` do catálogo mantém o nome e o
-   serviço de aplicação que a mantém é `CatalogService` (nunca `ServicesService`).
-4. ADR-010 (Aceita) — status da OS (`ServiceOrderStatus`: `RECEIVED`, `IN_DIAGNOSIS`, `AWAITING_APPROVAL`, `IN_PROGRESS`,
-   `COMPLETED`, `DELIVERED` + terminal `CANCELLED`) muda **somente** por comandos de negócio (`startDiagnosis`, `sendQuote`,
-   `approveQuote`, `rejectQuote`, `complete`, `deliver`, `cancel`); nunca `PATCH status`. Recusa do orçamento pelo cliente
-   e cancelamento pelo `MANAGER` (só antes da aprovação) levam a `CANCELLED`; não há volta para diagnóstico (renegociar =
-   nova OS). Toda transição gera `StatusHistoryEntry`; a tabela oficial é a da PRD-004 §2.
-5. `Quote` é derivado dos itens (snapshot de nome/preço na inclusão), recalculado a cada mudança; nunca atribuído (PRD-003).
-6. ADR-012 (Aceita) — estoque só muda por `StockMovement` registrado; `stockQuantity >= 0` e
-   `0 <= reservedQuantity <= stockQuantity` no domínio e no banco (PRD-002). Incluir peça sem `availableQuantity`
-   suficiente → `422 estoque insuficiente`; a aprovação do orçamento **reserva** (`RESERVATION`) e a finalização **baixa**
-   (`OUTBOUND`), cada uma na mesma transação da transição de status.
-7. `Money` em decimal (2 casas); datas UTC ISO-8601 (`docs/04-arquitetura/contrato-api.md`). Ids UUID v4 gerados na
-   aplicação (`IdGenerator`), nunca pelo banco; número da OS `OS-AAAA-NNNNNN` (ADR-009, Aceita).
-8. Erros: 422 validação, 409 conflito/transição inválida, 401/403 auth, 404 inexistente **ou alheio** (cliente) —
-   Problem Details com chaves em inglês e textos em português (`contrato-api.md` §5).
+1. Monólito modular em `src/modules/`: `customers`, `catalog`, `service-orders` (core), `identity`; `shared` tem o
+   acesso ao banco (`DatabaseService`) e a configuração do Swagger.
+2. Por módulo: `controllers/` (+ `dto(s)/`: HTTP, validação, OpenAPI) → `services/` (casos de uso e transações,
+   usando o Prisma direto) e `domain/` (entidades de dados, validadores, políticas e funções puras, sem `@nestjs/*`).
+   **Não há camada `repositories/`** (divergência registrada em `decisoes-leves.md`). Controller não acessa o banco.
+3. Módulos só se comunicam pelo serviço de aplicação exportado pelo outro módulo (`CustomersService`,
+   `VehiclesService`, `CatalogService`, `ItemService`, `StockService`, `AuthService`, `TrackingTokenService`), nunca
+   por `domain/` de outro módulo.
+4. Status da OS: enum `StatusOrdemServico` com **9 valores** (`RECEBIDA`, `EM_DIAGNOSTICO`, `AGUARDANDO_APROVACAO`,
+   `AGUARDANDO_EXECUCAO`, `EM_EXECUCAO`, `FINALIZADA`, `ENTREGUE`, `ORCAMENTO_RECUSADO`, `CANCELADA`). Muda **somente**
+   por comando, via `StatusTransitionPolicy`: `startDiagnosis`, `sendQuote`, `approveQuote`, `rejectQuote`,
+   `startExecution`, `complete`, `deliver`, `cancel` (nunca `PATCH status`). Toda transição grava
+   `OrdemServicoStatusHistorico`. Recusa leva a `ORCAMENTO_RECUSADO`; só o Admin cancela, antes da aprovação.
+5. O orçamento é derivado dos itens (preço congelado na inclusão) e recalculado a cada mudança; nunca é atribuído.
+6. Estoque só muda por `MovimentacaoEstoque`. Peça acima do saldo disponível → `422`. A aprovação **reserva** e a
+   finalização **baixa**, cada uma na mesma transação da transição de status. Linhas de estoque são travadas com
+   `SELECT … FOR UPDATE`; o banco tem `CHECK` para saldo e reserva.
+7. Dinheiro em **centavos** (inteiro); quantidades de estoque `Decimal(12,3)`; datas em ISO-8601 UTC; ids UUID.
+8. Erros: `400` validação de entrada, `401`/`403` autenticação e papel, `404` inexistente **ou alheio** (cliente),
+   `409` conflito ou transição inválida, `422` regra de negócio (ex.: estoque insuficiente).
+
+### Nomes
+
+Rotas: `/customers`, `/vehicles`, `/services`, `/service-orders`, `/tracking`, `/metrics`, `/auth`, `/users`, mas o CRUD
+de peças e insumos é `/itens`. Modelos Prisma, campos e DTOs estão em português (`OrdemServico`, `usuarioNome`,
+`itemEstoquePrecoVenda`). Termo novo entra primeiro em `docs/ddd/linguagem-ubiqua.md`.
 
 ## Segurança e dados
 
-- Nunca inclua CPF/CNPJ/placas reais, e-mails reais ou segredos (use `.env.example`, geradores de dados válidos fictícios).
-  O repositório fica **público** na entrega (enunciado): nada sensível em nenhum arquivo nem no histórico.
-- PII mascarada em logs e nas respostas ao cliente. Validação de CPF/CNPJ (dígitos verificadores) e placa (antiga e Mercosul)
-  nos VOs `Document` e `LicensePlate`.
-- ADR-004 (Aceita) — rotas administrativas exigem JWT próprio HS256 (`POST /auth/login`, usuários no banco, bcrypt,
-  papéis `ATTENDANT`/`MECHANIC`/`MANAGER`). ADR-011 (Aceita) — `/tracking/**` aceita o token de acompanhamento
-  (`aud=tracking`, uma OS, gerado no envio do orçamento) **ou** o login do cliente (papel `CUSTOMER`, claim `customerId`);
-  OS alheia → 404; JWT de equipe não entra em `/tracking`. Públicas só `/auth/login`, `/health`, `/ready`, `/docs` (dev).
+- Nunca inclua CPF/CNPJ/placas reais, e-mails reais ou segredos (use `.env.example` e dados fictícios válidos).
+  O repositório é **público** na entrega: nada sensível em arquivo algum nem no histórico.
+- Autenticação: JWT HS256 (`POST /auth/login`), senhas com **Argon2id**, refresh token opaco com rotação. Papéis:
+  `Admin`, `Atendente`, `Mecanico`, `Cliente` (`Role` em `identity/auth/roles.ts`). Rotas administrativas exigem JWT.
+- `/tracking/**` aceita o token de acompanhamento (`aud=tracking`, uma OS, gerado no envio do orçamento) **ou** o login
+  do Cliente; OS alheia → 404; JWT de equipe não entra em `/tracking`. Públicas: `POST /auth/login`, `/docs` e
+  `/docs-json` (as demais rotas de `/auth` seguem `auth.controller.ts`).
+- Validação de CPF/CNPJ (dígitos verificadores) e de placa (antiga e Mercosul) nos validadores de `domain/`.
+- Limitações conhecidas (CORS aberto, Swagger sempre exposto, sem rate limit, notificação só em log):
+  `docs/05-qualidade-e-seguranca/seguranca.md`.
 
 ## Testes e qualidade
 
-- ADR-006 (Aceita) — todo código vem com testes. Descrições em inglês: `it('should <resultado> when <condição>')`; cenários
-  BDD em português (Cucumber-js nos 3 fluxos principais). Domínio testado sem banco/HTTP; integração com Testcontainers.
-- Cobertura ≥ 80 % (linhas e branches) em `service-orders` e `catalog` (`domain/` + `services/`); o CI tem gate.
-- Máquina de estados: testes parametrizados cobrindo **todas** as combinações status × comando.
-- ADR-007 (Aceita) — scans no CI (`security.yml`): Semgrep, `npm audit` + Trivy fs, Trivy image, hadolint, gitleaks, ZAP.
+- Todo código novo vem com testes. Domínio e serviços sem banco em `test/unit` e `test/services`; integração com
+  Testcontainers em `test/integration` (exige Docker).
+- O `jest.config.ts` tem gate de **80 % (linhas e branches)** global e em `service-orders/domain`,
+  `service-orders/services` e `catalog/services`.
+- Máquina de estados: testes cobrem as combinações status × comando.
+- BDD (Cucumber, ADR-006) **não foi implementado**.
+- Scans: no CI estão commitlint do título do PR, lint, testes com gate, integração, hadolint, gitleaks e
+  `pnpm audit --prod --audit-level high`. Semgrep, Trivy e ZAP são manuais; resultados em
+  `docs/06-entrega/relatorio-de-vulnerabilidades.md`.
 
 ## Git
 
-- ADR-008 (Aceita) — **GitFlow**: branches de trabalho `feat/<modulo>-<descricao>`, `fix/…`, `docs/…`, `test/…`, `chore/…`
-  saem de **`develop`** e voltam para `develop` por PR (template preenchido, ≤ 400 linhas, 1 aprovação humana, CI verde,
-  squash merge, branch apagada). `master` só recebe `release/*` e `hotfix/*` (F1), sempre com tag; nunca abra PR de
-  trabalho contra `master`. **Ninguém tem bypass**: tudo que chega em `master` e `develop` vem por PR (enunciado); os
-  commits diretos até 23/09 são exceção registrada em `docs/02-adr/decisoes-leves.md`.
-- **Conventional Commits obrigatórios** (o CI valida o título do PR). Escopos: módulo em inglês (`customers`, `catalog`,
-  `service-orders`, `identity`, `shared`) ou transversal (`infra`, `ci`); `docs` é tipo, não escopo — mudanças só de
-  documentação usam `docs(<pasta>)` — detalhes em `docs/00-guia-do-grupo/como-trabalhamos.md` §4.
-- Branches criadas pelo Claude usam o prefixo `claude/`, saem de `develop` e abrem PR para `develop` (configuração do workflow).
+- Fluxo definido na ADR-008: branches de trabalho (`feat/…`, `fix/…`, `docs/…`, `test/…`, `chore/…`) voltam por PR para
+  a branch de integração; `master` só recebe release com tag. Tudo que chega em `master` e `develop` vem por PR.
+  Confirme o nome real da branch de integração no repositório antes de abrir PR.
+- **Conventional Commits** (o CI valida o título do PR). `docs` é tipo, não escopo: `docs(<pasta>)`.
+- Branches criadas pelo Claude usam o prefixo `claude/`.
+- Não commite sem o usuário pedir.
 
-## Como revisar um PR (para a action de revisão e para `@claude revise`)
+## Como revisar um PR
 
 Siga `prompts/09-revisao-de-pr.md`: rastreabilidade → arquitetura → domínio → API → segurança → testes → docs.
-Classifique cada apontamento como `[bloqueia]`, `[sugestão]` ou `[dúvida]` e termine com o veredito.
-Nome fora do glossário ou tradução divergente (ex.: `Budget` em vez de `Quote`) é `[bloqueia]`.
+Classifique cada apontamento como `[bloqueia]`, `[sugestão]` ou `[dúvida]` e termine com o veredito. Documento que
+afirme algo que o código não faz é `[bloqueia]`.
 
 ## Comandos
 
-> Preencher quando o esqueleto (prompt 02) for mesclado: `npm ci`, `npm run start:dev`, `npm test`, `npm run test:e2e`,
-> `npm run test:cov`, `npm run lint`, `npx prisma migrate dev`, `docker compose up --build`.
+`pnpm install` · `pnpm start:dev` · `pnpm test` · `pnpm run test:cov` (gate de cobertura) · `pnpm run test:integration`
+(Testcontainers, exige Docker) · `pnpm lint` · `pnpm prisma:deploy` / `pnpm prisma:migrate` · `pnpm db:seed` ·
+`docker compose up --build` (banco + migrações + seed + API; `cp .env.example .env` antes).
+
+Os testes exigem Node 24.9 ou superior (o Jest só carrega o `@nestjs/common`, ESM, a partir daí) e o CI roda em Node 24; a imagem Docker de produção usa Node 22.

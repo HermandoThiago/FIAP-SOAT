@@ -16,11 +16,11 @@
 | Curso | SOAT — Software Architecture |
 | Fase | 1 |
 | Número do grupo | 49 |
-| Linguagem e principais tecnologias | TypeScript 5 + NestJS 11 (Node 22) · Prisma · PostgreSQL 16 · JWT (HS256) + bcrypt · Jest, Testcontainers, Cucumber-js · Swagger (`@nestjs/swagger`) · Docker + docker compose · GitHub Actions (Semgrep, Trivy, gitleaks, ZAP) |
+| Linguagem e principais tecnologias | TypeScript 6 + NestJS 12 (Node 22 na imagem Docker; testes e CI em Node 24) · Prisma 7 · PostgreSQL 16 · JWT (HS256) + Argon2id · Jest e Testcontainers · Swagger (`@nestjs/swagger`) · Docker + docker compose · GitHub Actions (build, lint, testes, hadolint, gitleaks, `pnpm audit`). *Conferir `package.json` e o CI no commit da entrega; incluir Semgrep, Trivy ou ZAP somente se forem de fato executados.* |
 
 | Nome completo | RM | Username no Discord |
 |---|---|---|
-| Shirley Balbino | `<RM>` | shirleybalbino |
+| Shirley Balbino | RM378258 | shirleybalbino |
 | Diego Marques | RM369305 | dmosantos |
 | Hermando Thiago | RM378259 | hermandothiago |
 
@@ -32,7 +32,7 @@
 | Branch da entrega | `master` |
 | Tag e **hash do commit** da entrega | `v1.0.0` · `<hash completo>` |
 | README (objetivo, solução, arquitetura, tecnologias, pré-requisitos, execução, testes, Swagger, banco, credenciais, diretórios, links) | `<link para o README.md nesse commit>` |
-| Documentação da API (Swagger/OpenAPI) | `http://localhost:8080/docs` após `docker compose up` (instruções no README) |
+| Documentação da API (Swagger/OpenAPI) | `http://localhost:3001/docs` (JSON em `/docs-json`) após `docker compose up` (instruções no README) |
 | Relatório da análise de vulnerabilidades | `<link para docs/06-entrega/relatorio-de-vulnerabilidades.md nesse commit>` |
 | Evidência de cobertura ≥ 80 % nos domínios críticos | `<link para docs/06-entrega/evidencias/cobertura.md>` |
 
@@ -46,7 +46,7 @@
 
 | Item | Valor |
 |---|---|
-| Miro (acessível **sem solicitação de permissão**) | `<link>` |
+| Documentação DDD (pasta pública no Drive, **sem solicitação de permissão**) | <https://drive.google.com/drive/folders/1-5cyDTGdb8r-q7zIxAUV7Ahn6Kfzl2W4?usp=sharing> |
 | Exportação no repositório | `docs/ddd/event-storming.pdf` · `docs/ddd/diagramas.pdf` · `docs/ddd/linguagem-ubiqua.md` |
 
 ### 5. Como executar (resumo — detalhes no README)
@@ -55,8 +55,8 @@
 git clone <repositório> && cd FIAP-SOAT
 cp .env.example .env
 docker compose up --build
-# Swagger: http://localhost:8080/docs
-# Login:   POST /api/v1/auth/login  { "email": "<ADMIN_EMAIL>", "password": "<ADMIN_PASSWORD>" }
+# Swagger: http://localhost:3001/docs
+# Login:   POST /auth/login  { "email": "admin@oficina.local", "senha": "<SEED_PASSWORD do .env>" }
 ```
 
 ### 6. Rastreabilidade (opcional, ajuda a correção)

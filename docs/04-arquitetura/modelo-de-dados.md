@@ -1,219 +1,60 @@
-# Modelo de dados (PostgreSQL 16 — ADR-002 Aceita · Prisma — E-17)
+# Modelo de dados — PostgreSQL 16 e Prisma
 
-> Um *schema* por módulo. **Sem chaves estrangeiras entre módulos** (apenas colunas de referência com índice) — o que
-> permite separar os bancos na Fase 4 sem migração de esquema. Dentro do módulo, FKs normais. Nomes em inglês,
-> `snake_case` (ADR-013; glossário em `docs/ddd/linguagem-ubiqua.md`).
+Fonte: `prisma/schema.prisma` e `prisma/migrations/`. Um banco compartilhado com FKs entre os conceitos. Não há schemas independentes por módulo nem tabela `Customer` separada.
 
-## 1. Diagrama ER
+## Relações principais (recorte lógico)
 
 ```mermaid
 erDiagram
-    CUSTOMERS {
-        uuid id PK
-        varchar customer_type "INDIVIDUAL | COMPANY"
-        varchar document UK "so digitos (11 ou 14)"
-        varchar name
-        varchar email
-        varchar phone
-        boolean active
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    VEHICLES {
-        uuid id PK
-        uuid customer_id FK
-        varchar license_plate UK "normalizada"
-        varchar brand
-        varchar model
-        int year
-        varchar color
-        boolean active
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    SERVICES {
-        uuid id PK
-        varchar name UK
-        text description
-        numeric price "12,2"
-        int estimated_minutes
-        boolean active
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    PARTS {
-        uuid id PK
-        varchar sku UK
-        varchar name
-        varchar type "PART | SUPPLY"
-        varchar unit_of_measure
-        numeric unit_price "12,2"
-        numeric stock_quantity "10,3 >= 0"
-        numeric reserved_quantity "10,3 >= 0"
-        numeric minimum_stock "10,3"
-        boolean active
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    STOCK_MOVEMENTS {
-        uuid id PK
-        uuid part_id FK
-        varchar type "INBOUND | OUTBOUND | RESERVATION | RELEASE | ADJUSTMENT"
-        numeric quantity "10,3"
-        uuid service_order_id "ref. service_orders (sem FK)"
-        varchar reason
-        uuid user_id "ref. identity (sem FK)"
-        timestamptz occurred_at
-    }
-    SERVICE_ORDERS {
-        uuid id PK
-        varchar number UK "OS-AAAA-NNNNNN"
-        uuid customer_id "ref. customers (sem FK)"
-        uuid vehicle_id "ref. customers (sem FK)"
-        text problem_description
-        varchar status "RECEIVED ... DELIVERED | CANCELLED"
-        numeric quote_total_amount "12,2"
-        varchar quote_status "PENDING | SENT | APPROVED | REJECTED"
-        timestamptz quote_sent_at
-        timestamptz quote_responded_at
-        varchar rejection_or_cancellation_reason
-        timestamptz received_at
-        timestamptz diagnosis_started_at
-        timestamptz execution_started_at
-        timestamptz completed_at
-        timestamptz delivered_at
-        uuid created_by "ref. identity (sem FK)"
-        int version "lock otimista"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    SERVICE_ORDER_SERVICE_ITEMS {
-        uuid id PK
-        uuid service_order_id FK
-        uuid service_id "ref. catalog (sem FK)"
-        varchar name_snapshot
-        numeric price_snapshot "12,2"
-        int quantity
-    }
-    SERVICE_ORDER_PART_ITEMS {
-        uuid id PK
-        uuid service_order_id FK
-        uuid part_id "ref. catalog (sem FK)"
-        varchar name_snapshot
-        numeric unit_price_snapshot "12,2"
-        numeric quantity "10,3"
-    }
-    SERVICE_ORDER_STATUS_HISTORY {
-        uuid id PK
-        uuid service_order_id FK
-        varchar from_status
-        varchar to_status
-        varchar actor "user id | CUSTOMER | SYSTEM"
-        varchar reason
-        timestamptz occurred_at
-    }
-    TRACKING_TOKENS {
-        uuid id PK
-        uuid service_order_id FK
-        varchar token_hash UK
-        timestamptz expires_at
-        timestamptz revoked_at
-    }
-    USERS {
-        uuid id PK
-        varchar name
-        varchar email UK
-        varchar password_hash
-        varchar roles "ATTENDANT,MECHANIC,MANAGER | CUSTOMER"
-        uuid customer_id "ref. customers (sem FK); so para CUSTOMER"
-        boolean active
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    CUSTOMERS ||--o{ VEHICLES : owns
-    PARTS ||--o{ STOCK_MOVEMENTS : records
-    SERVICE_ORDERS ||--o{ SERVICE_ORDER_SERVICE_ITEMS : contains
-    SERVICE_ORDERS ||--o{ SERVICE_ORDER_PART_ITEMS : contains
-    SERVICE_ORDERS ||--o{ SERVICE_ORDER_STATUS_HISTORY : transitions
-    SERVICE_ORDERS ||--o{ TRACKING_TOKENS : issues
-    CUSTOMERS }o..o{ SERVICE_ORDERS : "referencia por id"
-    VEHICLES }o..o{ SERVICE_ORDERS : "referencia por id"
-    SERVICES }o..o{ SERVICE_ORDER_SERVICE_ITEMS : "snapshot"
-    PARTS }o..o{ SERVICE_ORDER_PART_ITEMS : "snapshot"
-    CUSTOMERS |o..o| USERS : "login do cliente (referencia por id)"
+    Perfil ||--o{ Usuario : classifica
+    Usuario ||--o| UsuarioSenha : possui
+    Usuario ||--o{ SessaoRefresh : autentica
+    Usuario ||--o{ Veiculo : proprietario
+    Usuario ||--o{ OrdemServico : cliente_atendente_mecanico
+    Veiculo ||--o{ OrdemServico : atendido
+    OrdemServico ||--o{ OrdemServicoStatusHistorico : registra
+    OrdemServico ||--o{ Orcamento : possui
+    OrdemServico ||--o{ OrdemServicoServico : inclui
+    OrdemServico ||--o{ OrdemServicoItem : inclui
+    Servico ||--o{ OrdemServicoServico : referencia
+    ItemEstoque ||--o{ OrdemServicoItem : referencia
+    ItemEstoque ||--o{ MovimentacaoEstoque : movimenta
+    OrdemServico o|--o{ MovimentacaoEstoque : origem_opcional
+    Orcamento o|--o{ OrdemServicoServico : vincula
+    Orcamento o|--o{ OrdemServicoItem : vincula
 ```
 
-`TRACKING_TOKENS` é **opcional**: a ADR-011 (Aceita) usa JWT assinado (`aud=tracking`), então a tabela só entra se
-quisermos revogação de token (Could). `users.customer_id` liga o login do cliente (papel `CUSTOMER`) ao cadastro, sem FK
-entre schemas (ADR-011).
+Diagrama resumido: não representa todos os atributos/FKs (por exemplo autor de histórico, respondente de orçamento e autor de movimentação). O schema é a referência completa.
 
-## 2. Schemas por módulo
+## Entidades e campos relevantes
 
-| Schema | Tabelas |
+| Modelo | Campos/regras |
 |---|---|
-| `customers` | `customers`, `vehicles` |
-| `catalog` | `services`, `parts`, `stock_movements` |
-| `service_orders` | `service_orders`, `service_order_service_items`, `service_order_part_items`, `service_order_status_history`, `tracking_tokens`, `service_order_number_seq` (sequência anual) |
-| `identity` | `users` |
+| `Perfil` | `perfilId`, `perfilNome` único; um perfil para muitos usuários |
+| `Usuario` | Identidade de clientes e funcionários; `perfilId`, nome, e-mail/documento únicos, tipo CPF/CNPJ, contato, ativo e datas |
+| `UsuarioSenha` | Relação opcional 1:1; hash PHC Argon2id separado dos dados cadastrais |
+| `SessaoRefresh` | Hash SHA-256 único, família, expiração, revogação e usuário |
+| `Veiculo` | Proprietário `usuarioId`, placa, chassi opcional, marca, modelo, ano, cor, km e inativação |
+| `Servico` | Nome único, descrição opcional, `servicoPrecoBase` inteiro em centavos e ativo; sem tempo estimado persistido |
+| `ItemEstoque` | Tipo PECA/INSUMO, código único, nome, unidade, preço em centavos, saldo físico/reservado Decimal(12,3), ativo |
+| `MovimentacaoEstoque` | Tipo, quantidade Decimal(12,3), motivo, autor, item e OS opcional |
+| `OrdemServico` | UUID, número BigInt sequencial, cliente/veículo/atendente/mecânico, status, descrição, diagnóstico, km, motivo de cancelamento e datas |
+| `OrdemServicoStatusHistorico` | Status anterior/novo, observação, autor opcional e instante; fonte de marcos e métricas |
+| `Orcamento` | OS/versão únicos em conjunto, status, total em centavos, envio/resposta, respondente e motivo de rejeição |
+| `OrdemServicoServico` | Referências OS/serviço/orçamento, quantidade inteira e preço unitário congelado |
+| `OrdemServicoItem` | Referências OS/item/orçamento, quantidade Decimal(12,3) e preço unitário congelado |
 
-Os quatro schemas são declarados no Prisma com `multiSchema` (`schemas = [...]` no `datasource` e `@@schema("...")` em
-cada model — E-17). A sequência `service_order_number_seq`, os `CHECK`s e os índices parciais da §3 entram em SQL escrito
-à mão na migração gerada pelo Prisma Migrate.
+Há **13 modelos**. `orcamentoVersao` no schema não comprova um fluxo de reparo adicional: esse comando não foi implementado. `Orcamento` tem id e estado persistidos; não é um VO imutável no código.
 
-## 3. Constraints que protegem invariantes (defesa em profundidade)
+## Integridade e persistência
 
-| Tabela | Constraint |
-|---|---|
-| `customers` | `UNIQUE (document) WHERE active` (índice parcial) · `CHECK (customer_type IN ('INDIVIDUAL','COMPANY'))` · `CHECK (length(document) IN (11,14))` |
-| `vehicles` | `UNIQUE (license_plate) WHERE active` · `CHECK (year BETWEEN 1900 AND 2100)` |
-| `parts` | `CHECK (stock_quantity >= 0)` · `CHECK (reserved_quantity >= 0 AND reserved_quantity <= stock_quantity)` · `CHECK (unit_price >= 0)` |
-| `stock_movements` | `CHECK (quantity > 0)` · `CHECK (type IN (...))` |
-| `service_orders` | `CHECK (status IN (...))` · `CHECK (quote_total_amount >= 0)` · `UNIQUE (number)` · índice parcial "1 OS aberta por veículo" (Should): `UNIQUE (vehicle_id) WHERE status NOT IN ('DELIVERED','CANCELLED')` |
-| `service_order_*_items` | `CHECK (quantity > 0)` |
-| `service_order_status_history` | índice `(service_order_id, occurred_at)` |
-| `users` | `UNIQUE (email)` · `CHECK ((roles = 'CUSTOMER') = (customer_id IS NOT NULL))` · `UNIQUE (customer_id) WHERE customer_id IS NOT NULL` |
+- UUIDs com defaults Prisma; campos mapeados por `@map` (ver schema e migrações para os nomes físicos).
+- E-mail/documento do usuário permanecem únicos mesmo após inativação. Veículos possuem índices parciais de placa/chassi únicos entre ativos nas migrações.
+- Preços inteiros em centavos; quantidades fracionárias Decimal(12,3). **Somente preço** é snapshot nos itens; nome continua consultado no catálogo.
+- Migrações complementam o Prisma com constraints de estoque: físico ≥ 0; 0 ≤ reservado ≤ físico. Saldo e movimentação são gravados juntos; atualização de cadastro não é ajuste de saldo.
+- Relações/FKs preservam integridade referencial. Inativação de cadastros preserva referências e histórico; regras de bloqueio por OS aberta são verificadas nos serviços.
+- Uma OS aberta por veículo é verificada na aplicação; não há índice único no banco para essa regra.
+- Transições usam update condicionado ao status, não `version`. Reservas/baixas usam `FOR UPDATE` na transação; sem `If-Match`.
+- Marcos de início/fim são derivados do histórico, não colunas `executionStartedAt`/`completedAt` na OS. Não há tabelas de eventos/outbox.
 
-## 4. Consultas de leitura relevantes
-
-**Tempo médio de execução (geral, período):**
-
-```sql
-SELECT AVG(EXTRACT(EPOCH FROM (completed_at - execution_started_at)) / 60.0) AS average_minutes,
-       COUNT(*) AS service_order_count
-FROM service_orders.service_orders
-WHERE completed_at IS NOT NULL
-  AND execution_started_at IS NOT NULL
-  AND completed_at BETWEEN :from AND :to;
-```
-
-**Tempo médio por serviço (OS que contêm o serviço):**
-
-```sql
-SELECT i.service_id, i.name_snapshot,
-       AVG(EXTRACT(EPOCH FROM (o.completed_at - o.execution_started_at)) / 60.0) AS average_minutes,
-       COUNT(DISTINCT o.id) AS service_order_count
-FROM service_orders.service_orders o
-JOIN service_orders.service_order_service_items i ON i.service_order_id = o.id
-WHERE o.completed_at IS NOT NULL AND o.execution_started_at IS NOT NULL
-  AND o.completed_at BETWEEN :from AND :to
-GROUP BY i.service_id, i.name_snapshot;
-```
-
-**Fila por status:** `SELECT ... FROM service_orders.service_orders WHERE status = :status ORDER BY received_at`.
-
-## 5. Dados de demonstração (seed)
-
-- 1 usuário por papel de equipe (`manager@oficina.local`, `mechanic@…`, `attendant@…`) com senhas via env, e 1 usuário
-  `CUSTOMER` (`customer@oficina.local`) ligado ao cliente da OS que fica aguardando aprovação (ADR-011).
-- 3 clientes (2 PF, 1 PJ) com documentos fictícios válidos; 4 veículos (2 placas antigas, 2 Mercosul).
-- 6 serviços (troca de óleo, alinhamento, balanceamento, troca de pastilhas, revisão, diagnóstico eletrônico).
-- 8 peças/insumos com estoque e mínimo; 2 com estoque baixo para demonstrar alerta.
-- 4 OS em status diferentes, incluindo 2 **finalizadas** (para o tempo médio ≠ null) e 1 aguardando aprovação (para
-  demonstrar a aprovação ao vivo no vídeo).
-
-## 6. Migrações
-
-**Prisma Migrate** (E-17): `prisma/migrations/<timestamp>_<nome>/migration.sql`, geradas a partir do `schema.prisma` e
-editadas à mão quando preciso (schemas, sequência anual `service_order_number_seq`, `CHECK`s e índices parciais da §3).
-Ordem sugerida: `init_schemas`, `customers`, `catalog`, `service_orders`, `identity`. `prisma migrate deploy` roda na
-subida do compose; o seed (§5) é `prisma db seed`, somente em `APP_ENV=dev`.
+Ver [fluxos](fluxos.md), [agregados e limites táticos](../ddd/agregados.md) e [contrato](contrato-api.md).

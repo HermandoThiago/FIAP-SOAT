@@ -1,5 +1,10 @@
 # Prompts para sessões de IA (referência do grupo)
 
+> **Histórico do planejamento inicial.** Os prompts `00` a `08` descrevem como o projeto foi planejado e usam nomes que o
+> código final não adotou (status e papéis em inglês, `repositories/`, `/parts`, bcrypt, `OS-AAAA-NNNNNN`). A fonte atual
+> é o `CLAUDE.md`, `docs/ddd/linguagem-ubiqua.md` e o Swagger; em caso de conflito, o código prevalece. O `09` (revisão de
+> PR) foi atualizado e é usado pelo workflow `claude-code-review.yml`.
+
 > Combinado em `docs/00-guia-do-grupo/como-trabalhamos.md` §7: a IA gera esqueleto e apoio; **a pessoa da frente
 > entende, revisa, testa e sabe explicar no vídeo**. Nada gerado entra sem PR + revisão + CI.
 

@@ -45,3 +45,9 @@ docker-compose.override.yml
 # (requisitos transcritos em docs/06-entrega/checklist-de-entrega.md)
 enunciado*.pdf
 Fase*Tech Challenge*.pdf
+
+# Cache de build do TypeScript
+*.tsbuildinfo
+
+# Prisma Client gerado (npm/pnpm prisma generate)
+src/generated/

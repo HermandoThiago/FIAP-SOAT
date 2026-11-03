@@ -1,0 +1,169 @@
+import { Reflector } from '@nestjs/core';
+import { Test } from '@nestjs/testing';
+import { ROLES_KEY, Role } from '../../src/modules/identity/auth';
+import { ServiceOrdersController } from '../../src/modules/service-orders/controllers';
+import {
+  ServiceOrderItemsService,
+  ServiceOrdersService,
+} from '../../src/modules/service-orders/services';
+
+describe('ServiceOrdersController', () => {
+  let controller: ServiceOrdersController;
+  const reflector = new Reflector();
+  const service = {
+    createServiceOrder: jest.fn(),
+    findAll: jest.fn(),
+    findServiceOrderDetail: jest.fn(),
+    updateServiceOrder: jest.fn(),
+    cancelServiceOrder: jest.fn(),
+    startDiagnosis: jest.fn(),
+    startExecution: jest.fn(),
+    completeServiceOrder: jest.fn(),
+    deliverServiceOrder: jest.fn(),
+    findStatusHistory: jest.fn(),
+    sendQuote: jest.fn(),
+  };
+  const itemsService = {
+    addPartItem: jest.fn(),
+    removePartItem: jest.fn(),
+    addServiceItem: jest.fn(),
+    removeServiceItem: jest.fn(),
+    findQuote: jest.fn(),
+  };
+  const id = '6f1c1b0e-7c7e-4f0e-9b43-1f4b3d1c8a11';
+
+  beforeEach(async () => {
+    jest.resetAllMocks();
+    const module = await Test.createTestingModule({
+      controllers: [ServiceOrdersController],
+      providers: [
+        { provide: ServiceOrdersService, useValue: service },
+        { provide: ServiceOrderItemsService, useValue: itemsService },
+      ],
+    }).compile();
+    controller = module.get(ServiceOrdersController);
+  });
+
+  const rolesOf = (handler: object) =>
+    reflector.get<Role[]>(ROLES_KEY, handler as () => void);
+
+  it('should delegate each route to ServiceOrdersService', async () => {
+    service.createServiceOrder.mockResolvedValue('created');
+    service.findAll.mockResolvedValue('list');
+    service.findServiceOrderDetail.mockResolvedValue('one');
+    service.updateServiceOrder.mockResolvedValue('updated');
+    service.cancelServiceOrder.mockResolvedValue('cancelled');
+
+    const create = { clientId: 'a' } as never;
+    const query = { page: 1, pageSize: 20 } as never;
+    const update = { ordemServicoDiagnostico: 'x' } as never;
+    const cancel = { reason: 'x' } as never;
+
+    await expect(controller.createServiceOrder(create)).resolves.toBe(
+      'created',
+    );
+    await expect(controller.findAllServiceOrders(query)).resolves.toBe('list');
+    await expect(controller.findServiceOrderById(id)).resolves.toBe('one');
+    await expect(controller.updateServiceOrderById(id, update)).resolves.toBe(
+      'updated',
+    );
+    await expect(controller.cancelServiceOrderById(id, cancel)).resolves.toBe(
+      'cancelled',
+    );
+
+    expect(service.createServiceOrder).toHaveBeenCalledWith(create);
+    expect(service.updateServiceOrder).toHaveBeenCalledWith(id, update);
+    expect(service.cancelServiceOrder).toHaveBeenCalledWith(id, cancel);
+  });
+
+  it('should restrict the routes to the expected roles', () => {
+    const proto = ServiceOrdersController.prototype;
+
+    expect(rolesOf(proto.createServiceOrder)).toEqual([
+      Role.ADMIN,
+      Role.ATTENDANT,
+    ]);
+    expect(rolesOf(proto.findAllServiceOrders)).not.toContain(Role.CUSTOMER);
+    expect(rolesOf(proto.findServiceOrderById)).toContain(Role.CUSTOMER);
+    expect(rolesOf(proto.updateServiceOrderById)).not.toContain(Role.CUSTOMER);
+    expect(rolesOf(proto.cancelServiceOrderById)).toEqual([Role.ADMIN]);
+  });
+
+  it.each([
+    ['startDiagnosis', 'startDiagnosis'],
+    ['startExecution', 'startExecution'],
+    ['completeServiceOrder', 'completeServiceOrder'],
+    ['deliverServiceOrder', 'deliverServiceOrder'],
+    ['findStatusHistory', 'findStatusHistory'],
+  ] as const)(
+    'should delegate %s to the service',
+    async (method, serviceMethod) => {
+      service[serviceMethod].mockResolvedValue('result');
+
+      await expect(controller[method](id)).resolves.toBe('result');
+      expect(service[serviceMethod]).toHaveBeenCalledWith(id);
+    },
+  );
+
+  it('should restrict the command routes to the roles of the contract', () => {
+    const proto = ServiceOrdersController.prototype;
+    const mechanic = [Role.ADMIN, Role.MECHANIC];
+
+    expect(rolesOf(proto.startDiagnosis)).toEqual(mechanic);
+    expect(rolesOf(proto.startExecution)).toEqual(mechanic);
+    expect(rolesOf(proto.completeServiceOrder)).toEqual(mechanic);
+    expect(rolesOf(proto.deliverServiceOrder)).toEqual([
+      Role.ADMIN,
+      Role.ATTENDANT,
+    ]);
+    expect(rolesOf(proto.findStatusHistory)).not.toContain(Role.CUSTOMER);
+  });
+
+  it('should delegate the items and quote routes', async () => {
+    const part = { itemEstoqueId: 'p', osItemQuantidade: 1 } as never;
+    itemsService.addPartItem.mockResolvedValue('added');
+    itemsService.removePartItem.mockResolvedValue('removed');
+    itemsService.findQuote.mockResolvedValue('quote');
+    service.sendQuote.mockResolvedValue('sent');
+
+    await expect(controller.addPartItem(id, part)).resolves.toBe('added');
+    await expect(controller.removePartItem(id, 'item')).resolves.toBe(
+      'removed',
+    );
+    await expect(controller.findQuote(id)).resolves.toBe('quote');
+    await expect(controller.sendQuote(id)).resolves.toBe('sent');
+
+    expect(itemsService.addPartItem).toHaveBeenCalledWith(id, part);
+    expect(itemsService.removePartItem).toHaveBeenCalledWith(id, 'item');
+  });
+
+  it('should delegate the service items routes', async () => {
+    const payload = { servicoId: 's', osServicoQuantidade: 1 } as never;
+    itemsService.addServiceItem.mockResolvedValue('added');
+    itemsService.removeServiceItem.mockResolvedValue('removed');
+
+    await expect(controller.addServiceItem(id, payload)).resolves.toBe('added');
+    await expect(controller.removeServiceItem(id, 'svc')).resolves.toBe(
+      'removed',
+    );
+
+    expect(itemsService.addServiceItem).toHaveBeenCalledWith(id, payload);
+    expect(itemsService.removeServiceItem).toHaveBeenCalledWith(id, 'svc');
+  });
+
+  it('should restrict the items and quote routes to the roles of the contract', () => {
+    const proto = ServiceOrdersController.prototype;
+    const mechanic = [Role.ADMIN, Role.MECHANIC];
+
+    expect(rolesOf(proto.addPartItem)).toEqual(mechanic);
+    expect(rolesOf(proto.removePartItem)).toEqual(mechanic);
+    expect(rolesOf(proto.addServiceItem)).toEqual(mechanic);
+    expect(rolesOf(proto.removeServiceItem)).toEqual(mechanic);
+    expect(rolesOf(proto.sendQuote)).toEqual(mechanic);
+    expect(rolesOf(proto.findQuote)).toEqual([
+      Role.ADMIN,
+      Role.ATTENDANT,
+      Role.MECHANIC,
+    ]);
+  });
+});
