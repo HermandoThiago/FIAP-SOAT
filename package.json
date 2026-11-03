@@ -81,5 +81,10 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri": "^3.1.9"
+    }
   }
 }

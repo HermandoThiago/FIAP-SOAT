@@ -16,33 +16,33 @@ import {
 } from '../../../../generated/prisma/enums';
 
 export class CreateItemEstoqueDto {
-  @ApiProperty({ required: true, readOnly: true })
+  @ApiProperty({ enum: TipoItemEstoque, example: TipoItemEstoque.PECA })
   @IsEnum(TipoItemEstoque)
   readonly itemEstoqueTipo: TipoItemEstoque;
 
-  @ApiProperty({ required: true, readOnly: true })
+  @ApiProperty({ example: 'Filtro de óleo' })
   @IsString()
   @MaxLength(120)
   @IsNotEmpty()
   readonly itemEstoqueNome: string;
 
-  @ApiProperty({ required: true, readOnly: true })
+  @ApiProperty({ required: false, example: 'Filtro de óleo do motor' })
   @IsString()
   @MaxLength(500)
   @IsOptional()
   readonly itemEstoqueDescricao: string;
 
-  @ApiProperty({ required: true, readOnly: true })
+  @ApiProperty({ enum: UnidadeMedida, example: UnidadeMedida.UN })
   @IsEnum(UnidadeMedida)
   readonly itemEstoqueUnidade: UnidadeMedida;
 
-  @ApiProperty({ required: true, readOnly: true, example: 10.5 })
+  @ApiProperty({ description: 'Preço de venda em centavos', example: 4550 })
   @IsInt()
   @IsNotEmpty()
   @Min(0)
   readonly itemEstoquePrecoVenda: number;
 
-  @ApiProperty({ required: true, readOnly: true })
+  @ApiProperty({ example: 10 })
   @IsNumber({ maxDecimalPlaces: 3 })
   @Min(0)
   @Max(999_999_999.999)
